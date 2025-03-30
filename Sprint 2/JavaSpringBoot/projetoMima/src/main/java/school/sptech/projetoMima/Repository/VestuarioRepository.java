@@ -5,6 +5,7 @@ import school.sptech.projetoMima.Model.Vestuario;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface VestuarioRepository extends JpaRepository<Vestuario, Integer> {
     List<Vestuario> findVestuarioByNomeContainingIgnoreCase(String nome);
@@ -15,4 +16,7 @@ public interface VestuarioRepository extends JpaRepository<Vestuario, Integer> {
 
     List<Vestuario> findVestuarioByDataVendaBetween(LocalDate inicio, LocalDate fim);
     List<Vestuario> findByFornecedorId(Integer fornecedorId);
+
+    List<Vestuario> findVestuarioByQuantidadeVendidaGreaterThan(Integer i);
+    Optional<Vestuario> findByCodigoIdentificacaoAndQuantidadeVendidaGreaterThan(String codigoIdentificacao, int i);
 }

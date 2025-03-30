@@ -3,7 +3,7 @@ package school.sptech.projetoMima.Model;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
-
+import java.util.*;
 @Entity
 public class Vestuario {
 
@@ -23,6 +23,11 @@ public class Vestuario {
 
     private LocalDate dataRegistro;
     private LocalDate dataVenda;
+
+    @ElementCollection
+    private List<LocalDate> datasVendas = new ArrayList<>();
+
+    private Integer quantidadeVendida = 0;
 
     public Integer getId() {
         return id;
@@ -88,7 +93,6 @@ public class Vestuario {
         this.vendido = vendido;
     }
 
-
     public LocalDate getDataRegistro() {
         return dataRegistro;
     }
@@ -103,6 +107,22 @@ public class Vestuario {
 
     public void setDataVenda(LocalDate dataVenda) {
         this.dataVenda = dataVenda;
+    }
+
+    public List<LocalDate> getDatasVendas() {
+        return datasVendas;
+    }
+
+    public void setDatasVendas(List<LocalDate> datasVendas) {
+        this.datasVendas = datasVendas;
+    }
+
+    public Integer getQuantidadeVendida() {
+        return quantidadeVendida;
+    }
+
+    public void setQuantidadeVendida(Integer quantidadeVendida) {
+        this.quantidadeVendida = quantidadeVendida;
     }
 
     public Integer getFornecedorId() {

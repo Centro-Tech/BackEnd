@@ -3,16 +3,14 @@ package school.sptech.projetoMima.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import school.sptech.projetoMima.DTO.VestuarioVendaDTO;
 import school.sptech.projetoMima.Model.Fornecedor;
 import school.sptech.projetoMima.Model.Vestuario;
 import school.sptech.projetoMima.Repository.FornecedorRepository;
 import school.sptech.projetoMima.Repository.VestuarioRepository;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 @RestController
 @RequestMapping("/vestuarios")
@@ -53,10 +51,45 @@ public class VestuarioController {
         return ResponseEntity.status(404).body(null);
     }
 
+    @GetMapping("/vendidos")
+    public ResponseEntity<List<VestuarioVendaDTO>> buscarVendidos() {
+        List<Vestuario> vestuariosVendidos = vestuarioRepository.findVestuarioByQuantidadeVendidaGreaterThan(0);
+
+        if (vestuariosVendidos.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        List<VestuarioVendaDTO> reposta = new ArrayList<>();
+        for (Vestuario vestuario : vestuariosVendidos) {
+            reposta.add(new VestuarioVendaDTO(vestuario.getCodigoIdentificacao(), vestuario.getNome(), vestuario.getTamanho(), vestuario.getQuantidadeVendida(), vestuario.getDatasVendas()));
+        }
+
+        return ResponseEntity.ok(reposta);
+    }
+    @GetMapping("/vendido")
+    public ResponseEntity<VestuarioVendaDTO> buscarVendidoPorCodigo(@RequestParam String codigoIdentificacao) {
+        if (codigoIdentificacao == null || codigoIdentificacao.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Optional<Vestuario> vestuarioVendido = vestuarioRepository
+                .findByCodigoIdentificacaoAndQuantidadeVendidaGreaterThan(codigoIdentificacao, 0);
+
+        if (vestuarioVendido.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        Vestuario vestuario = vestuarioVendido.get();
+        VestuarioVendaDTO reposta = new VestuarioVendaDTO(vestuario.getCodigoIdentificacao(), vestuario.getNome(), vestuario.getTamanho(), vestuario.getQuantidadeVendida(), vestuario.getDatasVendas()
+        );
+
+        return ResponseEntity.ok(reposta);
+    }
+
+
+
     @GetMapping("/filtro-data-venda")
-    public ResponseEntity<List<Vestuario>> buscarFiltroData(
-            @RequestParam("inicio") LocalDate inicio,
-            @RequestParam("fim") LocalDate fim
+    public ResponseEntity<List<Vestuario>> buscarFiltroData(@RequestParam("inicio") LocalDate inicio,@RequestParam("fim") LocalDate fim
     ) {
         List<Vestuario> filtroData = vestuarioRepository.findVestuarioByDataVendaBetween(inicio, fim);
         if (filtroData.isEmpty()) {
@@ -66,23 +99,38 @@ public class VestuarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Vestuario> venderVestuario(@PathVariable int id, @RequestBody Vestuario vestuario) {
+    public ResponseEntity<VestuarioVendaDTO> venderVestuario(@PathVariable int id, @RequestBody Vestuario vestuario) {
         Vestuario vestuarioExistente = vestuarioRepository.findById(id).orElse(null);
+
         if (vestuarioExistente == null) {
             return ResponseEntity.status(404).body(null);
         }
         if (vestuario.getQuantidade() != null && vestuario.getQuantidade() > 0 && vestuarioExistente.getQuantidade() >= vestuario.getQuantidade()) {
             vestuarioExistente.setQuantidade(vestuarioExistente.getQuantidade() - vestuario.getQuantidade());
+
+            if (vestuarioExistente.getQuantidade() == 0) {
+                vestuarioExistente.setVendido(true);
+            }
+
+            List<LocalDate> datasDeVenda = vestuarioExistente.getDatasVendas();
+            for (int i = 0; i < vestuario.getQuantidade(); i++) {
+                datasDeVenda.add(LocalDate.now());
+            }
+
+            vestuarioExistente.setDatasVendas(datasDeVenda);
+
+            vestuarioExistente.setQuantidadeVendida(vestuarioExistente.getQuantidadeVendida() + vestuario.getQuantidade());
+
+            vestuarioRepository.save(vestuarioExistente);
+            VestuarioVendaDTO vestuarioVendaDTO = new VestuarioVendaDTO(vestuarioExistente.getCodigoIdentificacao(), vestuarioExistente.getNome(), vestuarioExistente.getTamanho(), vestuario.getQuantidade(), datasDeVenda
+            );
+
+            return ResponseEntity.ok(vestuarioVendaDTO);
         } else {
-            return ResponseEntity.status(404).body(null);
+            return ResponseEntity.status(400).body(null);
         }
-
-        vestuarioExistente.setVendido(true);
-        vestuarioExistente.setDataVenda(LocalDate.now());
-
-        vestuarioRepository.save(vestuarioExistente);
-        return ResponseEntity.ok(vestuarioExistente);
     }
+
 
     @PostMapping
     public ResponseEntity<Vestuario> cadastrarVestuario(@RequestBody Vestuario vestuario) {

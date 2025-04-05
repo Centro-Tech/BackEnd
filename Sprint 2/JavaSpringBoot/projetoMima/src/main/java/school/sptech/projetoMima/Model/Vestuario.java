@@ -1,5 +1,6 @@
 package school.sptech.projetoMima.Model;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -57,8 +58,13 @@ public class Vestuario {
     @Schema(description = "Data da última venda do vestuário", example = "2024-03-15")
     private LocalDate dataVenda;
 
-    @Schema(description = "Lista de datas em que o vestuário foi vendido", example = "[\"2024-03-01\", \"2024-03-15\"]")
+    @ElementCollection
+    @Schema(description = "Lista de datas em que o vestuário foi vendido", type = "array", example = "[\"2024-03-01\", \"2024-03-15\"]")
     private List<LocalDate> datasVendas = new ArrayList<>();
+
+
+
+
 
     @Schema(description = "Quantidade total de unidades vendidas", example = "5")
     private Integer quantidadeVendida = 0;

@@ -1,5 +1,11 @@
 package school.sptech.projetoMima.Controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +28,7 @@ public class VestuarioController {
     @Autowired
     private FornecedorRepository fornecedorRepository;
 
+    @Operation(summary = "Buscar vestuário por ID") @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Vestuário encontrado", content = @Content(schema = @Schema(implementation = Vestuario.class))), @ApiResponse(responseCode = "404", description = "Vestuário não encontrado") })
     @GetMapping("/{id}")
     public ResponseEntity<Vestuario> buscarPorId(@PathVariable Integer id) {
         Optional<Vestuario> vestuarioExistente = vestuarioRepository.findById(id);
@@ -34,6 +41,7 @@ public class VestuarioController {
         return ResponseEntity.notFound().build();
     }
 
+    @Operation(summary = "Buscar todos os vestuários em estoque") @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso", content = @Content(schema = @Schema(implementation = Vestuario.class))), @ApiResponse(responseCode = "404", description = "Nenhum vestuário em estoque") })
     @GetMapping("/estoque")
     public ResponseEntity<List<Vestuario>> buscarEstoque() {
         List<Vestuario> estoque = new ArrayList<>();
@@ -51,6 +59,7 @@ public class VestuarioController {
         return ResponseEntity.status(404).body(null);
     }
 
+    @Operation(summary = "Buscar todos os vestuários vendidos") @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Lista de vestuários vendidos retornada com sucesso", content = @Content(schema = @Schema(implementation = VestuarioVendaDTO.class))), @ApiResponse(responseCode = "204", description = "Nenhum vestuário vendido encontrado") })
     @GetMapping("/vendidos")
     public ResponseEntity<List<VestuarioVendaDTO>> buscarVendidos() {
         List<Vestuario> vestuariosVendidos = vestuarioRepository.findVestuarioByQuantidadeVendidaGreaterThan(0);
@@ -66,6 +75,8 @@ public class VestuarioController {
 
         return ResponseEntity.ok(reposta);
     }
+
+    @Operation(summary = "Buscar vestuário vendido por código de identificação") @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Vestuário vendido encontrado", content = @Content(schema = @Schema(implementation = VestuarioVendaDTO.class))), @ApiResponse(responseCode = "400", description = "Código de identificação inválido"), @ApiResponse(responseCode = "204", description = "Vestuário não encontrado ou não vendido") })
     @GetMapping("/vendido")
     public ResponseEntity<VestuarioVendaDTO> buscarVendidoPorCodigo(@RequestParam String codigoIdentificacao) {
         if (codigoIdentificacao == null || codigoIdentificacao.isEmpty()) {
@@ -86,8 +97,7 @@ public class VestuarioController {
         return ResponseEntity.ok(reposta);
     }
 
-
-
+    @Operation(summary = "Buscar vestuários vendidos entre duas datas") @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Lista de vestuários no intervalo retornada com sucesso", content = @Content(schema = @Schema(implementation = Vestuario.class))), @ApiResponse(responseCode = "404", description = "Nenhum vestuário vendido no período") })
     @GetMapping("/filtro-data-venda")
     public ResponseEntity<List<Vestuario>> buscarFiltroData(@RequestParam("inicio") LocalDate inicio,@RequestParam("fim") LocalDate fim
     ) {
@@ -98,6 +108,7 @@ public class VestuarioController {
         return ResponseEntity.ok(filtroData);
     }
 
+    @Operation(summary = "Realizar venda de vestuário") @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Venda realizada com sucesso", content = @Content(schema = @Schema(implementation = VestuarioVendaDTO.class))), @ApiResponse(responseCode = "400", description = "Quantidade inválida ou insuficiente em estoque"), @ApiResponse(responseCode = "404", description = "Vestuário não encontrado") })
     @PutMapping("/{id}")
     public ResponseEntity<VestuarioVendaDTO> venderVestuario(@PathVariable int id, @RequestBody Vestuario vestuario) {
         Vestuario vestuarioExistente = vestuarioRepository.findById(id).orElse(null);
@@ -131,7 +142,7 @@ public class VestuarioController {
         }
     }
 
-
+    @Operation(summary = "Cadastrar novo vestuário") @ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Vestuário cadastrado com sucesso", content = @Content(schema = @Schema(implementation = Vestuario.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos ou código duplicado"), @ApiResponse(responseCode = "404", description = "Fornecedor não encontrado") })
     @PostMapping
     public ResponseEntity<Vestuario> cadastrarVestuario(@RequestBody Vestuario vestuario) {
         if (vestuarioRepository.existsByCodigoIdentificacao(vestuario.getCodigoIdentificacao())) {
@@ -225,6 +236,7 @@ public class VestuarioController {
         return ResponseEntity.status(201).body(novoVestuario);
     }
 
+    @Operation(summary = "Deletar vestuário") @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Vestuário deletado com sucesso"), @ApiResponse(responseCode = "404", description = "Vestuário não encontrado") })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarVestuario(@PathVariable int id) {
         if (vestuarioRepository.existsById(id)) {

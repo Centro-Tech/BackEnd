@@ -9,7 +9,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import school.sptech.projetoMima.dto.EstoqueMapper;
+import school.sptech.projetoMima.dto.EstoqueResponseDto;
 import school.sptech.projetoMima.dto.VestuarioVendaDTO;
+import school.sptech.projetoMima.entity.Estoque;
+import school.sptech.projetoMima.service.EstoqueService;
 import school.sptech.projetoMima.versãoAntiga.Fornecedor;
 import school.sptech.projetoMima.versãoAntiga.Vestuario;
 import school.sptech.projetoMima.repository.FornecedorRepository;
@@ -23,43 +27,33 @@ import java.util.*;
 public class EstoqueController {
 
     @Autowired
-    private VestuarioRepository vestuarioRepository;
+    private EstoqueService estoqueService;
 
-    @Autowired
-    private FornecedorRepository fornecedorRepository;
-
-    @Operation(summary = "Buscar vestuário por ID") @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Vestuário encontrado", content = @Content(schema = @Schema(implementation = Vestuario.class))), @ApiResponse(responseCode = "404", description = "Vestuário não encontrado") })
     @GetMapping("/{id}")
-    public ResponseEntity<Vestuario> buscarPorId(@PathVariable Integer id) {
-        Optional<Vestuario> vestuarioExistente = vestuarioRepository.findById(id);
+    public ResponseEntity<EstoqueResponseDto> buscarPorId(@PathVariable Integer id) {
+        Estoque estoqueEncontrado = estoqueService.buscarPorId(id);
 
-        if (vestuarioExistente.isPresent()) {
-            Vestuario vestuarioNovo = vestuarioExistente.get();
-            return ResponseEntity.ok(vestuarioNovo);
-        }
-
-        return ResponseEntity.notFound().build();
+        EstoqueResponseDto cursoResponse = EstoqueMapper.toResponse(estoqueEncontrado);
+        return ResponseEntity.status(200).body(cursoResponse);
     }
 
     @Operation(summary = "Buscar todos os vestuários em estoque") @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso", content = @Content(schema = @Schema(implementation = Vestuario.class))), @ApiResponse(responseCode = "404", description = "Nenhum vestuário em estoque") })
     @GetMapping("/estoque")
-    public ResponseEntity<List<Vestuario>> buscarEstoque() {
-        List<Vestuario> estoque = new ArrayList<>();
+    public ResponseEntity<List<EstoqueResponseDto>> listarEstoque() {
+        List<Estoque> estoque = estoqueService.listarEstoque();
 
-        for (Vestuario v : vestuarioRepository.findAll()) {
-            if (v != null && v.getQuantidade() > 0 && !v.getVendido()) {
-                estoque.add(v);
-            }
+        if (estoque.isEmpty()) {
+            return ResponseEntity.status(204).build();
         }
 
-        if (!estoque.isEmpty()) {
-            return ResponseEntity.ok(estoque);
-        }
+        List<EstoqueResponseDto> response = estoque.stream()
+                .map(EstoqueMapper::toResponse)
+                .toList();
 
-        return ResponseEntity.status(404).body(null);
+        return ResponseEntity.status(200).body(response);
     }
 
-    @Operation(summary = "Buscar todos os vestuários vendidos") @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Lista de vestuários vendidos retornada com sucesso", content = @Content(schema = @Schema(implementation = VestuarioVendaDTO.class))), @ApiResponse(responseCode = "204", description = "Nenhum vestuário vendido encontrado") })
+ /*   @Operation(summary = "Buscar todos os vestuários vendidos") @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Lista de vestuários vendidos retornada com sucesso", content = @Content(schema = @Schema(implementation = VestuarioVendaDTO.class))), @ApiResponse(responseCode = "204", description = "Nenhum vestuário vendido encontrado") })
     @GetMapping("/vendidos")
     public ResponseEntity<List<VestuarioVendaDTO>> buscarVendidos() {
         List<Vestuario> vestuariosVendidos = vestuarioRepository.findVestuarioByQuantidadeVendidaGreaterThan(0);
@@ -244,5 +238,5 @@ public class EstoqueController {
             return ResponseEntity.status(204).build();
         }
         return ResponseEntity.status(404).build();
-    }
+    }*/
 }

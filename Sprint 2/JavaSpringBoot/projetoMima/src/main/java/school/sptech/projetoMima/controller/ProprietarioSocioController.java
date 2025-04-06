@@ -1,4 +1,4 @@
-package school.sptech.projetoMima.Controller;
+package school.sptech.projetoMima.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -9,8 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import school.sptech.projetoMima.Model.ProprietarioSocio;
-import school.sptech.projetoMima.Repository.ProprietarioSocioRepository;
+import school.sptech.projetoMima.versãoAntiga.ProprietarioSocio;
+import school.sptech.projetoMima.repository.ProprietarioSocioRepository;
 
 import java.util.List;
 import java.util.Optional;

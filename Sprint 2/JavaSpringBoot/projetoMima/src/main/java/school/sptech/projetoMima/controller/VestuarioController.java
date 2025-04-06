@@ -1,4 +1,4 @@
-package school.sptech.projetoMima.Controller;
+package school.sptech.projetoMima.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -9,11 +9,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import school.sptech.projetoMima.DTO.VestuarioVendaDTO;
-import school.sptech.projetoMima.Model.Fornecedor;
-import school.sptech.projetoMima.Model.Vestuario;
-import school.sptech.projetoMima.Repository.FornecedorRepository;
-import school.sptech.projetoMima.Repository.VestuarioRepository;
+import school.sptech.projetoMima.dto.VestuarioVendaDTO;
+import school.sptech.projetoMima.versãoAntiga.Fornecedor;
+import school.sptech.projetoMima.versãoAntiga.Vestuario;
+import school.sptech.projetoMima.repository.FornecedorRepository;
+import school.sptech.projetoMima.repository.VestuarioRepository;
 
 import java.time.LocalDate;
 import java.util.*;

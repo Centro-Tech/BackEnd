@@ -1,4 +1,4 @@
-package school.sptech.projetoMima.Model;
+package school.sptech.projetoMima.versãoAntiga;
 
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotBlank;

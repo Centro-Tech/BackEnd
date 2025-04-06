@@ -1,7 +1,7 @@
-package school.sptech.projetoMima.Repository;
+package school.sptech.projetoMima.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import school.sptech.projetoMima.Model.Vestuario;
+import school.sptech.projetoMima.versãoAntiga.Vestuario;
 
 import java.time.LocalDate;
 import java.util.List;

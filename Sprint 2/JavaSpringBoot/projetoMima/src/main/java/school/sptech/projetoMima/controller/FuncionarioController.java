@@ -1,4 +1,4 @@
-package school.sptech.projetoMima.Controller;
+package school.sptech.projetoMima.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -9,8 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import school.sptech.projetoMima.Model.Funcionario;
-import school.sptech.projetoMima.Repository.FuncionarioRepository;
+import school.sptech.projetoMima.versãoAntiga.Funcionario;
+import school.sptech.projetoMima.repository.FuncionarioRepository;
 
 import java.util.ArrayList;
 import java.util.List;

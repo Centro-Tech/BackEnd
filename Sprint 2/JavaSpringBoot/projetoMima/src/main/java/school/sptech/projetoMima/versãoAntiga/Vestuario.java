@@ -1,6 +1,5 @@
-package school.sptech.projetoMima.Model;
+package school.sptech.projetoMima.versãoAntiga;
 
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import io.swagger.v3.oas.annotations.media.Schema;

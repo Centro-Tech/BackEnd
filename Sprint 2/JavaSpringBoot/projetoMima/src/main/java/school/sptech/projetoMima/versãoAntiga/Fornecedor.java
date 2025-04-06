@@ -1,11 +1,9 @@
-package school.sptech.projetoMima.Model;
+package school.sptech.projetoMima.versãoAntiga;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
 @Schema(description = "Entidade que representa um fornecedor do sistema. Um fornecedor é responsável por fornecer vestuários à loja. Contém dados de identificação e contato.")

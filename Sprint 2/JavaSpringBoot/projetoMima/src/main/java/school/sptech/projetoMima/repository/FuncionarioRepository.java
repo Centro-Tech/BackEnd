@@ -1,9 +1,7 @@
-package school.sptech.projetoMima.Repository;
+package school.sptech.projetoMima.repository;
 
 import org.springframework.data.repository.CrudRepository;
-import school.sptech.projetoMima.Model.Funcionario;
-
-import java.util.List;
+import school.sptech.projetoMima.versãoAntiga.Funcionario;
 
 public interface FuncionarioRepository extends CrudRepository<Funcionario, Integer> {
 

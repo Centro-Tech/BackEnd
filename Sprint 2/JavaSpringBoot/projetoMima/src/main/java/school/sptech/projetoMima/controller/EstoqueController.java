@@ -20,7 +20,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/vestuarios")
-public class VestuarioController {
+public class EstoqueController {
 
     @Autowired
     private VestuarioRepository vestuarioRepository;

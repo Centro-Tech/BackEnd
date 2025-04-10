@@ -1,4 +1,4 @@
-package school.sptech.projetoMima.dto.estoqueDto;
+package school.sptech.projetoMima.dto.itemDto;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import school.sptech.projetoMima.entity.Fornecedor;
 
-public class EstoqueRequestDto {
+public class ItemRequestDto {
     @NotBlank
     @NotNull
     @Size(max = 100, min = 1)

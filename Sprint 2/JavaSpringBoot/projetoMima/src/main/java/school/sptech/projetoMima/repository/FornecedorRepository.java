@@ -9,7 +9,6 @@ import java.util.List;
 public interface FornecedorRepository extends JpaRepository<FornecedorAntigo, Integer> {
     boolean existsByCnpj(String cnpj);
 
-    List<FornecedorAntigo> findByDataRegistroBetween(LocalDate inicio, LocalDate fim);
 
     List<FornecedorAntigo> findFornecedorByDataRegistroBetween(LocalDate inicio, LocalDate fim);
 }

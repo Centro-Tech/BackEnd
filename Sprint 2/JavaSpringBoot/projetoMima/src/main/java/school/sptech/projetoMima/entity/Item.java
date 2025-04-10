@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Schema(description = "Entidade que representa os vestuários disponíveis na loja.")
-public class Estoque {
+public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,6 +1,6 @@
-package school.sptech.projetoMima.dto.estoqueDto;
+package school.sptech.projetoMima.dto.itemDto;
 
-public class EstoqueListDto {
+public class ItemListDto {
     private String nome;
     private String tamanho;
     private Double preco;

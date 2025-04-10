@@ -1,4 +1,4 @@
-package school.sptech.projetoMima.dto;
+package school.sptech.projetoMima.dto.estoqueDto;
 
 public class EstoqueListDto {
     private String nome;

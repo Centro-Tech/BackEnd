@@ -1,4 +1,4 @@
-package school.sptech.projetoMima.dto;
+package school.sptech.projetoMima.dto.estoqueDto;
 
 public class EstoqueResponseDto {
     private String nome;
@@ -8,6 +8,7 @@ public class EstoqueResponseDto {
     public String getNome() {
         return nome;
     }
+
 
     public void setNome(String nome) {
         this.nome = nome;

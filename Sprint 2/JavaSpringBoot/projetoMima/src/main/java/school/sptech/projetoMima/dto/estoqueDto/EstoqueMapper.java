@@ -1,4 +1,4 @@
-package school.sptech.projetoMima.dto;
+package school.sptech.projetoMima.dto.estoqueDto;
 
 import school.sptech.projetoMima.entity.Estoque;
 

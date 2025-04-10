@@ -3,23 +3,18 @@ package school.sptech.projetoMima.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import school.sptech.projetoMima.dto.EstoqueMapper;
-import school.sptech.projetoMima.dto.EstoqueResponseDto;
-import school.sptech.projetoMima.dto.VestuarioVendaDTO;
+import school.sptech.projetoMima.dto.estoqueDto.EstoqueListDto;
+import school.sptech.projetoMima.dto.estoqueDto.EstoqueMapper;
+import school.sptech.projetoMima.dto.estoqueDto.EstoqueResponseDto;
 import school.sptech.projetoMima.entity.Estoque;
 import school.sptech.projetoMima.service.EstoqueService;
-import school.sptech.projetoMima.versãoAntiga.Fornecedor;
 import school.sptech.projetoMima.versãoAntiga.Vestuario;
-import school.sptech.projetoMima.repository.FornecedorRepository;
-import school.sptech.projetoMima.repository.VestuarioRepository;
 
-import java.time.LocalDate;
 import java.util.*;
 
 @RestController
@@ -39,15 +34,15 @@ public class EstoqueController {
 
     @Operation(summary = "Buscar todos os vestuários em estoque") @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso", content = @Content(schema = @Schema(implementation = Vestuario.class))), @ApiResponse(responseCode = "404", description = "Nenhum vestuário em estoque") })
     @GetMapping("/estoque")
-    public ResponseEntity<List<EstoqueResponseDto>> listarEstoque() {
+    public ResponseEntity<List<EstoqueListDto>> listarEstoque() {
         List<Estoque> estoque = estoqueService.listarEstoque();
 
         if (estoque.isEmpty()) {
             return ResponseEntity.status(204).build();
         }
 
-        List<EstoqueResponseDto> response = estoque.stream()
-                .map(EstoqueMapper::toResponse)
+        List<EstoqueListDto> response = estoque.stream()
+                .map(EstoqueMapper::toList)
                 .toList();
 
         return ResponseEntity.status(200).body(response);

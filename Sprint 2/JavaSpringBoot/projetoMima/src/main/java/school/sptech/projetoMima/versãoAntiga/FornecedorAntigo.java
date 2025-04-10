@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Entity
 @Schema(description = "Entidade que representa um fornecedor do sistema. Um fornecedor é responsável por fornecer vestuários à loja. Contém dados de identificação e contato.")
-public class Fornecedor {
+public class FornecedorAntigo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

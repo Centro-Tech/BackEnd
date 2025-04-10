@@ -1,4 +1,4 @@
-package school.sptech.projetoMima.dto;
+package school.sptech.projetoMima.dto.estoqueDto;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;

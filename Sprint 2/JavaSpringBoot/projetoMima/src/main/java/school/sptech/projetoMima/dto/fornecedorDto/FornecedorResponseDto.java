@@ -1,4 +1,4 @@
-package school.sptech.projetoMima.dto;
+package school.sptech.projetoMima.dto.fornecedorDto;
 
 public class FornecedorResponseDto {
     private String nome;

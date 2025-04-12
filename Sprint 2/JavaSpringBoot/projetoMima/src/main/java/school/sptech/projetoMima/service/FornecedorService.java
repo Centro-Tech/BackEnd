@@ -27,13 +27,11 @@ public class FornecedorService {
         return fornecedorRepository.save(fornecedor);
     }
 
-    public Optional<Fornecedor> deletar (Integer id) {
-        Optional<Fornecedor> fornecedor = findById(id);
+    public Fornecedor deletar(Integer id) {
+        Fornecedor fornecedor = findById(id)
+                .orElseThrow(() -> new FornecedorNaoEncontradoException("Fornecedor não encontrado!"));
 
-        if (fornecedor.isPresent()) {
-            fornecedorRepository.delete(fornecedor);
-            return fornecedor;
-        }
-        throw new FornecedorNaoEncontradoException("Fornecedor não encontrado!");
+        fornecedorRepository.delete(fornecedor);
+        return fornecedor;
     }
 }

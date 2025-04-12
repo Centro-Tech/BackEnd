@@ -2,8 +2,8 @@ package school.sptech.projetoMima.dto.clienteDto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "Representação para listagem de clientes")
-public class ClienteListagemDto {
+@Schema(description = "Representação resumida de um cliente")
+public class ClienteResumidoDto {
 
     @Schema(description = "Identificador único do cliente", example = "1")
     private Integer idCliente;
@@ -11,8 +11,8 @@ public class ClienteListagemDto {
     @Schema(description = "Nome completo do cliente", example = "Nome Completo")
     private String nome;
 
-    @Schema(description = "Endereço de e-mail do cliente", example = "email@dominio.com")
-    private String email;
+    @Schema(description = "Número de telefone do cliente", example = "(11) 91234-5678")
+    private String telefone;
 
     public Integer getIdCliente() {
         return idCliente;
@@ -30,11 +30,11 @@ public class ClienteListagemDto {
         this.nome = nome;
     }
 
-    public String getEmail() {
-        return email;
+    public String getTelefone() {
+        return telefone;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setTelefone(String telefone) {
+        this.telefone = telefone;
     }
 }

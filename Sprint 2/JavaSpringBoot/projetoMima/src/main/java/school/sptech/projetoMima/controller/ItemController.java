@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import school.sptech.projetoMima.dto.VestuarioVendaDTO;
 import school.sptech.projetoMima.dto.itemDto.ItemListDto;
 import school.sptech.projetoMima.dto.itemDto.ItemMapper;
 import school.sptech.projetoMima.dto.itemDto.ItemResponseDto;

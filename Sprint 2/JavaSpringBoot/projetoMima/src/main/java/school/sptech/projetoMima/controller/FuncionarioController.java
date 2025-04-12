@@ -67,8 +67,7 @@ public class FuncionarioController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<FuncionarioResumidoDto> atualizar(@RequestBody FuncionarioCadastroDto dto, @PathVariable Integer id) {
-        funcionarioService.findFuncionarioById(id);
-        Funcionario funcionarioAtualizado = funcionarioService.atualizarFuncionario(dto);
+        Funcionario funcionarioAtualizado = funcionarioService.atualizarFuncionario(dto, id);
         FuncionarioResumidoDto dtoResposta = FuncionarioMapper.toResumidoDto(funcionarioAtualizado);
         return ResponseEntity.ok(dtoResposta);
     }

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import school.sptech.projetoMima.dto.funcionarioDto.FuncionarioCadastroDto;
 import school.sptech.projetoMima.dto.funcionarioDto.FuncionarioMapper;
 import school.sptech.projetoMima.entity.Funcionario;
+import school.sptech.projetoMima.exception.Funcionario.FuncionarioInvalidoException;
 import school.sptech.projetoMima.exception.Funcionario.FuncionarioListaVaziaException;
 import school.sptech.projetoMima.exception.Funcionario.FuncionarioNaoEncontradoException;
 import school.sptech.projetoMima.repository.FuncionarioRepository;
@@ -23,21 +24,24 @@ public class FuncionarioService {
     }
 
     public Funcionario cadastrarFuncionario(FuncionarioCadastroDto dto) {
-        Funcionario funcionario = new Funcionario();
-        funcionario.setNome(dto.getNome());
-        funcionario.setEmail(dto.getEmail());
-        funcionario.setEndereco(dto.getEndereco());
-        funcionario.setCpf(dto.getCpf());
-        funcionario.setTelefone(dto.getTelefone());
-
-        return funcionarioRepository.save(funcionario);
-
+        Funcionario funcionarioCad = FuncionarioMapper.toEntity(dto);
+        return funcionarioRepository.save(funcionarioCad);
     }
 
-    public Funcionario atualizarFuncionario(FuncionarioCadastroDto dto) {
-        Funcionario funcionarioAtt = FuncionarioMapper.toEntity(dto); //depois transformar em dto para retornar
-        return funcionarioRepository.save(funcionarioAtt);
+    public Funcionario atualizarFuncionario(FuncionarioCadastroDto dto, Integer id) {
+        Funcionario funcionarioExistente = funcionarioRepository.findById(id)
+                .orElseThrow(() -> new FuncionarioNaoEncontradoException("Funcionário com o ID " + id + " não encontrado!"));
+
+        funcionarioExistente.setNome(dto.getNome());
+        funcionarioExistente.setCpf(dto.getCpf());
+        funcionarioExistente.setTelefone(dto.getTelefone());
+        funcionarioExistente.setEmail(dto.getEmail());
+        funcionarioExistente.setCargo(dto.getCargo());
+        funcionarioExistente.setEndereco(dto.getEndereco());
+
+        return funcionarioRepository.save(funcionarioExistente);
     }
+
 
     public List<Funcionario> listarFuncionarios() {
         List <Funcionario> funcionarios = new ArrayList<>();

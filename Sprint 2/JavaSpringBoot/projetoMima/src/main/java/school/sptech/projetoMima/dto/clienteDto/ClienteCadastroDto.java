@@ -1,21 +1,11 @@
-package school.sptech.projetoMima.entity;
+package school.sptech.projetoMima.dto.clienteDto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 
-@Entity
-@Schema(description = "Entidade que representa um cliente da loja.")
-public class Cliente {
+@Schema(description = "Dados para o cadastro de um novo cliente")
+public class ClienteCadastroDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(description = "Identificador único do cliente", example = "1")
-    private Integer idCliente;
-
-    @Schema(description = "Nome completo do cliente", example = "João da Silva")
+    @Schema(description = "Nome completo do cliente", example = "Nome Completo")
     private String nome;
 
     @Schema(description = "Número de telefone do cliente", example = "(11) 91234-5678")
@@ -24,19 +14,11 @@ public class Cliente {
     @Schema(description = "CPF do cliente", example = "123.456.789-00")
     private String CPF;
 
-    @Schema(description = "Endereço de e-mail do cliente", example = "joao.silva@email.com")
+    @Schema(description = "Endereço de e-mail do cliente", example = "email@dominio.com")
     private String email;
 
     @Schema(description = "Endereço residencial do cliente", example = "Rua das Flores, 123 - São Paulo/SP")
     private String endereco;
-
-    public Integer getId() {
-        return idCliente;
-    }
-
-    public void setId(Integer idCliente) {
-        this.idCliente = idCliente;
-    }
 
     public String getNome() {
         return nome;

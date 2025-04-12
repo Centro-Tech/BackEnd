@@ -1,5 +1,6 @@
 package school.sptech.projetoMima.dto.itemDto;
 
+import school.sptech.projetoMima.dto.fornecedorDto.FornecedorMapper;
 import school.sptech.projetoMima.entity.Item;
 
 public class ItemMapper {
@@ -22,6 +23,7 @@ public class ItemMapper {
         response.setNome(item.getNome());
         response.setTamanho(item.getTamanho());
         response.setPreco(item.getPreco());
+        response.setFornecedor(FornecedorMapper.toResponse(item.getFornecedor()));
 
         return response;
     }

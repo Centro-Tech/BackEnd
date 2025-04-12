@@ -1,11 +1,14 @@
 package school.sptech.projetoMima.dto.itemDto;
 
+import school.sptech.projetoMima.dto.fornecedorDto.FornecedorResponseDto;
+
 public class ItemListDto {
     private String nome;
     private String tamanho;
     private Double preco;
     private Integer qtdEstoque;
     private String codigo;
+    private FornecedorResponseDto fornecedor;
 
     public String getCodigo() {
         return codigo;
@@ -45,5 +48,13 @@ public class ItemListDto {
 
     public void setQtdEstoque(Integer qtdEstoque) {
         this.qtdEstoque = qtdEstoque;
+    }
+
+    public FornecedorResponseDto getFornecedor() {
+        return fornecedor;
+    }
+
+    public void setFornecedor(FornecedorResponseDto fornecedor) {
+        this.fornecedor = fornecedor;
     }
 }

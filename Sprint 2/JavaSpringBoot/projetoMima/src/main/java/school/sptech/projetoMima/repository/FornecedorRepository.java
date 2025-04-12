@@ -1,14 +1,12 @@
 package school.sptech.projetoMima.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import school.sptech.projetoMima.versãoAntiga.FornecedorAntigo;
+import school.sptech.projetoMima.entity.Fornecedor;
 
-import java.time.LocalDate;
-import java.util.List;
+import java.util.Optional;
 
-public interface FornecedorRepository extends JpaRepository<FornecedorAntigo, Integer> {
+public interface FornecedorRepository extends JpaRepository<Fornecedor, Integer> {
     boolean existsByCnpj(String cnpj);
 
-
-    List<FornecedorAntigo> findFornecedorByDataRegistroBetween(LocalDate inicio, LocalDate fim);
+    void delete(Optional<Fornecedor> fornecedor);
 }

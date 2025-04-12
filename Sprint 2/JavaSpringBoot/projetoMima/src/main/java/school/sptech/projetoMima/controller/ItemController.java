@@ -10,13 +10,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import school.sptech.projetoMima.dto.itemDto.ItemListDto;
 import school.sptech.projetoMima.dto.itemDto.ItemMapper;
+import school.sptech.projetoMima.dto.itemDto.ItemRequestDto;
 import school.sptech.projetoMima.dto.itemDto.ItemResponseDto;
 import school.sptech.projetoMima.entity.Fornecedor;
 import school.sptech.projetoMima.entity.Item;
-import school.sptech.projetoMima.repository.FornecedorRepository;
 import school.sptech.projetoMima.service.FornecedorService;
 import school.sptech.projetoMima.service.ItemService;
-import school.sptech.projetoMima.versãoAntiga.Vestuario;
 
 import java.util.*;
 
@@ -39,7 +38,7 @@ public class ItemController {
     }
 
     @Operation(summary = "Buscar todos os vestuários em estoque")
-    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso", content = @Content(schema = @Schema(implementation = Vestuario.class))), @ApiResponse(responseCode = "404", description = "Nenhum vestuário em estoque") })
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso", content = @Content(schema = @Schema(implementation = Item.class))), @ApiResponse(responseCode = "404", description = "Nenhum vestuário em estoque") })
     @GetMapping("/estoque")
     public ResponseEntity<List<ItemListDto>> listarEstoque() {
         List<Item> item = itemService.listarEstoque();
@@ -55,7 +54,6 @@ public class ItemController {
         return ResponseEntity.status(200).body(response);
     }
 
-    @Operation(summary = "Realizar venda de vestuário") @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Venda realizada com sucesso", content = @Content(schema = @Schema(implementation = VestuarioVendaDTO.class))), @ApiResponse(responseCode = "400", description = "Quantidade inválida ou insuficiente em estoque"), @ApiResponse(responseCode = "404", description = "Vestuário não encontrado") })
     @PutMapping("/{qtd}")
     public ResponseEntity<ItemResponseDto> realizarVenda (@RequestBody ItemResponseDto item, Integer qtdParaVender) {
 
@@ -67,9 +65,11 @@ public class ItemController {
         return ResponseEntity.status(400).build();
     }
 
-    @Operation(summary = "Cadastrar novo vestuário") @ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Vestuário cadastrado com sucesso", content = @Content(schema = @Schema(implementation = Vestuario.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos ou código duplicado"), @ApiResponse(responseCode = "404", description = "Fornecedor não encontrado") })
+    @Operation(summary = "Cadastrar novo vestuário") @ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Vestuário cadastrado com sucesso", content = @Content(schema = @Schema(implementation = Item.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos ou código duplicado"), @ApiResponse(responseCode = "404", description = "Fornecedor não encontrado") })
     @PostMapping
-    public ResponseEntity<Item> cadastrarItem(@RequestBody Item item) {
+    public ResponseEntity<ItemResponseDto> cadastrarItem(@RequestBody ItemRequestDto request) {
+        Item item = ItemMapper.toEntity(request);
+
         if (itemService.existsByCodigo(item.getCodigo())) {
             return ResponseEntity.status(400).body(null);
         }
@@ -89,14 +89,14 @@ public class ItemController {
         }
 
         Item novoItem = itemService.cadastrarItem(item, fornecedorOpt.get());
-        return ResponseEntity.status(201).body(novoItem);
+        return ResponseEntity.status(201).body(ItemMapper.toResponse(novoItem));
     }
 
 
     @Operation(summary = "Deletar vestuário") @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Vestuário deletado com sucesso"), @ApiResponse(responseCode = "404", description = "Vestuário não encontrado") })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarVestuario(@RequestBody Item item) {
-        ItemResponseDto itemParaDeletar = ItemMapper.toResponse(item);
+    public ResponseEntity<Void> deletarVestuario(@RequestBody ItemListDto item) {
+        Item itemParaDeletar = ItemMapper.fromListToEntity(item);
         itemService.deletar(itemParaDeletar);
 
         return ResponseEntity.status(205).build();

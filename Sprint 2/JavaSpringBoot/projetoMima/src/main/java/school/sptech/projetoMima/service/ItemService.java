@@ -39,9 +39,8 @@ public class ItemService {
         return ItemMapper.toResponse(entity);
     }
 
-    public void deletar (ItemResponseDto itemParaDeletar) {
-        Item item = ItemMapper.fromResponseToEntity(itemParaDeletar);
-        itemRepository.delete(item);
+    public void deletar (Item itemParaDeletar) {
+        itemRepository.delete(itemParaDeletar);
     }
 
     public boolean existsByCodigo(String codigo) {

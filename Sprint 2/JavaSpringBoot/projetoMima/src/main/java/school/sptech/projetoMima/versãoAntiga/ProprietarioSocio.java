@@ -1,6 +1,6 @@
 package school.sptech.projetoMima.versãoAntiga;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -9,12 +9,7 @@ import java.time.LocalDate;
 
 @Entity
 @Schema(description = "Entidade que representa um proprietário ou sócio da empresa.")
-public class ProprietarioSocio extends Usuario {
-
-    @NotBlank
-    @Size(min = 11, max = 14)
-    @Schema(description = "CPF do proprietário ou sócio, somente números", example = "12345678901", type = "string", minLength = 11, maxLength = 14, required = true)
-    private String cpf;
+public class ProprietarioSocio extends school.sptech.projetoMima.versãoAntiga.Usuario {
 
     @Schema(description = "Data em que o proprietário ou sócio foi registrado no sistema", example = "2024-01-15", type = "string", format = "date")
     private LocalDate dataDeRegistro;
@@ -27,19 +22,10 @@ public class ProprietarioSocio extends Usuario {
     public ProprietarioSocio() {
     }
 
-    public ProprietarioSocio(String nome, String email, String telefone, String cpf, LocalDate dataDeRegistro, String papel) {
-        super(nome, email, telefone);
-        this.cpf = cpf;
+    public ProprietarioSocio(String nome, String cpf, String email, String telefone, String endereco, LocalDate dataDeRegistro, String papel) {
+        super(nome, cpf, email, telefone, endereco);
         this.dataDeRegistro = dataDeRegistro;
         this.papel = papel;
-    }
-
-    public String getCpf() {
-        return cpf;
-    }
-
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
     }
 
     public LocalDate getDataDeRegistro() {

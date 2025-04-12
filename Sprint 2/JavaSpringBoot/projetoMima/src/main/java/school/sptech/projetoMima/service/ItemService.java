@@ -6,7 +6,7 @@ import school.sptech.projetoMima.dto.itemDto.ItemMapper;
 import school.sptech.projetoMima.dto.itemDto.ItemResponseDto;
 import school.sptech.projetoMima.entity.Fornecedor;
 import school.sptech.projetoMima.entity.Item;
-import school.sptech.projetoMima.exception.RoupaNaoEncontradaException;
+import school.sptech.projetoMima.exception.Item.RoupaNaoEncontradaException;
 import school.sptech.projetoMima.repository.ItemRepository;
 import school.sptech.projetoMima.repository.FornecedorRepository;
 

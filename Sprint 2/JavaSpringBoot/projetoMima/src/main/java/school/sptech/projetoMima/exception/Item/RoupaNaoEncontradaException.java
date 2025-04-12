@@ -1,4 +1,4 @@
-package school.sptech.projetoMima.exception;
+package school.sptech.projetoMima.exception.Item;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

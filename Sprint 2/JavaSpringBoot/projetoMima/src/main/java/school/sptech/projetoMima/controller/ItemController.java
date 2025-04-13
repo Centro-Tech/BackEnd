@@ -20,7 +20,7 @@ import school.sptech.projetoMima.service.ItemService;
 import java.util.*;
 
 @RestController
-@RequestMapping("/vestuarios")
+@RequestMapping("/itens")
 public class ItemController {
 
     @Autowired
@@ -37,8 +37,8 @@ public class ItemController {
         return ResponseEntity.status(200).body(cursoResponse);
     }
 
-    @Operation(summary = "Buscar todos os vestuários em estoque")
-    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso", content = @Content(schema = @Schema(implementation = Item.class))), @ApiResponse(responseCode = "404", description = "Nenhum vestuário em estoque") })
+    @Operation(summary = "Buscar todos os itens em estoque")
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso", content = @Content(schema = @Schema(implementation = Item.class))), @ApiResponse(responseCode = "404", description = "Nenhum item em estoque") })
     @GetMapping("/estoque")
     public ResponseEntity<List<ItemListDto>> listarEstoque() {
         List<Item> item = itemService.listarEstoque();
@@ -65,7 +65,7 @@ public class ItemController {
         return ResponseEntity.status(400).build();
     }
 
-    @Operation(summary = "Cadastrar novo vestuário") @ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Vestuário cadastrado com sucesso", content = @Content(schema = @Schema(implementation = Item.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos ou código duplicado"), @ApiResponse(responseCode = "404", description = "Fornecedor não encontrado") })
+    @Operation(summary = "Cadastrar novo item") @ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Item cadastrado com sucesso", content = @Content(schema = @Schema(implementation = Item.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos ou código duplicado"), @ApiResponse(responseCode = "404", description = "Fornecedor não encontrado") })
     @PostMapping
     public ResponseEntity<ItemResponseDto> cadastrarItem(@RequestBody ItemRequestDto request) {
         Item item = ItemMapper.toEntity(request);
@@ -93,7 +93,7 @@ public class ItemController {
     }
 
 
-    @Operation(summary = "Deletar vestuário") @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Vestuário deletado com sucesso"), @ApiResponse(responseCode = "404", description = "Vestuário não encontrado") })
+    @Operation(summary = "Deletar Item") @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Item deletado com sucesso"), @ApiResponse(responseCode = "404", description = "Item não encontrado") })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarVestuario(@RequestBody ItemListDto item) {
         Item itemParaDeletar = ItemMapper.fromListToEntity(item);

@@ -23,7 +23,7 @@ public class ItemService {
     private FornecedorRepository fornecedorRepository;
 
     public Item buscarPorId(int id) {
-        return itemRepository.findById(id).orElseThrow( () -> new RoupaNaoEncontradaException("Roupa com id não encontrada!"));
+        return itemRepository.findById(id).orElseThrow( () -> new RoupaNaoEncontradaException("Item com id não encontrada!"));
     }
 
     public List<Item> listarEstoque() {

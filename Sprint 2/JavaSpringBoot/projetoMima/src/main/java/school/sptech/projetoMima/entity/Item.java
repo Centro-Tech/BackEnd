@@ -9,36 +9,36 @@ public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(description = "Identificador único do vestuário", example = "1")
+    @Schema(description = "Identificador único do item", example = "1")
     private Integer id;
 
-    @Schema(description = "Código de identificação único do vestuário", example = "BLU123M")
+    @Schema(description = "Código de identificação único do item", example = "BLU123M")
     private String codigo;
 
     @Schema(description = "Quantidade disponível em estoque", example = "10")
     private Integer qtdEstoque;
 
-    @Schema(description = "Nome do vestuário", example = "Camiseta Polo Azul")
+    @Schema(description = "Nome do item", example = "Camiseta Polo Azul")
     private String nome;
 
-    @Schema(description = "Tamanho do vestuário", example = "M")
+    @Schema(description = "Tamanho do item", example = "M")
     private String tamanho;
 
-    @Schema(description = "Cor do vestuário", example = "Azul")
+    @Schema(description = "Cor do item", example = "Azul")
     private String cor;
 
-    @Schema(description = "Material do vestuário", example = "Poliamida")
+    @Schema(description = "Material do item", example = "Poliamida")
     private String material;
 
-    @Schema(description = "Tipo do vestuário", example = "Camiseta")
+    @Schema(description = "Tipo do item", example = "Camiseta")
     private String categoria;
 
-    @Schema(description = "Preço do vestuário", example = "59.99")
+    @Schema(description = "Preço do item", example = "59.99")
     private Double preco;
 
     @ManyToOne
     @JoinColumn (name = "fkFornecedor")
-    @Schema(description = "Fornecedor responsável por este vestuário")
+    @Schema(description = "Fornecedor responsável por este item")
     private Fornecedor fornecedor;
 
     public Integer getId() {

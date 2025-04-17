@@ -42,6 +42,11 @@ public class Usuario {
     @Schema(description = "Endereço físico do usuário", example = "Rua das Flores, 123 - Centro", minLength = 5, maxLength = 255, required = true)
     private String endereco;
 
+    @NotBlank
+    @Size(min = 5, max = 255)
+    @Schema(description = "Senha de acesso do funcionário", example = "*******", minLength = 5, maxLength = 255, required = true)
+    private String senha;
+
 
     @NotBlank(message = "O cargo é obrigatório")
     @Size(min = 2, max = 50, message = "O cargo deve ter entre 2 e 50 caracteres")
@@ -52,12 +57,13 @@ public class Usuario {
 
     }
 
-    public Usuario(String nome, String cpf, String email, String telefone, String endereco, String cargo) {
+    public Usuario(String nome, String cpf, String email, String telefone, String endereco, String senha, String cargo) {
         this.nome = nome;
         this.cpf = cpf;
         this.email = email;
         this.telefone = telefone;
         this.endereco = endereco;
+        this.senha = senha;
         this.cargo = cargo;
     }
 
@@ -107,6 +113,14 @@ public class Usuario {
 
     public void setEndereco(String endereco) {
         this.endereco = endereco;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 
     public String getCargo() {

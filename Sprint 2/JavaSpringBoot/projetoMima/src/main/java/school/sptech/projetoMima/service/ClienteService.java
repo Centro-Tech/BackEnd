@@ -5,10 +5,8 @@ import org.springframework.stereotype.Service;
 import school.sptech.projetoMima.dto.clienteDto.ClienteCadastroDto;
 import school.sptech.projetoMima.dto.clienteDto.ClienteMapper;
 import school.sptech.projetoMima.entity.Cliente;
-import school.sptech.projetoMima.exception.Cliente.ClienteInvalidoException;
 import school.sptech.projetoMima.exception.Cliente.ClienteListaVaziaException;
 import school.sptech.projetoMima.exception.Cliente.ClienteNaoEncontradoException;
-import school.sptech.projetoMima.exception.Funcionario.FuncionarioInvalidoException;
 import school.sptech.projetoMima.repository.ClienteRepository;
 
 import java.util.ArrayList;

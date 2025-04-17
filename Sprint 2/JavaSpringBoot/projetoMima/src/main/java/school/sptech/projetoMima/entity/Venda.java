@@ -21,7 +21,7 @@ public class Venda {
 
     @ManyToOne
     @JoinColumn (name = "fkFuncionario")
-    private Funcionario funcionario;
+    private Usuario usuario;
 
     private List<ItensVenda> itensVenda;
 
@@ -61,11 +61,11 @@ public class Venda {
         this.cliente = cliente;
     }
 
-    public Funcionario getFuncionario() {
-        return funcionario;
+    public Usuario getFuncionario() {
+        return usuario;
     }
 
-    public void setFuncionario(Funcionario funcionario) {
-        this.funcionario = funcionario;
+    public void setFuncionario(Usuario usuario) {
+        this.usuario = usuario;
     }
 }

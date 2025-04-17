@@ -1,13 +1,16 @@
-package school.sptech.projetoMima.versãoAntiga;
+package school.sptech.projetoMima.entity;
 
-import jakarta.persistence.*;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import io.swagger.v3.oas.annotations.media.Schema;
 
 @Entity
 @Schema(description = "Classe base para os usuários, contendo nome, CPF, email, telefone e endereço.")
-public abstract class Usuario {
+public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,15 +42,23 @@ public abstract class Usuario {
     @Schema(description = "Endereço físico do usuário", example = "Rua das Flores, 123 - Centro", minLength = 5, maxLength = 255, required = true)
     private String endereco;
 
+
+    @NotBlank(message = "O cargo é obrigatório")
+    @Size(min = 2, max = 50, message = "O cargo deve ter entre 2 e 50 caracteres")
+    @Schema(description = "Cargo do funcionário dentro da empresa, como por exemplo 'Atendente', 'Gerente de vendas' ou 'Estoquista'", example = "Gerente de vendas", type = "string", minLength = 2, maxLength = 50, required = true)
+    private String cargo;
+
     public Usuario() {
+
     }
 
-    public Usuario(String nome, String cpf, String email, String telefone, String endereco) {
+    public Usuario(String nome, String cpf, String email, String telefone, String endereco, String cargo) {
         this.nome = nome;
         this.cpf = cpf;
         this.email = email;
         this.telefone = telefone;
         this.endereco = endereco;
+        this.cargo = cargo;
     }
 
     public Integer getId() {
@@ -96,5 +107,13 @@ public abstract class Usuario {
 
     public void setEndereco(String endereco) {
         this.endereco = endereco;
+    }
+
+    public String getCargo() {
+        return cargo;
+    }
+
+    public void setCargo(String cargo) {
+        this.cargo = cargo;
     }
 }

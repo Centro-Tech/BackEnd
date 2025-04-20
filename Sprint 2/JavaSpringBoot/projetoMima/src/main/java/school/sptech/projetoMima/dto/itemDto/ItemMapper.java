@@ -1,12 +1,14 @@
 package school.sptech.projetoMima.dto.itemDto;
 
 import school.sptech.projetoMima.dto.fornecedorDto.FornecedorMapper;
+import school.sptech.projetoMima.entity.Categoria;
 import school.sptech.projetoMima.entity.Item;
 
 public class ItemMapper {
 
     public static ItemResponseDto toResponse (Item item) {
         ItemResponseDto response = new ItemResponseDto();
+
 
         response.setCodigo(item.getCodigo());
         response.setNome(item.getNome());
@@ -36,12 +38,17 @@ public class ItemMapper {
         response.setTamanho(request.getTamanho());
         response.setCor(request.getCor());
         response.setMaterial(request.getMaterial());
-        response.setCategoria(request.getCategoria());
+
+        Categoria categoria = new Categoria();
+        categoria.setNome(request.getCategoria());
+        response.setCategoria(categoria);
+
         response.setPreco(request.getPreco());
         response.setFornecedor(request.getFornecedor());
 
         return response;
     }
+
 
     public static Item fromResponseToEntity (ItemResponseDto request) {
         Item response = new Item();

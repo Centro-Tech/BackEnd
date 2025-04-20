@@ -30,8 +30,10 @@ public class Item {
     @Schema(description = "Material do item", example = "Poliamida")
     private String material;
 
+    @ManyToOne
+    @JoinColumn(name = "categoria_id")
     @Schema(description = "Tipo do item", example = "Camiseta")
-    private String categoria;
+    private Categoria categoria;
 
     @Schema(description = "Preço do item", example = "59.99")
     private Double preco;
@@ -97,13 +99,14 @@ public class Item {
         this.material = material;
     }
 
-    public String getCategoria() {
+    public Categoria getCategoria() {
         return categoria;
     }
 
-    public void setCategoria(String categoria) {
+    public void setCategoria(Categoria categoria) {
         this.categoria = categoria;
     }
+
 
     public Double getPreco() {
         return preco;

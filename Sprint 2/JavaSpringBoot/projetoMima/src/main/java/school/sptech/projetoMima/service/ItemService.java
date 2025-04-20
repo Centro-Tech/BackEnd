@@ -61,7 +61,7 @@ public class ItemService {
     }
 
     public Item cadastrarItem(Item item, Fornecedor fornecedor) {
-        String nome = item.getNome().toUpperCase();
+        String nome = item.getCategoria().getNome().toUpperCase();
         String tamanho = item.getTamanho().toUpperCase();
         String codigoIdentificacao = null;
 

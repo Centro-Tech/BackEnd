@@ -23,11 +23,12 @@ public class Venda {
     @JoinColumn (name = "fkFuncionario")
     private Usuario usuario;
 
-    private List<ItensVenda> itensVenda;
+    /* private List<ItensVenda> itens;  */
 
-    public Venda() {
+
+  /*  public Venda() {
         this.itensVenda = new ArrayList<>();
-    }
+    } */
 
     public Integer getId() {
         return id;

@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import school.sptech.projetoMima.config.GerenciadorTokenJwt;
 import school.sptech.projetoMima.dto.usuarioDto.usuarioLogin.UsuarioListarDto;
 import school.sptech.projetoMima.dto.usuarioDto.usuarioLogin.UsuarioMapper;
 import school.sptech.projetoMima.dto.usuarioDto.usuarioLogin.UsuarioTokenDto;
@@ -38,9 +39,11 @@ public class UsuarioLoginService {
 
     public UsuarioTokenDto autenticar (Usuario usuario) {
 
-        final UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(usuario.getEmail(), usuario.getSenha());
 
-        final Authentication authenticate = authenticationManager.authenticate(token);
+        final UsernamePasswordAuthenticationToken credentials = new UsernamePasswordAuthenticationToken(
+                usuario.getEmail(), usuario.getSenha());
+
+        final Authentication authentication = this.authenticationManager.authenticate(credentials);
 
         Usuario usuarioAutenticado =
                 usuarioRepository.findByEmail(usuario.getEmail())
@@ -48,7 +51,7 @@ public class UsuarioLoginService {
                                 () -> new ResponseStatusException(404, "Email do usuário não cadastrado", null)
                         );
 
-        SecurityContextHolder.getContext().setAuthentication(authenticate);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         final String token = gerenciadorTokenJwt.generateToken(authentication);
 

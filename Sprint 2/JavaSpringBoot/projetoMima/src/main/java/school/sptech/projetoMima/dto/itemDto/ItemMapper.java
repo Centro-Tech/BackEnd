@@ -1,8 +1,8 @@
 package school.sptech.projetoMima.dto.itemDto;
 
 import school.sptech.projetoMima.dto.fornecedorDto.FornecedorMapper;
-import school.sptech.projetoMima.entity.Categoria;
-import school.sptech.projetoMima.entity.Item;
+import school.sptech.projetoMima.entity.item.Categoria;
+import school.sptech.projetoMima.entity.item.Item;
 
 public class ItemMapper {
 

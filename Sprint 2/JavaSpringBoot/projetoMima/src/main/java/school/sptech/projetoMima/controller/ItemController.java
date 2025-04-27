@@ -13,7 +13,7 @@ import school.sptech.projetoMima.dto.itemDto.ItemMapper;
 import school.sptech.projetoMima.dto.itemDto.ItemRequestDto;
 import school.sptech.projetoMima.dto.itemDto.ItemResponseDto;
 import school.sptech.projetoMima.entity.Fornecedor;
-import school.sptech.projetoMima.entity.Item;
+import school.sptech.projetoMima.entity.item.Item;
 import school.sptech.projetoMima.service.FornecedorService;
 import school.sptech.projetoMima.service.ItemService;
 

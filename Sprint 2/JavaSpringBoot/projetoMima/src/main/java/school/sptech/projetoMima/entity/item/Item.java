@@ -1,7 +1,8 @@
-package school.sptech.projetoMima.entity;
+package school.sptech.projetoMima.entity.item;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import school.sptech.projetoMima.entity.Fornecedor;
 
 @Entity
 @Schema(description = "Entidade que representa os vestuários disponíveis na loja.")

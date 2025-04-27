@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import school.sptech.projetoMima.dto.itemDto.ItemMapper;
 import school.sptech.projetoMima.dto.itemDto.ItemResponseDto;
 import school.sptech.projetoMima.entity.Fornecedor;
-import school.sptech.projetoMima.entity.Item;
+import school.sptech.projetoMima.entity.item.Item;
 import school.sptech.projetoMima.exception.Item.ItemNaoEncontradoException;
 import school.sptech.projetoMima.repository.ItemRepository;
 import school.sptech.projetoMima.repository.FornecedorRepository;

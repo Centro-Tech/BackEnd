@@ -2,8 +2,10 @@ package school.sptech.projetoMima.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import school.sptech.projetoMima.dto.itemDto.ItemListDto;
 import school.sptech.projetoMima.dto.itemDto.ItemMapper;
 import school.sptech.projetoMima.dto.itemDto.ItemResponseDto;
+import school.sptech.projetoMima.dto.itemDto.auxiliares.CategoriaDto;
 import school.sptech.projetoMima.entity.Fornecedor;
 import school.sptech.projetoMima.entity.item.Item;
 import school.sptech.projetoMima.exception.Item.ItemNaoEncontradoException;
@@ -63,7 +65,7 @@ public class ItemService {
 
     public Item cadastrarItem(Item item, Fornecedor fornecedor) {
         String nome = item.getCategoria().getNome().toUpperCase();
-        String tamanho = item.getTamanho().toUpperCase();
+        String tamanho = item.getTamanho().getTamanho().toUpperCase();
         String codigoIdentificacao = null;
 
         if (nome.contains("BERMUDA")) codigoIdentificacao = "BZ";
@@ -102,5 +104,20 @@ public class ItemService {
         item.setFornecedor(fornecedor);
 
         return itemRepository.save(item);
+    }
+
+    public List<Item> filtrarPorCategoria (String categoria) {
+        List<Item> itens = itemRepository.findByCategoriaNomeContainsIgnoreCase(categoria);
+        return itens;
+    }
+
+    public List<Item> filtrarPorFornecedor (String nome) {
+        List<Item> itens = itemRepository.findByFornecedorNomeContainsIgnoreCase(nome);
+        return itens;
+    }
+
+    public List<Item> filtrarPorNome (String nome) {
+        List<Item> itens = itemRepository.findByNomeContainsIgnoreCase(nome);
+        return itens;
     }
 }

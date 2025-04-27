@@ -50,22 +50,17 @@ public class UsuarioController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Inserir novo usuário")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso", content = @Content(schema = @Schema(implementation = UsuarioCadastroDto.class))),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos")
-    })
+    @Operation(summary = "Cadastrar Usuário")
+    @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "Usuário criado com sucesso", content = @Content(schema = @Schema(implementation = UsuarioCadastroDto.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos"), @ApiResponse(responseCode = "401", description = "Não autorizado")})
     @PostMapping
     public ResponseEntity<UsuarioResumidoDto> cadastrar(@RequestBody UsuarioCadastroDto dto) {
         Usuario novoUsuario = usuarioService.cadastrarFuncionario(dto);
         return ResponseEntity.status(201).body(UsuarioMapper.toResumidoDto(novoUsuario));
     }
 
+
     @Operation(summary = "Atualizar Usuário")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso", content = @Content(schema = @Schema(implementation = UsuarioCadastroDto.class))),
-            @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso", content = @Content(schema = @Schema(implementation = UsuarioCadastroDto.class))), @ApiResponse(responseCode = "404", description = "Usuário não encontrado")})
     @PutMapping("/{id}")
     public ResponseEntity<UsuarioResumidoDto> atualizar(@RequestBody UsuarioCadastroDto dto, @PathVariable Integer id) {
         Usuario usuarioAtualizado = usuarioService.atualizarFuncionario(dto, id);

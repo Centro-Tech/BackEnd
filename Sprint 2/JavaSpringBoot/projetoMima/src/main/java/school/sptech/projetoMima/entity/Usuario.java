@@ -23,11 +23,6 @@ public class Usuario {
     private String nome;
 
     @NotBlank
-    @Size(min = 11, max = 11)
-    @Schema(description = "CPF do usuário (somente números)", example = "12345678900", minLength = 11, maxLength = 11, required = true)
-    private String cpf;
-
-    @NotBlank
     @Size(min = 5, max = 100)
     @Schema(description = "Endereço de email do usuário", example = "joao@email.com", minLength = 5, maxLength = 100, required = true)
     private String email;
@@ -59,7 +54,6 @@ public class Usuario {
 
     public Usuario(String nome, String cpf, String email, String telefone, String endereco, String senha, String cargo) {
         this.nome = nome;
-        this.cpf = cpf;
         this.email = email;
         this.telefone = telefone;
         this.endereco = endereco;
@@ -81,14 +75,6 @@ public class Usuario {
 
     public void setNome(String nome) {
         this.nome = nome;
-    }
-
-    public String getCpf() {
-        return cpf;
-    }
-
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
     }
 
     public String getEmail() {

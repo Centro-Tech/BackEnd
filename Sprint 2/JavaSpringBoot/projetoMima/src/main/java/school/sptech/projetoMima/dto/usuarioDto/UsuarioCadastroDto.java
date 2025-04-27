@@ -10,9 +10,6 @@ public class UsuarioCadastroDto {
     @NotBlank @NotNull @Size(min = 3, max = 100)
     private String nome;
 
-    @NotBlank @NotNull @Size(min = 11, max = 11)
-    private String cpf;
-
     @NotBlank @NotNull @Size(min = 8, max = 20)
     private String telefone;
 
@@ -31,14 +28,6 @@ public class UsuarioCadastroDto {
 
     public void setNome(@NotBlank @NotNull @Size(min = 3, max = 100) String nome) {
         this.nome = nome;
-    }
-
-    public @NotBlank @NotNull @Size(min = 11, max = 11) String getCpf() {
-        return cpf;
-    }
-
-    public void setCpf(@NotBlank @NotNull @Size(min = 11, max = 11) String cpf) {
-        this.cpf = cpf;
     }
 
     public @NotBlank @NotNull @Size(min = 8, max = 20) String getTelefone() {

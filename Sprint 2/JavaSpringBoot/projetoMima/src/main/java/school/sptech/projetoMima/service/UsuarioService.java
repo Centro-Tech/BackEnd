@@ -33,7 +33,6 @@ public class UsuarioService {
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Funcionário com o ID " + id + " não encontrado!"));
 
         usuarioExistente.setNome(dto.getNome());
-        usuarioExistente.setCpf(dto.getCpf());
         usuarioExistente.setTelefone(dto.getTelefone());
         usuarioExistente.setEmail(dto.getEmail());
         usuarioExistente.setCargo(dto.getCargo());

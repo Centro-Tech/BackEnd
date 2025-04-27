@@ -1,9 +1,9 @@
 package school.sptech.projetoMima.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CurrentTimestamp;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -11,8 +11,9 @@ public class Venda {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    private Double valorTotal = 0.0;
 
-    private Double valorTotal;
+    @CurrentTimestamp
     private LocalDate data;
 
     @ManyToOne
@@ -23,12 +24,23 @@ public class Venda {
     @JoinColumn (name = "fkFuncionario")
     private Usuario usuario;
 
-    /* private List<ItensVenda> itens;  */
+    private List<ItemVenda> itemVenda;
 
+    public Usuario getUsuario() {
+        return usuario;
+    }
 
-  /*  public Venda() {
-        this.itensVenda = new ArrayList<>();
-    } */
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    public List<ItemVenda> getItensVenda() {
+        return itemVenda;
+    }
+
+    public void setItensVenda(List<ItemVenda> itemVenda) {
+        this.itemVenda = itemVenda;
+    }
 
     public Integer getId() {
         return id;

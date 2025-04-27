@@ -33,9 +33,6 @@ public class ItemService {
     }
 
     public void deletar(Item itemParaDeletar) {
-        if (itemParaDeletar == null) {
-            throw new ItemNaoEncontradoException("Item para deletar não pode ser nulo.");
-        }
         itemRepository.delete(itemParaDeletar);
     }
 

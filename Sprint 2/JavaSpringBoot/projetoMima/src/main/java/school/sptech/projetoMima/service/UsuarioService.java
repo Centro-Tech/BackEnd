@@ -5,8 +5,9 @@ import org.springframework.stereotype.Service;
 import school.sptech.projetoMima.dto.usuarioDto.UsuarioCadastroDto;
 import school.sptech.projetoMima.dto.usuarioDto.UsuarioMapper;
 import school.sptech.projetoMima.entity.Usuario;
-import school.sptech.projetoMima.exception.Funcionario.UsuarioListaVaziaException;
-import school.sptech.projetoMima.exception.Funcionario.UsuarioNaoEncontradoException;
+import school.sptech.projetoMima.exception.Usuario.UsuarioListaVaziaException;
+import school.sptech.projetoMima.exception.Usuario.UsuarioNaoEncontradoException;
+import school.sptech.projetoMima.exception.Usuario.UsuarioNaoEncontradoException;
 import school.sptech.projetoMima.repository.UsuarioRepository;
 
 import java.util.ArrayList;

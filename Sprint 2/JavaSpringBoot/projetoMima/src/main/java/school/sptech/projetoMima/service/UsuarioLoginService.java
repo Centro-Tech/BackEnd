@@ -13,6 +13,7 @@ import school.sptech.projetoMima.dto.usuarioDto.usuarioLogin.UsuarioListarDto;
 import school.sptech.projetoMima.dto.usuarioDto.usuarioLogin.UsuarioMapper;
 import school.sptech.projetoMima.dto.usuarioDto.usuarioLogin.UsuarioTokenDto;
 import school.sptech.projetoMima.entity.Usuario;
+import school.sptech.projetoMima.exception.Usuario.UsuarioNaoEncontradoException;
 import school.sptech.projetoMima.repository.UsuarioRepository;
 
 import java.util.List;
@@ -45,11 +46,8 @@ public class UsuarioLoginService {
 
         final Authentication authentication = this.authenticationManager.authenticate(credentials);
 
-        Usuario usuarioAutenticado =
-                usuarioRepository.findByEmail(usuario.getEmail())
-                        .orElseThrow(
-                                () -> new ResponseStatusException(404, "Email do usuário não cadastrado", null)
-                        );
+        Usuario usuarioAutenticado = usuarioRepository.findByEmail(usuario.getEmail())
+                .orElseThrow(() -> new UsuarioNaoEncontradoException("Email do usuário não cadastrado"));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 

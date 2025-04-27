@@ -6,7 +6,7 @@ import school.sptech.projetoMima.dto.itemDto.ItemMapper;
 import school.sptech.projetoMima.dto.itemDto.ItemResponseDto;
 import school.sptech.projetoMima.entity.Fornecedor;
 import school.sptech.projetoMima.entity.Item;
-import school.sptech.projetoMima.exception.Item.RoupaNaoEncontradaException;
+import school.sptech.projetoMima.exception.Item.ItemNaoEncontradoException;
 import school.sptech.projetoMima.repository.ItemRepository;
 import school.sptech.projetoMima.repository.FornecedorRepository;
 
@@ -23,23 +23,24 @@ public class ItemService {
     private FornecedorRepository fornecedorRepository;
 
     public Item buscarPorId(int id) {
-        return itemRepository.findById(id).orElseThrow( () -> new RoupaNaoEncontradaException("Item com id não encontrada!"));
+        return itemRepository.findById(id).orElseThrow(() -> new ItemNaoEncontradoException("Item com o id " + id + " não encontrado."));
     }
 
     public List<Item> listarEstoque() {
         return itemRepository.findAll();
     }
 
-    public ItemResponseDto vender (ItemResponseDto item, int qtd) {
+    public ItemResponseDto vender(ItemResponseDto item, int qtd) {
         Item entity = ItemMapper.fromResponseToEntity(item);
-
         int qtdAtualizada = entity.getQtdEstoque() - qtd;
         entity.setQtdEstoque(qtdAtualizada);
-
         return ItemMapper.toResponse(entity);
     }
 
-    public void deletar (Item itemParaDeletar) {
+    public void deletar(Item itemParaDeletar) {
+        if (itemParaDeletar == null) {
+            throw new ItemNaoEncontradoException("Item para deletar não pode ser nulo.");
+        }
         itemRepository.delete(itemParaDeletar);
     }
 
@@ -65,63 +66,34 @@ public class ItemService {
         String tamanho = item.getTamanho().toUpperCase();
         String codigoIdentificacao = null;
 
-        if (nome.contains("BERMUDA")) {
-            codigoIdentificacao = "BZ";
-        } else if (nome.contains("BLAZER")) {
-            codigoIdentificacao = "BL";
-        } else if (nome.contains("BLUSA")) {
-            codigoIdentificacao = "BL";
-        } else if (nome.contains("BRACELETE")) {
-            codigoIdentificacao = "BR";
-        } else if (nome.contains("BRINCO")) {
-            codigoIdentificacao = "BC";
-        } else if (nome.contains("CALÇA")) {
-            codigoIdentificacao = "CL";
-        } else if (nome.contains("CAMISA")) {
-            codigoIdentificacao = "CA";
-        } else if (nome.contains("CAMISETA")) {
-            codigoIdentificacao = "BL";
-        } else if (nome.contains("CARDIGAN")) {
-            codigoIdentificacao = "TR";
-        } else if (nome.contains("CHEMISE")) {
-            codigoIdentificacao = "CH";
-        } else if (nome.contains("COLAR")) {
-            codigoIdentificacao = "CR";
-        } else if (nome.contains("CONJUNTO")) {
-            codigoIdentificacao = "CO";
-        } else if (nome.contains("CROPPED")) {
-            codigoIdentificacao = "BL";
-        } else if (nome.contains("ELASTICO")) {
-            codigoIdentificacao = "EL";
-        } else if (nome.contains("JAQUETA")) {
-            codigoIdentificacao = "JA";
-        } else if (nome.contains("LENÇO")) {
-            codigoIdentificacao = "LE";
-        } else if (nome.contains("MACACÃO")) {
-            codigoIdentificacao = "MA";
-        } else if (nome.contains("MACAQUINHO")) {
-            codigoIdentificacao = "MA";
-        } else if (nome.contains("PARKA")) {
-            codigoIdentificacao = "PK";
-        } else if (nome.contains("PONCHO")) {
-            codigoIdentificacao = "TR";
-        } else if (nome.contains("PULSEIRA")) {
-            codigoIdentificacao = "PU";
-        } else if (nome.contains("REGATA")) {
-            codigoIdentificacao = "BL";
-        } else if (nome.contains("SAIA")) {
-            codigoIdentificacao = "SA";
-        } else if (nome.contains("SHORT")) {
-            codigoIdentificacao = "SH";
-        } else if (nome.contains("TOMARA QUE CAIA")) {
-            codigoIdentificacao = "BL";
-        } else if (nome.contains("TRICOT")) {
-            codigoIdentificacao = "TR";
-        } else if (nome.contains("T-SHIRT")) {
-            codigoIdentificacao = "BL";
-        } else if (nome.contains("VESTIDO")) {
-            codigoIdentificacao = "VE";
-        }
+        if (nome.contains("BERMUDA")) codigoIdentificacao = "BZ";
+        else if (nome.contains("BLAZER")) codigoIdentificacao = "BL";
+        else if (nome.contains("BLUSA")) codigoIdentificacao = "BL";
+        else if (nome.contains("BRACELETE")) codigoIdentificacao = "BR";
+        else if (nome.contains("BRINCO")) codigoIdentificacao = "BC";
+        else if (nome.contains("CALÇA")) codigoIdentificacao = "CL";
+        else if (nome.contains("CAMISA")) codigoIdentificacao = "CA";
+        else if (nome.contains("CAMISETA")) codigoIdentificacao = "BL";
+        else if (nome.contains("CARDIGAN")) codigoIdentificacao = "TR";
+        else if (nome.contains("CHEMISE")) codigoIdentificacao = "CH";
+        else if (nome.contains("COLAR")) codigoIdentificacao = "CR";
+        else if (nome.contains("CONJUNTO")) codigoIdentificacao = "CO";
+        else if (nome.contains("CROPPED")) codigoIdentificacao = "BL";
+        else if (nome.contains("ELASTICO")) codigoIdentificacao = "EL";
+        else if (nome.contains("JAQUETA")) codigoIdentificacao = "JA";
+        else if (nome.contains("LENÇO")) codigoIdentificacao = "LE";
+        else if (nome.contains("MACACÃO")) codigoIdentificacao = "MA";
+        else if (nome.contains("MACAQUINHO")) codigoIdentificacao = "MA";
+        else if (nome.contains("PARKA")) codigoIdentificacao = "PK";
+        else if (nome.contains("PONCHO")) codigoIdentificacao = "TR";
+        else if (nome.contains("PULSEIRA")) codigoIdentificacao = "PU";
+        else if (nome.contains("REGATA")) codigoIdentificacao = "BL";
+        else if (nome.contains("SAIA")) codigoIdentificacao = "SA";
+        else if (nome.contains("SHORT")) codigoIdentificacao = "SH";
+        else if (nome.contains("TOMARA QUE CAIA")) codigoIdentificacao = "BL";
+        else if (nome.contains("TRICOT")) codigoIdentificacao = "TR";
+        else if (nome.contains("T-SHIRT")) codigoIdentificacao = "BL";
+        else if (nome.contains("VESTIDO")) codigoIdentificacao = "VE";
 
         int numeroAleatorio = 1000000 + new Random().nextInt(9000000);
         String codigoFinal = codigoIdentificacao + numeroAleatorio + tamanho;

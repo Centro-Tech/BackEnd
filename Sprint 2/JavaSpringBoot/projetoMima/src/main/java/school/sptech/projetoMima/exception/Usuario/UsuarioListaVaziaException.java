@@ -1,4 +1,4 @@
-package school.sptech.projetoMima.exception.Funcionario;
+package school.sptech.projetoMima.exception.Usuario;
 
 
 import org.springframework.http.HttpStatus;

@@ -3,7 +3,6 @@ package school.sptech.projetoMima.dto.itemDto.auxiliares;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import school.sptech.projetoMima.entity.item.Material;
 import school.sptech.projetoMima.entity.item.Tamanho;
 
 public class TamanhoDto {

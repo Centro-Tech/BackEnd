@@ -40,7 +40,7 @@ public class ItemMapper {
         response.setMaterial(request.getMaterial());
 
         Categoria categoria = new Categoria();
-        categoria.setNome(request.getCategoria());
+        categoria.setNome(request.getCategoria().getNome());
         response.setCategoria(categoria);
 
         response.setPreco(request.getPreco());

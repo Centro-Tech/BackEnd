@@ -1,10 +1,11 @@
 package school.sptech.projetoMima.dto.itemDto;
 
 import school.sptech.projetoMima.dto.fornecedorDto.FornecedorResponseDto;
+import school.sptech.projetoMima.entity.item.Tamanho;
 
 public class ItemListDto {
     private String nome;
-    private String tamanho;
+    private Tamanho tamanho;
     private Double preco;
     private Integer qtdEstoque;
     private String codigo;
@@ -26,11 +27,11 @@ public class ItemListDto {
         this.nome = nome;
     }
 
-    public String getTamanho() {
+    public Tamanho getTamanho() {
         return tamanho;
     }
 
-    public void setTamanho(String tamanho) {
+    public void setTamanho(Tamanho tamanho) {
         this.tamanho = tamanho;
     }
 

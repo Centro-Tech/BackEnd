@@ -5,6 +5,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import school.sptech.projetoMima.entity.Fornecedor;
+import school.sptech.projetoMima.entity.item.Categoria;
+import school.sptech.projetoMima.entity.item.Cor;
+import school.sptech.projetoMima.entity.item.Material;
+import school.sptech.projetoMima.entity.item.Tamanho;
 
 public class ItemRequestDto {
     @NotBlank
@@ -20,22 +24,22 @@ public class ItemRequestDto {
     @NotBlank
     @NotNull
     @Size(max = 2, min = 1)
-    private String tamanho;
+    private Tamanho tamanho;
 
     @NotBlank
     @NotNull
     @Size(max = 45, min = 1)
-    private String cor;
+    private Cor cor;
 
     @NotBlank
     @NotNull
     @Size(max = 45, min = 1)
-    private String material;
+    private Material material;
 
     @NotBlank
     @NotNull
     @Size(max = 45, min = 1)
-    private String categoria;
+    private Categoria categoria;
 
     @NotBlank
     @NotNull
@@ -62,35 +66,35 @@ public class ItemRequestDto {
         this.qtdEstoque = qtdEstoque;
     }
 
-    public @NotBlank @NotNull @Size(max = 2, min = 1) String getTamanho() {
+    public @NotBlank @NotNull @Size(max = 2, min = 1) Tamanho getTamanho() {
         return tamanho;
     }
 
-    public void setTamanho(@NotBlank @NotNull @Size(max = 2, min = 1) String tamanho) {
+    public void setTamanho(@NotBlank @NotNull @Size(max = 2, min = 1) Tamanho tamanho) {
         this.tamanho = tamanho;
     }
 
-    public @NotBlank @NotNull @Size(max = 45, min = 1) String getCor() {
+    public @NotBlank @NotNull @Size(max = 45, min = 1) Cor getCor() {
         return cor;
     }
 
-    public void setCor(@NotBlank @NotNull @Size(max = 45, min = 1) String cor) {
+    public void setCor(@NotBlank @NotNull @Size(max = 45, min = 1) Cor cor) {
         this.cor = cor;
     }
 
-    public @NotBlank @NotNull @Size(max = 45, min = 1) String getMaterial() {
+    public @NotBlank @NotNull @Size(max = 45, min = 1) Material getMaterial() {
         return material;
     }
 
-    public void setMaterial(@NotBlank @NotNull @Size(max = 45, min = 1) String material) {
+    public void setMaterial(@NotBlank @NotNull @Size(max = 45, min = 1) Material material) {
         this.material = material;
     }
 
-    public @NotBlank @NotNull @Size(max = 45, min = 1) String getCategoria() {
+    public @NotBlank @NotNull @Size(max = 45, min = 1) Categoria getCategoria() {
         return categoria;
     }
 
-    public void setCategoria(@NotBlank @NotNull @Size(max = 45, min = 1) String categoria) {
+    public void setCategoria(@NotBlank @NotNull @Size(max = 45, min = 1) Categoria categoria) {
         this.categoria = categoria;
     }
 

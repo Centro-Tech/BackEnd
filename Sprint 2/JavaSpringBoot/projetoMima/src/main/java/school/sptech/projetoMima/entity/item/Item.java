@@ -22,17 +22,23 @@ public class Item {
     @Schema(description = "Nome do item", example = "Camiseta Polo Azul")
     private String nome;
 
+    @ManyToOne
+    @JoinColumn (name = "fkTamanho")
     @Schema(description = "Tamanho do item", example = "M")
-    private String tamanho;
-
-    @Schema(description = "Cor do item", example = "Azul")
-    private String cor;
-
-    @Schema(description = "Material do item", example = "Poliamida")
-    private String material;
+    private Tamanho tamanho;
 
     @ManyToOne
-    @JoinColumn(name = "categoria_id")
+    @JoinColumn (name = "fkCor")
+    @Schema(description = "Cor do item", example = "Azul")
+    private Cor cor;
+
+    @ManyToOne
+    @JoinColumn (name = "fkMaterial")
+    @Schema(description = "Material do item", example = "Poliamida")
+    private Material material;
+
+    @ManyToOne
+    @JoinColumn(name = "fkCategoria")
     @Schema(description = "Tipo do item", example = "Camiseta")
     private Categoria categoria;
 
@@ -76,27 +82,27 @@ public class Item {
         this.nome = nome;
     }
 
-    public String getTamanho() {
+    public Tamanho getTamanho() {
         return tamanho;
     }
 
-    public void setTamanho(String tamanho) {
+    public void setTamanho(Tamanho tamanho) {
         this.tamanho = tamanho;
     }
 
-    public String getCor() {
+    public Cor getCor() {
         return cor;
     }
 
-    public void setCor(String cor) {
+    public void setCor(Cor cor) {
         this.cor = cor;
     }
 
-    public String getMaterial() {
+    public Material getMaterial() {
         return material;
     }
 
-    public void setMaterial(String material) {
+    public void setMaterial(Material material) {
         this.material = material;
     }
 
@@ -107,7 +113,6 @@ public class Item {
     public void setCategoria(Categoria categoria) {
         this.categoria = categoria;
     }
-
 
     public Double getPreco() {
         return preco;

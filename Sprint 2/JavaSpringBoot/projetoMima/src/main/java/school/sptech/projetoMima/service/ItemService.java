@@ -32,13 +32,6 @@ public class ItemService {
         return itemRepository.findAll();
     }
 
-    public ItemResponseDto vender(ItemResponseDto item, int qtd) {
-        Item entity = ItemMapper.fromResponseToEntity(item);
-        int qtdAtualizada = entity.getQtdEstoque() - qtd;
-        entity.setQtdEstoque(qtdAtualizada);
-        return ItemMapper.toResponse(entity);
-    }
-
     public void deletar(Item itemParaDeletar) {
         if (itemParaDeletar == null) {
             throw new ItemNaoEncontradoException("Item para deletar não pode ser nulo.");

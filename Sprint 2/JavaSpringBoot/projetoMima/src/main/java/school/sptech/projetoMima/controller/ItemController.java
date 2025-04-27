@@ -50,16 +50,6 @@ public class ItemController {
         return ResponseEntity.status(200).body(response);
     }
 
-    @Operation(summary = "Realizar venda do item")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Venda realizada com sucesso", content = @Content(schema = @Schema(implementation = ItemResponseDto.class))), @ApiResponse(responseCode = "400", description = "Quantidade insuficiente no estoque")})
-    @PutMapping("/{qtd}")
-    public ResponseEntity<ItemResponseDto> realizarVenda(@RequestBody ItemResponseDto item, @PathVariable Integer qtd) {
-        if (item.getQtdEstoque() > 0 && item.getQtdEstoque() >= qtd) {
-            ItemResponseDto vendido = itemService.vender(item, qtd);
-            return ResponseEntity.status(200).body(vendido);
-        }
-        return ResponseEntity.status(400).build();
-    }
 
     @Operation(summary = "Cadastrar novo item")
     @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "Item cadastrado com sucesso", content = @Content(schema = @Schema(implementation = Item.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos ou código duplicado"), @ApiResponse(responseCode = "404", description = "Fornecedor não encontrado")})
@@ -100,5 +90,41 @@ public class ItemController {
         } catch (Exception e) {
             return ResponseEntity.status(404).build();
         }
+    }
+
+    @GetMapping("/filtro-por-nome")
+    public ResponseEntity<List<ItemListDto>> filtrarPorNome (@RequestParam String nome) {
+        List<Item> itens = itemService.filtrarPorNome(nome);
+
+        if (itens.isEmpty()) {
+            return ResponseEntity.status(204).build();
+        }
+
+        List<ItemListDto> response = itens.stream().map(ItemMapper::toList).toList();
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @GetMapping("/filtro-por-fornecedor")
+    public ResponseEntity<List<ItemListDto>> filtrarPorFornecedor (@RequestParam String nome) {
+        List<Item> itens = itemService.filtrarPorFornecedor(nome);
+
+        if (itens.isEmpty()) {
+            return ResponseEntity.status(204).build();
+        }
+
+        List<ItemListDto> response = itens.stream().map(ItemMapper::toList).toList();
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @GetMapping("/filtro-por-categoria")
+    public ResponseEntity<List<ItemListDto>> filtrarPorCategoria (@RequestParam String nome) {
+        List<Item> itens = itemService.filtrarPorCategoria(nome);
+
+        if (itens.isEmpty()) {
+            return ResponseEntity.status(204).build();
+        }
+
+        List<ItemListDto> response = itens.stream().map(ItemMapper::toList).toList();
+        return ResponseEntity.status(200).body(response);
     }
 }

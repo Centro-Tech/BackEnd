@@ -15,5 +15,5 @@ public interface VendaRepository extends JpaRepository<Venda, Integer> {
 
     List<Venda> findByCliente(Cliente cliente);
 
-    List<Venda> findByValorTotal(Double valorMinimo, Double valorMax);
+    List<Venda> findByValorTotalBetween(Double valorTotalAfter, Double valorTotalBefore);
 }

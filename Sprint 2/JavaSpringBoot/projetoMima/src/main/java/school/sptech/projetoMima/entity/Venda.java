@@ -24,6 +24,8 @@ public class Venda {
     @JoinColumn (name = "fkFuncionario")
     private Usuario usuario;
 
+
+    @OneToMany
     private List<ItemVenda> itemVenda;
 
     public Usuario getUsuario() {

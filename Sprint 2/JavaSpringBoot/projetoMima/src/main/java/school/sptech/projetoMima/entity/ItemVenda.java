@@ -3,29 +3,30 @@ package school.sptech.projetoMima.entity;
 import jakarta.persistence.*;
 import school.sptech.projetoMima.entity.item.Item;
 
+@Entity
 public class ItemVenda {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToMany
-    @JoinColumn (name = "fkItem")
+    @ManyToOne
+    @JoinColumn(name = "fkItem")
     private Item item;
 
-    @OneToMany
-    @JoinColumn (name = "fkItemFornecedor")
+    @ManyToOne
+    @JoinColumn(name = "fkItemFornecedor")
     private Fornecedor fornecedor;
 
-    @OneToMany
-    @JoinColumn (name = "fkVenda")
+    @ManyToOne
+    @JoinColumn(name = "fkVenda")
     private Venda venda;
 
-    @OneToMany
-    @JoinColumn (name = "fkVendaCliente")
+    @ManyToOne
+    @JoinColumn(name = "fkVendaCliente")
     private Cliente cliente;
 
-    @OneToMany
-    @JoinColumn (name = "fkVendaFuncionario")
+    @ManyToOne
+    @JoinColumn(name = "fkVendaFuncionario")
     private Usuario funcionario;
     private Integer qtdParaVender;
 

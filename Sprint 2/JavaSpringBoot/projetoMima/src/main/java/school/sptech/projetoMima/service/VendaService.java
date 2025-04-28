@@ -59,6 +59,6 @@ public class VendaService {
     }
 
     public List<Venda> filtrarPorValor (Double valorMinimo, Double valorMax) {
-        return vendaRepository.findByValorTotal(valorMinimo, valorMax);
+        return vendaRepository.findByValorTotalBetween(valorMinimo, valorMax);
     }
 }

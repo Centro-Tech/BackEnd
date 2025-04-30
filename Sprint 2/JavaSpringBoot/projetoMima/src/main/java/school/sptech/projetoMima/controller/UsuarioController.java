@@ -5,12 +5,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import school.sptech.projetoMima.dto.usuarioDto.UsuarioCadastroDto;
-import school.sptech.projetoMima.dto.usuarioDto.UsuarioResumidoDto;
-import school.sptech.projetoMima.dto.usuarioDto.UsuarioMapper;
+import school.sptech.projetoMima.dto.usuarioDto.*;
 import school.sptech.projetoMima.entity.Usuario;
 import school.sptech.projetoMima.service.UsuarioService;
 
@@ -77,5 +77,21 @@ public class UsuarioController {
     public ResponseEntity<Void> deletar(@PathVariable Integer id) {
         usuarioService.excluir(id);
         return ResponseEntity.status(204).build();
+    }
+
+    @PostMapping("/criar")
+    @SecurityRequirement(name = "Bearer")
+    public ResponseEntity<Void> criar(@RequestBody @Valid UsuarioCriacaoDto usuarioCriacaoDto) {
+        final Usuario novoUsuario = UsuarioMapper.of(usuarioCriacaoDto);
+        this.usuarioService.criar(novoUsuario);
+        return ResponseEntity.status(201).build();
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<UsuarioTokenDto> login(@RequestBody UsuarioLoginDto usuarioLoginDto) {
+        final Usuario usuario = UsuarioMapper.of(usuarioLoginDto);
+        UsuarioTokenDto usuarioTokenDto = this.usuarioService.autenticar(usuario);
+
+        return ResponseEntity.status(200).body(usuarioTokenDto);
     }
 }

@@ -1,4 +1,4 @@
-package school.sptech.projetoMima.dto.usuarioDto.usuarioLogin;
+package school.sptech.projetoMima.dto.usuarioDto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;

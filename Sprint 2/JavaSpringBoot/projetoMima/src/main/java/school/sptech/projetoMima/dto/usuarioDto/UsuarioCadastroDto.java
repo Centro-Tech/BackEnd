@@ -22,6 +22,17 @@ public class UsuarioCadastroDto {
     @NotBlank @NotNull @Size(min = 5, max = 255)
     private String endereco;
 
+    @NotBlank @NotNull @Size(min = 6, max = 20)
+    private String senha;
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
+    }
+
     public @NotBlank @NotNull @Size(min = 3, max = 100) String getNome() {
         return nome;
     }

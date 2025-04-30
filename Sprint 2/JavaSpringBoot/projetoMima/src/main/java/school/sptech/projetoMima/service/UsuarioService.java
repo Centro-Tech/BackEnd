@@ -1,9 +1,17 @@
 package school.sptech.projetoMima.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import school.sptech.projetoMima.config.GerenciadorTokenJwt;
 import school.sptech.projetoMima.dto.usuarioDto.UsuarioCadastroDto;
+import school.sptech.projetoMima.dto.usuarioDto.UsuarioListarDto;
 import school.sptech.projetoMima.dto.usuarioDto.UsuarioMapper;
+import school.sptech.projetoMima.dto.usuarioDto.UsuarioTokenDto;
 import school.sptech.projetoMima.entity.Usuario;
 import school.sptech.projetoMima.exception.Usuario.UsuarioListaVaziaException;
 import school.sptech.projetoMima.exception.Usuario.UsuarioNaoEncontradoException;
@@ -18,6 +26,15 @@ public class UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private GerenciadorTokenJwt gerenciadorTokenJwt;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     public Usuario findFuncionarioById(int id) {
         return usuarioRepository.findById(id).orElseThrow(() -> new UsuarioNaoEncontradoException("Funcionário com o ID " + id + " não encontrado!"));
@@ -63,6 +80,34 @@ public class UsuarioService {
         usuarioRepository.deleteById(id);
     }
 
+    public void criar (Usuario novoUsuario) {
+        String senhaCriptografada = passwordEncoder.encode(novoUsuario.getSenha());
+        novoUsuario.setSenha(senhaCriptografada);
+        usuarioRepository.save(novoUsuario);
+    }
 
+    public UsuarioTokenDto autenticar (Usuario usuario) {
+
+
+        final UsernamePasswordAuthenticationToken credentials = new UsernamePasswordAuthenticationToken(
+                usuario.getEmail(), usuario.getSenha());
+
+        final Authentication authentication = this.authenticationManager.authenticate(credentials);
+
+        Usuario usuarioAutenticado = usuarioRepository.findByEmail(usuario.getEmail())
+                .orElseThrow(() -> new school.sptech.projetoMima.exception.Usuario.UsuarioNaoEncontradoException("Email do usuário não cadastrado"));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        final String token = gerenciadorTokenJwt.generateToken(authentication);
+
+        return UsuarioMapper.of(usuarioAutenticado, token);
+    }
+
+    public List<UsuarioListarDto> listarTodos() {
+
+        List<Usuario> usuariosEncontrados = usuarioRepository.findAll();
+        return usuariosEncontrados.stream().map(UsuarioMapper::of).toList();
+    }
 
 }

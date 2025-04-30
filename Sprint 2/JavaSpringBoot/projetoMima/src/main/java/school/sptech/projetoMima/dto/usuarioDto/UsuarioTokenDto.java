@@ -1,4 +1,4 @@
-package school.sptech.projetoMima.dto.usuarioDto.usuarioLogin;
+package school.sptech.projetoMima.dto.usuarioDto;
 
 public class UsuarioTokenDto {
 

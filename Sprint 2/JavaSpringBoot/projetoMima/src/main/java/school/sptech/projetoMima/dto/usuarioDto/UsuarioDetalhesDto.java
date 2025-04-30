@@ -1,4 +1,4 @@
-package school.sptech.projetoMima.dto.usuarioDto.usuarioLogin;
+package school.sptech.projetoMima.dto.usuarioDto;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,7 +10,9 @@ import java.util.List;
 public class UsuarioDetalhesDto implements UserDetails {
 
     private final String nome;
+
     private final String email;
+
     private final String senha;
 
     public UsuarioDetalhesDto(Usuario usuario) {
@@ -23,46 +25,38 @@ public class UsuarioDetalhesDto implements UserDetails {
         return nome;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public String getSenha() {
-        return senha;
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return null;
     }
 
     @Override
     public String getPassword() {
-        return "";
+        return senha;
     }
 
     @Override
     public String getUsername() {
-        return "";
+        return email;
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return true;
     }
 }

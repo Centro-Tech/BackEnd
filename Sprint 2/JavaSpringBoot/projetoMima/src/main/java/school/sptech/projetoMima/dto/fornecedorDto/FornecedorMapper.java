@@ -17,7 +17,7 @@ public class FornecedorMapper {
 
         response.setNome(fornecedor.getNome());
         response.setEmail(fornecedor.getEmail());
-        response.setTelefone(response.getTelefone());
+        response.setTelefone(fornecedor.getTelefone());
 
         return response;
     }

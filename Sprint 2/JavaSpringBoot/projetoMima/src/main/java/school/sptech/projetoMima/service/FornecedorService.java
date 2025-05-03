@@ -25,10 +25,11 @@ public class FornecedorService {
     }
 
     public Fornecedor cadastrar(Fornecedor fornecedor) {
-        if (fornecedorRepository.existsByNome(fornecedor.getNome())) {
-            throw new FornecedorExistenteException("Fornecedor com este CNPJ já cadastrado!");
+        if (fornecedorRepository.findByNomeEqualsIgnoreCase(fornecedor.getNome()).isEmpty()) {
+            return fornecedorRepository.save(fornecedor);
+
         }
-        return fornecedorRepository.save(fornecedor);
+        throw new FornecedorExistenteException("Fornecedor com este nome já cadastrado!");
     }
 
     public Fornecedor deletar(Integer id) {

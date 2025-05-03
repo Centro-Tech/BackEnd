@@ -92,8 +92,8 @@ public class ItemController {
         }
     }
 
-    @GetMapping("/filtro-por-nome")
-    public ResponseEntity<List<ItemListDto>> filtrarPorNome (@RequestParam String nome) {
+    @GetMapping("/filtro-por-nome/{nome}")
+    public ResponseEntity<List<ItemListDto>> filtrarPorNome (@PathVariable String nome) {
         List<Item> itens = itemService.filtrarPorNome(nome);
 
         if (itens.isEmpty()) {
@@ -104,9 +104,9 @@ public class ItemController {
         return ResponseEntity.status(200).body(response);
     }
 
-    @GetMapping("/filtro-por-fornecedor")
-    public ResponseEntity<List<ItemListDto>> filtrarPorFornecedor (@RequestParam String nome) {
-        List<Item> itens = itemService.filtrarPorFornecedor(nome);
+    @GetMapping("/filtro-por-fornecedor/{fornecedor}")
+    public ResponseEntity<List<ItemListDto>> filtrarPorFornecedor (@PathVariable String fornecedor) {
+        List<Item> itens = itemService.filtrarPorFornecedor(fornecedor);
 
         if (itens.isEmpty()) {
             return ResponseEntity.status(204).build();
@@ -116,9 +116,9 @@ public class ItemController {
         return ResponseEntity.status(200).body(response);
     }
 
-    @GetMapping("/filtro-por-categoria")
-    public ResponseEntity<List<ItemListDto>> filtrarPorCategoria (@RequestParam String nome) {
-        List<Item> itens = itemService.filtrarPorCategoria(nome);
+    @GetMapping("/filtro-por-categoria/{categoria}")
+    public ResponseEntity<List<ItemListDto>> filtrarPorCategoria (@PathVariable String categoria) {
+        List<Item> itens = itemService.filtrarPorCategoria(categoria);
 
         if (itens.isEmpty()) {
             return ResponseEntity.status(204).build();

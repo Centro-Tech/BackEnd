@@ -59,14 +59,14 @@ public class FornecedorController {
     @Operation(summary = "Cadastrar novo fornecedor")
     @ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Fornecedor cadastrado com sucesso"), @ApiResponse(responseCode = "409", description = "Conflito: Fornecedor com este CNPJ já existe") })
     @PostMapping
-    public ResponseEntity<FornecedorResponseDto> cadastrar(@Valid @RequestBody FornecedorRequestDto request) {
-        Fornecedor fornecedor = FornecedorMapper.toEntity(request);
-        try {
-            Fornecedor fornecedorCadastrado = fornecedorService.cadastrar(fornecedor);
-            return ResponseEntity.status(201).body(FornecedorMapper.toResponse(fornecedorCadastrado));
-        } catch (FornecedorExistenteException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
-        }
+    public ResponseEntity<Fornecedor> cadastrar(@Valid @RequestBody Fornecedor request) {
+        System.out.println("Nome recebido: " + request.getNome());
+        System.out.println("Telefone recebido: " + request.getTelefone());
+        System.out.println("Email recebido: " + request.getEmail());
+
+        /*Fornecedor fornecedor = FornecedorMapper.toEntity(request);*/
+        Fornecedor fornecedorCadastrado = fornecedorService.cadastrar(request);
+        return ResponseEntity.status(201).body(fornecedorCadastrado);
     }
 
     @Operation(summary = "Excluir fornecedor")

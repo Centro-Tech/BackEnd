@@ -25,16 +25,15 @@ public class FornecedorService {
     }
 
     public Fornecedor cadastrar(Fornecedor fornecedor) {
-        if (fornecedorRepository.findByNomeEqualsIgnoreCase(fornecedor.getNome()).isEmpty()) {
-            return fornecedorRepository.save(fornecedor);
-
+        if (!fornecedorRepository.existsByNome(fornecedor.getNome())) {
+            Fornecedor fornecedorCadastrado = fornecedorRepository.save(fornecedor);
+            return fornecedorCadastrado;
         }
         throw new FornecedorExistenteException("Fornecedor com este nome já cadastrado!");
     }
 
-    public Fornecedor deletar(Integer id) {
+    public void deletar(Integer id) {
         Fornecedor fornecedor = findById(id).orElseThrow(() -> new FornecedorNaoEncontradoException("Fornecedor não encontrado!"));
         fornecedorRepository.delete(fornecedor);
-        return fornecedor;
     }
 }

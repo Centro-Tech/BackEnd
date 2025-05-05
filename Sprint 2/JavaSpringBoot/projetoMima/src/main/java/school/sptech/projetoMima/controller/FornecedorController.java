@@ -1,21 +1,20 @@
 package school.sptech.projetoMima.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import school.sptech.projetoMima.dto.fornecedorDto.FornecedorMapper;
 import school.sptech.projetoMima.dto.fornecedorDto.FornecedorRequestDto;
 import school.sptech.projetoMima.dto.fornecedorDto.FornecedorResponseDto;
 import school.sptech.projetoMima.entity.Fornecedor;
-import school.sptech.projetoMima.exception.Fornecedor.FornecedorExistenteException;
 import school.sptech.projetoMima.service.FornecedorService;
 import school.sptech.projetoMima.service.ItemService;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -59,14 +58,10 @@ public class FornecedorController {
     @Operation(summary = "Cadastrar novo fornecedor")
     @ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Fornecedor cadastrado com sucesso"), @ApiResponse(responseCode = "409", description = "Conflito: Fornecedor com este CNPJ já existe") })
     @PostMapping
-    public ResponseEntity<Fornecedor> cadastrar(@Valid @RequestBody Fornecedor request) {
-        System.out.println("Nome recebido: " + request.getNome());
-        System.out.println("Telefone recebido: " + request.getTelefone());
-        System.out.println("Email recebido: " + request.getEmail());
-
-        /*Fornecedor fornecedor = FornecedorMapper.toEntity(request);*/
-        Fornecedor fornecedorCadastrado = fornecedorService.cadastrar(request);
-        return ResponseEntity.status(201).body(fornecedorCadastrado);
+    public ResponseEntity<FornecedorResponseDto> cadastrar(@Valid @RequestBody FornecedorRequestDto request) {
+        Fornecedor fornecedor = FornecedorMapper.toEntity(request);
+        Fornecedor fornecedorCadastrado = fornecedorService.cadastrar(fornecedor);
+        return ResponseEntity.status(201).body(FornecedorMapper.toResponse(fornecedorCadastrado));
     }
 
     @Operation(summary = "Excluir fornecedor")

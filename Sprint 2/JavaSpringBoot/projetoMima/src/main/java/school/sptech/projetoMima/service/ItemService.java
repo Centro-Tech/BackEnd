@@ -2,10 +2,6 @@ package school.sptech.projetoMima.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import school.sptech.projetoMima.dto.itemDto.ItemListDto;
-import school.sptech.projetoMima.dto.itemDto.ItemMapper;
-import school.sptech.projetoMima.dto.itemDto.ItemResponseDto;
-import school.sptech.projetoMima.dto.itemDto.auxiliares.CategoriaDto;
 import school.sptech.projetoMima.entity.Fornecedor;
 import school.sptech.projetoMima.entity.item.Item;
 import school.sptech.projetoMima.exception.Item.ItemNaoEncontradoException;

@@ -1,8 +1,13 @@
 package school.sptech.projetoMima.dto.itemDto;
 
 import school.sptech.projetoMima.dto.fornecedorDto.FornecedorMapper;
+import school.sptech.projetoMima.dto.itemDto.auxiliares.CategoriaDto;
+import school.sptech.projetoMima.dto.itemDto.auxiliares.CorDto;
+import school.sptech.projetoMima.dto.itemDto.auxiliares.MaterialDto;
+import school.sptech.projetoMima.dto.itemDto.auxiliares.TamanhoDto;
 import school.sptech.projetoMima.entity.item.Categoria;
 import school.sptech.projetoMima.entity.item.Item;
+import school.sptech.projetoMima.entity.item.Tamanho;
 
 public class ItemMapper {
 
@@ -30,25 +35,33 @@ public class ItemMapper {
         return response;
     }
 
-    public static Item toEntity (ItemRequestDto request) {
-        Item response = new Item();
+    public static Item toEntity(ItemRequestDto request) {
+        Item item = new Item();
 
-        response.setNome(request.getNome());
-        response.setQtdEstoque(request.getQtdEstoque());
-        response.setTamanho(request.getTamanho());
-        response.setCor(request.getCor());
-        response.setMaterial(request.getMaterial());
+        item.setNome(request.getNome());
+        item.setQtdEstoque(request.getQtdEstoque());
 
-        Categoria categoria = new Categoria();
-        categoria.setNome(request.getCategoria().getNome());
-        response.setCategoria(categoria);
+        if (request.getTamanho() != null) {
+            item.setTamanho(TamanhoDto.toEntity(request.getTamanho()));
+        }
 
-        response.setPreco(request.getPreco());
-        response.setFornecedor(request.getFornecedor());
+        if (request.getCor() != null) {
+            item.setCor(CorDto.toEntity(request.getCor()));
+        }
 
-        return response;
+        if (request.getMaterial() != null) {
+            item.setMaterial(MaterialDto.toEntity(request.getMaterial()));
+        }
+
+        if (request.getCategoria() != null) {
+            item.setCategoria(CategoriaDto.toEntity(request.getCategoria()));
+        }
+
+        item.setPreco(request.getPreco());
+        item.setFornecedor(request.getFornecedor());
+
+        return item;
     }
-
 
     public static Item fromResponseToEntity (ItemResponseDto request) {
         Item response = new Item();

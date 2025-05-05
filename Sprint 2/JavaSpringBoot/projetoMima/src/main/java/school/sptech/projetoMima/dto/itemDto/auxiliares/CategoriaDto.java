@@ -1,5 +1,7 @@
 package school.sptech.projetoMima.dto.itemDto.auxiliares;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -11,6 +13,12 @@ public class CategoriaDto {
     @Size(min = 2)
     private String tipo;
 
+    @JsonCreator
+    public CategoriaDto(String tipo) {
+        this.tipo = tipo;
+    }
+
+    @JsonValue
     public @NotNull @NotBlank @Size(min = 2) String getTipo() {
         return tipo;
     }

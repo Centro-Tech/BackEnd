@@ -22,22 +22,22 @@ public class Item {
     @Schema(description = "Nome do item", example = "Camiseta Polo Azul")
     private String nome;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn (name = "fkTamanho")
     @Schema(description = "Tamanho do item", example = "M")
     private Tamanho tamanho;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn (name = "fkCor")
     @Schema(description = "Cor do item", example = "Azul")
     private Cor cor;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn (name = "fkMaterial")
     @Schema(description = "Material do item", example = "Poliamida")
     private Material material;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "fkCategoria")
     @Schema(description = "Tipo do item", example = "Camiseta")
     private Categoria categoria;

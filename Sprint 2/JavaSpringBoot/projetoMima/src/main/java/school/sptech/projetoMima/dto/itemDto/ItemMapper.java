@@ -5,9 +5,8 @@ import school.sptech.projetoMima.dto.itemDto.auxiliares.CategoriaDto;
 import school.sptech.projetoMima.dto.itemDto.auxiliares.CorDto;
 import school.sptech.projetoMima.dto.itemDto.auxiliares.MaterialDto;
 import school.sptech.projetoMima.dto.itemDto.auxiliares.TamanhoDto;
-import school.sptech.projetoMima.entity.item.Categoria;
-import school.sptech.projetoMima.entity.item.Item;
-import school.sptech.projetoMima.entity.item.Tamanho;
+import school.sptech.projetoMima.entity.Fornecedor;
+import school.sptech.projetoMima.entity.item.*;
 
 public class ItemMapper {
 
@@ -40,24 +39,32 @@ public class ItemMapper {
 
         item.setNome(request.getNome());
         item.setQtdEstoque(request.getQtdEstoque());
+        item.setPreco(request.getPreco());
 
         if (request.getTamanho() != null) {
-            item.setTamanho(TamanhoDto.toEntity(request.getTamanho()));
+            Tamanho tamanho = new Tamanho();
+            tamanho.setTamanho(request.getTamanho());
+            item.setTamanho(tamanho);
         }
 
         if (request.getCor() != null) {
-            item.setCor(CorDto.toEntity(request.getCor()));
+            Cor cor = new Cor();
+            cor.setNome(request.getCor());
+            item.setCor(cor);
         }
 
         if (request.getMaterial() != null) {
-            item.setMaterial(MaterialDto.toEntity(request.getMaterial()));
+            Material material = new Material();
+            material.setMaterial(request.getMaterial());
+            item.setMaterial(material);
         }
 
         if (request.getCategoria() != null) {
-            item.setCategoria(CategoriaDto.toEntity(request.getCategoria()));
+            Categoria categoria = new Categoria();
+            categoria.setNome(request.getCategoria());
+            item.setCategoria(categoria);
         }
 
-        item.setPreco(request.getPreco());
         item.setFornecedor(request.getFornecedor());
 
         return item;

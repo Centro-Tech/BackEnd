@@ -28,22 +28,22 @@ public class ItemRequestDto {
     @NotBlank
     @NotNull
     @Size(max = 2, min = 1)
-    private TamanhoDto tamanho;
+    private String tamanho;
 
     @NotBlank
     @NotNull
     @Size(max = 45, min = 1)
-    private CorDto cor;
+    private String cor;
 
     @NotBlank
     @NotNull
     @Size(max = 45, min = 1)
-    private MaterialDto material;
+    private String material;
 
     @NotBlank
     @NotNull
     @Size(max = 45, min = 1)
-    private CategoriaDto categoria;
+    private String categoria;
 
     @NotBlank
     @NotNull
@@ -70,36 +70,36 @@ public class ItemRequestDto {
         this.qtdEstoque = qtdEstoque;
     }
 
-    public @NotBlank @NotNull @Size(max = 2, min = 1) TamanhoDto getTamanho() {
+    public @NotBlank @NotNull @Size(max = 2, min = 1) String getTamanho() {
         return tamanho;
     }
 
-    public void setTamanho(@NotBlank @NotNull @Size(max = 2, min = 1) TamanhoDto
+    public void setTamanho(@NotBlank @NotNull @Size(max = 2, min = 1) String
                                    tamanho) {
         this.tamanho = tamanho;
     }
 
-    public @NotBlank @NotNull @Size(max = 45, min = 1) CorDto getCor() {
+    public @NotBlank @NotNull @Size(max = 45, min = 1) String getCor() {
         return cor;
     }
 
-    public void setCor(@NotBlank @NotNull @Size(max = 45, min = 1) CorDto cor) {
+    public void setCor(@NotBlank @NotNull @Size(max = 45, min = 1) String cor) {
         this.cor = cor;
     }
 
-    public @NotBlank @NotNull @Size(max = 45, min = 1) MaterialDto getMaterial() {
+    public @NotBlank @NotNull @Size(max = 45, min = 1) String getMaterial() {
         return material;
     }
 
-    public void setMaterial(@NotBlank @NotNull @Size(max = 45, min = 1) MaterialDto material) {
+    public void setMaterial(@NotBlank @NotNull @Size(max = 45, min = 1) String material) {
         this.material = material;
     }
 
-    public @NotBlank @NotNull @Size(max = 45, min = 1) CategoriaDto getCategoria() {
+    public @NotBlank @NotNull @Size(max = 45, min = 1) String getCategoria() {
         return categoria;
     }
 
-    public void setCategoria(@NotBlank @NotNull @Size(max = 45, min = 1) CategoriaDto categoria) {
+    public void setCategoria(@NotBlank @NotNull @Size(max = 45, min = 1) String categoria) {
         this.categoria = categoria;
     }
 

@@ -122,13 +122,4 @@ public class UsuarioService {
 
 
 
-
-
-    public Usuario buscarPorEmail(String email) {
-        return usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário com email '" + email + "' não encontrado"));
-    }
-
-
-
 }

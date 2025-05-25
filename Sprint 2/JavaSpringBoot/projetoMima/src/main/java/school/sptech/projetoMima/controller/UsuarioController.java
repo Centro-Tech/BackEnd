@@ -111,6 +111,12 @@ public class UsuarioController {
     }
 
     @PutMapping("/trocar-senha")
+    @Operation(summary = "Trocar a senha do usuário autenticado")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Senha alterada com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro na alteração da senha (ex: senha atual incorreta)"),
+            @ApiResponse(responseCode = "401", description = "Usuário não autenticado")
+    })
     public ResponseEntity<String> trocarSenha(@RequestBody TrocarSenhaDto dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String emailUsuario = authentication.getName();
@@ -122,8 +128,8 @@ public class UsuarioController {
         try {
             usuarioService.trocarSenha(dto);
             return ResponseEntity.ok("Senha alterada com sucesso");
-        } catch (RuntimeException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

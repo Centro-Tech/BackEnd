@@ -1,9 +1,12 @@
 package school.sptech.projetoMima.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import school.sptech.projetoMima.entity.Cliente;
 import school.sptech.projetoMima.entity.ItemVenda;
+import school.sptech.projetoMima.entity.Usuario;
 import school.sptech.projetoMima.entity.Venda;
 import school.sptech.projetoMima.exception.Venda.CarrinhoVazioException;
 import school.sptech.projetoMima.exception.Venda.QuantidadeIndisponivelException;
@@ -17,6 +20,7 @@ public class VendaService {
     @Autowired
     private VendaRepository vendaRepository;
 
+
     public Venda vender (Venda venda) {
         List<ItemVenda> itensDaVenda = venda.getItensVenda();
 
@@ -28,6 +32,10 @@ public class VendaService {
             int novaQtdEmEstoque = itemVenda.getItem().getQtdEstoque() - itemVenda.getQtdParaVender();
             itemVenda.getItem().setQtdEstoque(novaQtdEmEstoque);
         }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Usuario usuarioLogado = (Usuario) authentication.getPrincipal();
+        venda.setUsuario(usuarioLogado);
 
         vendaRepository.save(venda);
         venda.setValorTotal(0.0);
@@ -61,4 +69,6 @@ public class VendaService {
     public List<Venda> filtrarPorValor (Double valorMinimo, Double valorMax) {
         return vendaRepository.findByValorTotalBetween(valorMinimo, valorMax);
     }
+
+
 }

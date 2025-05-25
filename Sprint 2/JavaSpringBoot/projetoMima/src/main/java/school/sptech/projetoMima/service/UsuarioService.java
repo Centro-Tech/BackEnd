@@ -8,10 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import school.sptech.projetoMima.config.GerenciadorTokenJwt;
-import school.sptech.projetoMima.dto.usuarioDto.UsuarioCadastroDto;
-import school.sptech.projetoMima.dto.usuarioDto.UsuarioListarDto;
-import school.sptech.projetoMima.dto.usuarioDto.UsuarioMapper;
-import school.sptech.projetoMima.dto.usuarioDto.UsuarioTokenDto;
+import school.sptech.projetoMima.dto.usuarioDto.*;
 import school.sptech.projetoMima.entity.Usuario;
 import school.sptech.projetoMima.exception.Usuario.UsuarioListaVaziaException;
 import school.sptech.projetoMima.exception.Usuario.UsuarioNaoEncontradoException;
@@ -109,5 +106,29 @@ public class UsuarioService {
         List<Usuario> usuariosEncontrados = usuarioRepository.findAll();
         return usuariosEncontrados.stream().map(UsuarioMapper::of).toList();
     }
+
+    public void trocarSenha(TrocarSenhaDto dto) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o e-mail: " + email));
+        if (!passwordEncoder.matches(dto.getSenhaAtual(), usuario.getSenha())) {
+            throw new RuntimeException("Senha atual incorreta.");
+        }
+
+        usuario.setSenha(passwordEncoder.encode(dto.getNovaSenha()));
+        usuarioRepository.save(usuario);
+    }
+
+
+
+
+
+    public Usuario buscarPorEmail(String email) {
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário com email '" + email + "' não encontrado"));
+    }
+
+
 
 }

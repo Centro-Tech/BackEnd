@@ -8,7 +8,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import school.sptech.projetoMima.dto.usuarioDto.*;
 import school.sptech.projetoMima.entity.Usuario;
@@ -81,6 +85,12 @@ public class UsuarioController {
 
     @PostMapping("/criar")
     @SecurityRequirement(name = "Bearer")
+    @Operation(summary = "Criar novo usuário com senha padrão criptografada")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "401", description = "Não autorizado")
+    })
     public ResponseEntity<Void> criar(@RequestBody @Valid UsuarioCriacaoDto usuarioCriacaoDto) {
         final Usuario novoUsuario = UsuarioMapper.of(usuarioCriacaoDto);
         this.usuarioService.criar(novoUsuario);
@@ -88,10 +98,38 @@ public class UsuarioController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Realizar login de usuário")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Login realizado com sucesso", content = @Content(schema = @Schema(implementation = UsuarioTokenDto.class))),
+            @ApiResponse(responseCode = "400", description = "Credenciais inválidas"),
+            @ApiResponse(responseCode = "404", description = "Email do usuário não cadastrado")
+    })
     public ResponseEntity<UsuarioTokenDto> login(@RequestBody UsuarioLoginDto usuarioLoginDto) {
         final Usuario usuario = UsuarioMapper.of(usuarioLoginDto);
         UsuarioTokenDto usuarioTokenDto = this.usuarioService.autenticar(usuario);
-
         return ResponseEntity.status(200).body(usuarioTokenDto);
     }
+
+    @PutMapping("/trocar-senha")
+    public ResponseEntity<String> trocarSenha(@RequestBody TrocarSenhaDto dto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String emailUsuario = authentication.getName();
+
+        if (emailUsuario.equals("anonymousUser")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário não autenticado");
+        }
+
+        try {
+            usuarioService.trocarSenha(dto);
+            return ResponseEntity.ok("Senha alterada com sucesso");
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
+
+
+
+
+
 }

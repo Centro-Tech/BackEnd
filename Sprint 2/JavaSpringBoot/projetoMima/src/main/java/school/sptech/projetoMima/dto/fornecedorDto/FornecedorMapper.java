@@ -4,15 +4,18 @@ import school.sptech.projetoMima.entity.Fornecedor;
 
 public class FornecedorMapper {
 
-    public static FornecedorResponseDto toResponse (Fornecedor fornecedor) {
+    public static FornecedorResponseDto toResponse(Fornecedor fornecedor) {
         FornecedorResponseDto response = new FornecedorResponseDto();
 
+        response.setId(fornecedor.getId());
         response.setNome(fornecedor.getNome());
+        response.setTelefone(fornecedor.getTelefone());
+        response.setEmail(fornecedor.getEmail());
 
         return response;
     }
 
-    public static Fornecedor toEntity (FornecedorRequestDto fornecedor) {
+    public static Fornecedor toEntity(FornecedorRequestDto fornecedor) {
         Fornecedor response = new Fornecedor();
 
         response.setNome(fornecedor.getNome());
@@ -21,4 +24,9 @@ public class FornecedorMapper {
 
         return response;
     }
+
+
+
+
+
 }

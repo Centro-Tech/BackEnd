@@ -42,27 +42,19 @@ public class ItemMapper {
         item.setPreco(request.getPreco());
 
         if (request.getTamanho() != null) {
-            Tamanho tamanho = new Tamanho();
-            tamanho.setTamanho(request.getTamanho());
-            item.setTamanho(tamanho);
+            item.setTamanho(TamanhoDto.toEntity(new TamanhoDto(request.getTamanho())));
         }
 
         if (request.getCor() != null) {
-            Cor cor = new Cor();
-            cor.setNome(request.getCor());
-            item.setCor(cor);
+            item.setCor(CorDto.toEntity(new CorDto(request.getCor())));
         }
 
         if (request.getMaterial() != null) {
-            Material material = new Material();
-            material.setMaterial(request.getMaterial());
-            item.setMaterial(material);
+            item.setMaterial(MaterialDto.toEntity(new MaterialDto(request.getMaterial())));
         }
 
         if (request.getCategoria() != null) {
-            Categoria categoria = new Categoria();
-            categoria.setNome(request.getCategoria());
-            item.setCategoria(categoria);
+            item.setCategoria(CategoriaDto.toEntity(new CategoriaDto(request.getCategoria())));
         }
 
         item.setFornecedor(request.getFornecedor());

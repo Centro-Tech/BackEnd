@@ -1,18 +1,30 @@
 package school.sptech.projetoMima.dto.itemDto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import school.sptech.projetoMima.dto.itemDto.auxiliares.CategoriaDto;
-import school.sptech.projetoMima.dto.itemDto.auxiliares.CorDto;
-import school.sptech.projetoMima.dto.itemDto.auxiliares.MaterialDto;
-import school.sptech.projetoMima.dto.itemDto.auxiliares.TamanhoDto;
+import school.sptech.projetoMima.dto.fornecedorDto.FornecedorRequestDto;
 import school.sptech.projetoMima.entity.Fornecedor;
-import school.sptech.projetoMima.entity.item.Categoria;
-import school.sptech.projetoMima.entity.item.Cor;
-import school.sptech.projetoMima.entity.item.Material;
-import school.sptech.projetoMima.entity.item.Tamanho;
+
+@Schema(name = "ItemRequestDto", example = """
+{
+  "nome": "Camiseta Estampada",
+  "qtdEstoque": 50,
+  "preco": 79.90,
+  "tamanho": "M",
+  "cor": "Azul",
+  "material": "Algodão",
+  "categoria": "Camisetas",
+  "fornecedor": {
+    "id": 1,
+    "nome": "Empresa XYZ LTDA",
+    "telefone": "11987654321",
+    "email": "contato@empresa.com"
+  }
+}
+""")
 
 public class ItemRequestDto {
     @NotBlank

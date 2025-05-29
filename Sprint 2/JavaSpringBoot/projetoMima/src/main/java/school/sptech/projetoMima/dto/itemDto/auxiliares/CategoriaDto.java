@@ -1,29 +1,31 @@
 package school.sptech.projetoMima.dto.itemDto.auxiliares;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import school.sptech.projetoMima.entity.item.Categoria;
 
+@Schema(description = "DTO para categoria do item")
 public class CategoriaDto {
+
+    @Schema(description = "Tipo da categoria", example = "Casual", required = true)
     @NotNull
     @NotBlank
     @Size(min = 2)
     private String tipo;
 
-    @JsonCreator
+    public CategoriaDto() {}
+
     public CategoriaDto(String tipo) {
         this.tipo = tipo;
     }
 
-    @JsonValue
-    public @NotNull @NotBlank @Size(min = 2) String getTipo() {
+    public String getTipo() {
         return tipo;
     }
 
-    public void setTipo(@NotNull @NotBlank @Size(min = 2) String tipo) {
+    public void setTipo(String tipo) {
         this.tipo = tipo;
     }
 

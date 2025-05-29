@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import school.sptech.projetoMima.dto.itemDto.ItemVendaRequestDto;
 import school.sptech.projetoMima.dto.vendaDto.VendaMapper;
 import school.sptech.projetoMima.dto.vendaDto.VendaRequestDto;
 import school.sptech.projetoMima.dto.vendaDto.VendaResponseDto;
@@ -40,18 +41,21 @@ public class VendaController {
     @Operation(summary = "Adicionar item a uma venda existente")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Item adicionado com sucesso", content = @Content(schema = @Schema(implementation = VendaResponseDto.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos")})
     @PutMapping("/adicionar-item")
-    public ResponseEntity<VendaResponseDto> adicionarItens(@Valid VendaRequestDto request, @Valid ItemVenda itemVenda) {
-        Venda venda = VendaMapper.toEntity(request);
+    public ResponseEntity<VendaResponseDto> adicionarItens(@Valid @RequestBody ItemVendaRequestDto request) {
+        Venda venda = VendaMapper.toEntity(request.getVenda());
+        ItemVenda itemVenda = request.getItemVenda();
         vendaService.adicionarItem(itemVenda, venda);
         return ResponseEntity.status(200).body(VendaMapper.toResponse(venda));
     }
 
+
     @Operation(summary = "Remover item de uma venda")
     @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "Item removido com sucesso"), @ApiResponse(responseCode = "400", description = "Dados inválidos")})
     @DeleteMapping
-    public ResponseEntity<Void> removerItemDaVenda(@Valid VendaRequestDto request, @Valid ItemVenda itemParaDeletar) {
-        Venda venda = VendaMapper.toEntity(request);
-        vendaService.deletarItemDaVenda(venda, itemParaDeletar);
+    public ResponseEntity<Void> removerItemDaVenda(@Valid @RequestBody ItemVendaRequestDto request) {
+        Venda venda = VendaMapper.toEntity(request.getVenda());
+        ItemVenda itemVenda = request.getItemVenda();
+        vendaService.deletarItemDaVenda(itemVenda, venda);
         return ResponseEntity.status(204).build();
     }
 

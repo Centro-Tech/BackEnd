@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -54,7 +55,8 @@ public class ItemController {
     @Operation(summary = "Cadastrar novo item")
     @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "Item cadastrado com sucesso", content = @Content(schema = @Schema(implementation = Item.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos ou código duplicado"), @ApiResponse(responseCode = "404", description = "Fornecedor não encontrado")})
     @PostMapping
-    public ResponseEntity<ItemResponseDto> cadastrarItem(@RequestBody ItemRequestDto request) {
+    public ResponseEntity<ItemResponseDto> cadastrarItem(@Valid @RequestBody ItemRequestDto request) {
+        System.out.println("Entrou no cadastrarItem");
         Item item = ItemMapper.toEntity(request);
 
         if (itemService.existsByCodigo(item.getCodigo())) {
@@ -78,6 +80,7 @@ public class ItemController {
         Item novoItem = itemService.cadastrarItem(item, fornecedorOpt.get());
         return ResponseEntity.status(201).body(ItemMapper.toResponse(novoItem));
     }
+
 
     @Operation(summary = "Deletar Item")
     @ApiResponses(value = {@ApiResponse(responseCode = "205", description = "Item deletado com sucesso"), @ApiResponse(responseCode = "404", description = "Item não encontrado")})

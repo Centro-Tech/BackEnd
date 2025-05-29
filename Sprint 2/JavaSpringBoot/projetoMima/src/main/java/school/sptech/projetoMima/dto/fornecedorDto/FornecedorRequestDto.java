@@ -1,5 +1,6 @@
 package school.sptech.projetoMima.dto.fornecedorDto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -8,15 +9,18 @@ public class FornecedorRequestDto {
 
     @NotBlank
     @Size(max = 100, min = 1)
+    @Schema(description = "Nome do fornecedor", example = "Empresa XYZ LTDA", minLength = 1, maxLength = 100, required = true)
     private String nome;
 
     @NotBlank
     @Size(min = 11, max = 11)
+    @Schema(description = "Telefone do fornecedor com 11 dígitos, somente números", example = "11987654321", minLength = 11, maxLength = 11, required = true)
     private String telefone;
 
     @NotBlank
     @Size(max = 100, min = 1)
     @Email
+    @Schema(description = "Email do fornecedor", example = "contato@empresa.com", minLength = 1, maxLength = 100, required = true)
     private String email;
 
     public FornecedorRequestDto() {

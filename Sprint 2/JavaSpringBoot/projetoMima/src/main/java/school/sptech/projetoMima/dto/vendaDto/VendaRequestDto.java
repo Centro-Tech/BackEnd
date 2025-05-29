@@ -1,5 +1,6 @@
 package school.sptech.projetoMima.dto.vendaDto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -10,14 +11,18 @@ import school.sptech.projetoMima.entity.ItemVenda;
 import java.util.List;
 
 public class VendaRequestDto {
+
+    @Schema(description = "Valor total da venda", example = "199.99", required = true)
     @NotNull
     @PositiveOrZero
     private Double valorTotal;
 
+    @Schema(description = "Cliente que está realizando a compra", required = true)
     @NotNull
     @Valid
     private Cliente cliente;
 
+    @Schema(description = "Lista de itens que compõem a venda", required = true)
     @NotEmpty
     @Valid
     private List<ItemVenda> itensVenda;

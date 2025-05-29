@@ -39,10 +39,7 @@ public class VendaController {
     }
 
     @Operation(summary = "Adicionar item a uma venda existente")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Item adicionado com sucesso", content = @Content(schema = @Schema(implementation = VendaResponseDto.class))),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos")
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Item adicionado com sucesso", content = @Content(schema = @Schema(implementation = VendaResponseDto.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos")})
     @PutMapping("/adicionar-item")
     public ResponseEntity<VendaResponseDto> adicionarItens(@Valid @RequestBody ItemVendaRequestDto request) {
         Venda venda = VendaMapper.toEntity(request.getVenda());
@@ -53,14 +50,12 @@ public class VendaController {
 
 
     @Operation(summary = "Remover item de uma venda")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Item removido com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos")
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "Item removido com sucesso"), @ApiResponse(responseCode = "400", description = "Dados inválidos")})
     @DeleteMapping
-    public ResponseEntity<Void> removerItemDaVenda(@Valid @RequestBody VendaRequestDto request, @Valid @RequestBody ItemVenda itemParaDeletar) {
-        Venda venda = VendaMapper.toEntity(request);
-        vendaService.deletarItemDaVenda(venda, itemParaDeletar);
+    public ResponseEntity<Void> removerItemDaVenda(@Valid @RequestBody ItemVendaRequestDto request) {
+        Venda venda = VendaMapper.toEntity(request.getVenda());
+        ItemVenda itemVenda = request.getItemVenda();
+        vendaService.deletarItemDaVenda(itemVenda, venda);
         return ResponseEntity.status(204).build();
     }
 

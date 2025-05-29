@@ -53,8 +53,13 @@ public class VendaService {
         return itemParaAdicionar;
     }
 
-    public void deletarItemDaVenda(Venda venda, ItemVenda itemParaDeletar) {
+    public void deletarItemDaVenda(ItemVenda itemParaDeletar, Venda venda) {
+        if (itemParaDeletar.getQtdParaVender() > venda.getItensVenda().size()) {
+            throw new QuantidadeIndisponivelException("Não há quantidade suficiente para deletar.");
+        }
+
         venda.getItensVenda().remove(itemParaDeletar);
+        venda.setValorTotal(venda.getValorTotal() - itemParaDeletar.getItem().getPreco());
         vendaRepository.save(venda);
     }
 

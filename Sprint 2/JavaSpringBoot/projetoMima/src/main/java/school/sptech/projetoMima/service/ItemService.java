@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import school.sptech.projetoMima.entity.Fornecedor;
 import school.sptech.projetoMima.entity.item.Item;
+import school.sptech.projetoMima.exception.Item.ItemCampoVazioException;
 import school.sptech.projetoMima.exception.Item.ItemNaoEncontradoException;
+import school.sptech.projetoMima.exception.Item.ItemQuantidadeInvalida;
 import school.sptech.projetoMima.repository.ItemRepository;
 import school.sptech.projetoMima.repository.FornecedorRepository;
 
@@ -49,10 +51,72 @@ public class ItemService {
                 nome.contains("VESTIDO");
     }
 
+    public void validarCampoVazio(Item item) {
+        String nome = item.getCategoria().getNome().toUpperCase();
+        String tamanho = item.getTamanho().getNome().toUpperCase();
+        String cor = item.getCor().getNome().toUpperCase();
+        String material = item.getMaterial().getNome().toUpperCase();
+        double qtdEstoque = item.getQtdEstoque();
+        Fornecedor fornecedorCadastrado =item.getFornecedor();
+
+        //pensando na lógica dos campos que a beneficiárias irão preencher, não oq realmente é enviado no corpo da requisição
+        if(nome.isBlank() || tamanho.isBlank() || cor.isBlank() || material.isBlank() || qtdEstoque <= 0 || fornecedorCadastrado == null ) {
+
+            throw new ItemCampoVazioException("Campos em vazio no cadastro de item");
+
+        }
+
+
+    }
+
+    public void validarPreco(Item item) {
+        if (item.getPreco() == null) {
+            throw new ItemCampoVazioException("Preço inválido ou vazio");
+        }
+        try {
+            double precoNumerico = Double.parseDouble(item.getPreco().toString());
+            if (precoNumerico <= 0) {
+                throw new ItemCampoVazioException("Preço inválido ou vazio");
+            }
+        } catch (NumberFormatException e) {
+            throw new ItemCampoVazioException("Preço inválido ou vazio");
+        }
+    }
+
+
+    public Integer validarQuantidade(Item item) {
+        if (item.getQtdEstoque() <= 0) {
+            throw new ItemQuantidadeInvalida("Quantidade deve ser maior que zero");
+        }
+
+        return item.getQtdEstoque();
+    }
+
+    public boolean validarCaracteres(Item item) {
+
+        String texto = item.getCategoria().getNome().toUpperCase();
+
+        if (texto == null || texto.isBlank()) return false;
+
+        String caracteresValidos = "^[\\p{L}0-9]+$";
+
+        return !texto.matches(caracteresValidos);
+    }
+
+
+
+
     public Item cadastrarItem(Item item, Fornecedor fornecedor) {
         String nome = item.getCategoria().getNome().toUpperCase();
-        String tamanho = item.getTamanho().getTamanho().toUpperCase();
+        String tamanho = item.getTamanho().getNome().toUpperCase();
         String codigoIdentificacao = null;
+
+       validarCampoVazio(item);
+       validarPreco(item);
+       validarQuantidade(item);
+       validarCaracteres(item);
+
+
 
         if (nome.contains("BERMUDA")) codigoIdentificacao = "BZ";
         else if (nome.contains("BLAZER")) codigoIdentificacao = "BL";

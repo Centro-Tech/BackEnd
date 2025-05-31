@@ -10,7 +10,7 @@ public class Material {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String material;
+    private String nome;
 
     public Integer getId() {
         return id;
@@ -20,11 +20,12 @@ public class Material {
         this.id = id;
     }
 
-    public String getMaterial() {
-        return material;
+    public String getNome() {
+        return nome;
     }
 
-    public void setMaterial(String material) {
-        this.material = material;
+    public void setNome(String nome) {
+        this.nome = nome;
     }
+
 }

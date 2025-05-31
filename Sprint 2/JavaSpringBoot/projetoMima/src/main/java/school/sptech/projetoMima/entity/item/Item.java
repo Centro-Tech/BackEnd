@@ -106,6 +106,7 @@ public class Item {
         this.material = material;
     }
 
+
     public Categoria getCategoria() {
         return categoria;
     }
@@ -129,4 +130,7 @@ public class Item {
     public void setFornecedor(Fornecedor fornecedor) {
         this.fornecedor = fornecedor;
     }
+
+
+
 }

@@ -43,7 +43,7 @@ public class ItemMapper {
 
         if (request.getTamanho() != null) {
             Tamanho tamanho = new Tamanho();
-            tamanho.setTamanho(request.getTamanho());
+            tamanho.setNome(request.getTamanho());
             item.setTamanho(tamanho);
         }
 
@@ -55,9 +55,10 @@ public class ItemMapper {
 
         if (request.getMaterial() != null) {
             Material material = new Material();
-            material.setMaterial(request.getMaterial());
+            material.setNome(request.getMaterial());
             item.setMaterial(material);
         }
+
 
         if (request.getCategoria() != null) {
             Categoria categoria = new Categoria();

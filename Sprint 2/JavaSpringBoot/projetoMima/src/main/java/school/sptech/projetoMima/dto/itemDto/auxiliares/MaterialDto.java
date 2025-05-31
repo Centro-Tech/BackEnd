@@ -10,28 +10,28 @@ import school.sptech.projetoMima.entity.item.Material;
 public class MaterialDto {
 
     @Schema(description = "Nome do material", example = "Algodão", required = true)
-    @NotBlank
-    @NotNull
-    @Size(min = 2)
-    private String material;
+    @NotBlank(message = "O nome do material não pode estar em branco")
+    @NotNull(message = "O nome do material é obrigatório")
+    @Size(min = 2, message = "O nome do material deve ter pelo menos 2 caracteres")
+    private String nome;
 
     public MaterialDto() {}
 
-    public MaterialDto(String material) {
-        this.material = material;
+    public MaterialDto(String nome) {
+        this.nome = nome;
     }
 
-    public String getMaterial() {
-        return material;
+    public String getNome() {
+        return nome;
     }
 
-    public void setMaterial(String material) {
-        this.material = material;
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
-    public static Material toEntity(MaterialDto material) {
-        Material response = new Material();
-        response.setMaterial(material.getMaterial());
-        return response;
+    public static Material toEntity(MaterialDto dto) {
+        Material entity = new Material();
+        entity.setNome(dto.getNome());
+        return entity;
     }
 }

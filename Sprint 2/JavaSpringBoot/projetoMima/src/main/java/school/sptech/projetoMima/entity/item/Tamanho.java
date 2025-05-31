@@ -10,7 +10,8 @@ public class Tamanho {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String tamanho;
+    private String nome;
+
 
     public Integer getId() {
         return id;
@@ -20,11 +21,11 @@ public class Tamanho {
         this.id = id;
     }
 
-    public String getTamanho() {
-        return tamanho;
+    public String getNome() {
+        return nome;
     }
 
-    public void setTamanho(String tamanho) {
-        this.tamanho = tamanho;
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 }

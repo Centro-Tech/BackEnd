@@ -9,29 +9,29 @@ import school.sptech.projetoMima.entity.item.Tamanho;
 @Schema(description = "DTO para tamanho do item")
 public class TamanhoDto {
 
-    @Schema(description = "Tamanho do item", example = "M", required = true)
+    @Schema(description = "Nome do tamanho do item", example = "M", required = true)
     @NotNull
     @NotBlank
-    @Size(min = 1, max = 2)
-    private String tamanho;
+    @Size(min = 1, max = 5)
+    private String nome;
 
     public TamanhoDto() {}
 
-    public TamanhoDto(String tamanho) {
-        this.tamanho = tamanho;
+    public TamanhoDto(String nome) {
+        this.nome = nome;
     }
 
-    public String getTamanho() {
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public static Tamanho toEntity(TamanhoDto tamanhoDto) {
+        Tamanho tamanho = new Tamanho();
+        tamanho.setNome(tamanhoDto.getNome());
         return tamanho;
-    }
-
-    public void setTamanho(String tamanho) {
-        this.tamanho = tamanho;
-    }
-
-    public static Tamanho toEntity(TamanhoDto tamanho) {
-        Tamanho response = new Tamanho();
-        response.setTamanho(tamanho.getTamanho());
-        return response;
     }
 }

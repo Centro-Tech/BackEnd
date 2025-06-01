@@ -3,6 +3,7 @@ package school.sptech.projetoMima.dto.fornecedorDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class FornecedorRequestDto {
@@ -13,7 +14,8 @@ public class FornecedorRequestDto {
     private String nome;
 
     @NotBlank
-    @Size(min = 11, max = 11)
+    @Size(min = 8, max = 11)
+    @Pattern(regexp = "\\d+", message = "Telefone deve conter apenas números")
     @Schema(description = "Telefone do fornecedor com 11 dígitos, somente números", example = "11987654321", minLength = 11, maxLength = 11, required = true)
     private String telefone;
 

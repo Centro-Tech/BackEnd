@@ -1,16 +1,20 @@
 package school.sptech.projetoMima.controller;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
+import school.sptech.projetoMima.dto.fornecedorDto.FornecedorMapper;
 import school.sptech.projetoMima.dto.fornecedorDto.FornecedorRequestDto;
 import school.sptech.projetoMima.dto.fornecedorDto.FornecedorResponseDto;
 import school.sptech.projetoMima.entity.Fornecedor;
+import static org.mockito.Mockito.*;
 import school.sptech.projetoMima.exception.Fornecedor.FornecedorExistenteException;
 import school.sptech.projetoMima.exception.Fornecedor.FornecedorNaoEncontradoException;
 import school.sptech.projetoMima.service.FornecedorService;
@@ -29,6 +33,11 @@ class FornecedorControllerTest {
 
     @Mock
     private FornecedorService service;
+
+    @BeforeEach
+    void setup() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     @Test
     @DisplayName("listar() quando houver fornecedores deve retornar lista com status 200")
@@ -109,7 +118,7 @@ class FornecedorControllerTest {
         FornecedorRequestDto requestDto = new FornecedorRequestDto();
         requestDto.setNome("Fornecedor 1");
         requestDto.setEmail("email1@fornecedor.com");
-        requestDto.setTelefone("1111-1111");
+        requestDto.setTelefone("11987678890");
 
         Fornecedor fornecedorSalvo = new Fornecedor();
         fornecedorSalvo.setId(1);
@@ -163,5 +172,75 @@ class FornecedorControllerTest {
         Mockito.verify(service, Mockito.times(1)).deletar(1);
     }
 
+    @Test
+    @DisplayName("Quando tentar cadastrar com email que não é válido, deve estourar exceção")
+    void cadastrarQuandoAcionadoComEmailInvalidoDeveRetornarIllegalArgumentException() {
+        FornecedorRequestDto fornecedor = new FornecedorRequestDto();
+        fornecedor.setTelefone("119789877");
+        fornecedor.setNome("Empresa A LTDA");
+        fornecedor.setEmail("emailinvalido.com");
 
+        when(service.cadastrar(argThat(f ->
+                !f.getEmail().contains("@")
+        ))).thenThrow(new IllegalArgumentException("E-mail inválido"));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            controller.cadastrar(fornecedor);
+        });
+
+        assertEquals("E-mail inválido", exception.getMessage());
+        verify(service, times(1)).cadastrar(argThat(f ->
+                f.getNome().equals(fornecedor.getNome()) &&
+                        f.getEmail().equals(fornecedor.getEmail()) &&
+                        f.getTelefone().equals(fornecedor.getTelefone())
+        ));
+    }
+
+    @Test
+    @DisplayName("Quando tentar cadastrar com telefone contendo caracteres não numéricos, deve estourar exceção")
+    void cadastrarQuandoAcionadoComTelefoneQueTenhaParentesesDeveRetornarBadRequest() {
+        FornecedorRequestDto fornecedor = new FornecedorRequestDto();
+        fornecedor.setTelefone("(11)9789877");
+        fornecedor.setNome("Empresa A LTDA");
+        fornecedor.setEmail("email@valido.com");
+
+        when(service.cadastrar(argThat(f ->
+                !f.getTelefone().matches("\\d+")
+        ))).thenThrow(new IllegalArgumentException("Telefone inválido"));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            controller.cadastrar(fornecedor);
+        });
+
+        assertEquals("Telefone inválido", exception.getMessage());
+        verify(service, times(1)).cadastrar(argThat(f ->
+                f.getNome().equals(fornecedor.getNome()) &&
+                        f.getEmail().equals(fornecedor.getEmail()) &&
+                        f.getTelefone().equals(fornecedor.getTelefone())
+        ));
+    }
+
+    @Test
+    @DisplayName("Quando tentar cadastrar com telefone de mais de 11 dígitos, deve estourar exceção")
+    void cadastrarQuandoAcionadoComTelefoneQueTenha13DigitosDeveRetornarBadRequest() {
+        FornecedorRequestDto fornecedor = new FornecedorRequestDto();
+        fornecedor.setTelefone("5511981276566");
+        fornecedor.setNome("Empresa A LTDA");
+        fornecedor.setEmail("email@valido.com");
+
+        when(service.cadastrar(argThat(f ->
+                f.getTelefone().length() > 11
+        ))).thenThrow(new IllegalArgumentException("Telefone inválido"));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            controller.cadastrar(fornecedor);
+        });
+
+        assertEquals("Telefone inválido", exception.getMessage());
+        verify(service, times(1)).cadastrar(argThat(f ->
+                f.getNome().equals(fornecedor.getNome()) &&
+                        f.getEmail().equals(fornecedor.getEmail()) &&
+                        f.getTelefone().equals(fornecedor.getTelefone())
+        ));
+    }
 }

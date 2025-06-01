@@ -25,6 +25,12 @@ public class FornecedorService {
     }
 
     public Fornecedor cadastrar(Fornecedor fornecedor) {
+        if(fornecedor == null ||
+                fornecedor.getNome() == null ||
+                fornecedor.getEmail() == null ||
+                fornecedor.getTelefone() == null) {
+            throw new NullPointerException("Os campos não podem ser vazios!");
+        }
         if (!fornecedorRepository.existsByNome(fornecedor.getNome())) {
             Fornecedor fornecedorCadastrado = fornecedorRepository.save(fornecedor);
             return fornecedorCadastrado;

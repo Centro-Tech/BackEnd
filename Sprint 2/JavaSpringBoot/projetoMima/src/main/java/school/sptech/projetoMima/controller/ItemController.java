@@ -15,6 +15,7 @@ import school.sptech.projetoMima.dto.itemDto.ItemRequestDto;
 import school.sptech.projetoMima.dto.itemDto.ItemResponseDto;
 import school.sptech.projetoMima.entity.Fornecedor;
 import school.sptech.projetoMima.entity.item.Item;
+import school.sptech.projetoMima.exception.Item.ItemNaoEncontradoException;
 import school.sptech.projetoMima.service.FornecedorService;
 import school.sptech.projetoMima.service.ItemService;
 
@@ -94,6 +95,22 @@ public class ItemController {
             return ResponseEntity.status(404).build();
         }
     }
+
+    @Operation(summary = "Deletar vestuário por código")
+    @ApiResponses({
+            @ApiResponse(responseCode = "205", description = "Item deletado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Item não encontrado")
+    })
+    @DeleteMapping("/item/{codigo}")
+    public ResponseEntity<Void> deletarPorCodigo(@PathVariable String codigo) {
+        try {
+            itemService.deletarPorCodigo(codigo);
+            return ResponseEntity.status(205).build();
+        } catch (ItemNaoEncontradoException e) {
+            return ResponseEntity.status(404).build();
+        }
+    }
+
 
     @GetMapping("/filtro-por-nome/{nome}")
     public ResponseEntity<List<ItemListDto>> filtrarPorNome (@PathVariable String nome) {

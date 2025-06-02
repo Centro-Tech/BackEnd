@@ -11,6 +11,7 @@ import school.sptech.projetoMima.repository.ItemRepository;
 import school.sptech.projetoMima.repository.FornecedorRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -170,4 +171,13 @@ public class ItemService {
         List<Item> itens = itemRepository.findByNomeContainsIgnoreCase(nome);
         return itens;
     }
+
+    public void deletarPorCodigo(String codigo) {
+        Optional<Item> itemOpt = itemRepository.findByCodigo(codigo);
+        if (itemOpt.isEmpty()) {
+            throw new ItemNaoEncontradoException("Item com código '" + codigo + "' não encontrado.");
+        }
+        itemRepository.delete(itemOpt.get());
+    }
+
 }

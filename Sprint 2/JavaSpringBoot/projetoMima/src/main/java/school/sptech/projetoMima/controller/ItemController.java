@@ -33,7 +33,7 @@ public class ItemController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ItemResponseDto> buscarPorId(@PathVariable Integer id) {
-        Item itemEncontrado = itemService.buscarPorId(id);
+        Item                itemEncontrado = itemService.buscarPorId(id);
         ItemResponseDto itemResponse = ItemMapper.toResponse(itemEncontrado);
         return ResponseEntity.status(200).body(itemResponse);
     }

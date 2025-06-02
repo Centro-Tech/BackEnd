@@ -26,6 +26,7 @@ public class ItemMapper {
 
         response.setCodigo(item.getCodigo());
         response.setPreco(item.getPreco());
+        response.setQtdEstoque(item.getQtdEstoque());
         response.setNome(item.getNome());
         response.setTamanho(item.getTamanho());
         response.setPreco(item.getPreco());

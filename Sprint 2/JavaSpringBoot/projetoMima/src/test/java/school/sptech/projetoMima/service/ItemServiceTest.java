@@ -15,6 +15,7 @@ import school.sptech.projetoMima.exception.Item.ItemQuantidadeInvalida;
 import school.sptech.projetoMima.repository.ItemRepository;
 import school.sptech.projetoMima.repository.FornecedorRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -166,5 +167,63 @@ class ItemServiceTest {
         assertTrue(resultado.getCodigo().startsWith("BL"));
         assertEquals(fornecedor, resultado.getFornecedor());
         verify(itemRepository, times(1)).save(any(Item.class));
+    }
+
+    @Test
+    @DisplayName("Pesquisar por nome de item cadastrado. Deve retornar todos os itens contendo o termo")
+    void pesquisarPorNomeQuandoAcionadoComNomeDeRoupaValidaELowerCaseDeveRetornarTodosOsResultados() {
+        List<Item> itensValidos = List.of(
+                new Item(1, null, null, "Vestido", null, null, null, null, null, null),
+                new Item(1, null, null, "vestido", null, null, null, null, null, null),
+                new Item(1, null, null, "VESTIDO", null, null, null, null, null, null)
+        );
+
+        String busca = "vestido";
+
+        when(itemRepository.findByNomeContainsIgnoreCase(busca)).thenReturn(itensValidos);
+        List<Item> listagem = itemService.filtrarPorNome(busca);
+        assertEquals(3, listagem.size());
+
+    }
+
+    @Test
+    @DisplayName("Pesquisar por nome de item cadastrado. Deve retornar todos os itens contendo o termo")
+    void pesquisarPorNomeQuandoAcionadoComNomeDeRoupaValidaEUpperCaseDeveRetornarTodosOsResultados() {
+        List<Item> itensValidos = List.of(
+                new Item(1, null, null, "Vestido", null, null, null, null, null, null),
+                new Item(1, null, null, "vestido", null, null, null, null, null, null),
+                new Item(1, null, null, "VESTIDO", null, null, null, null, null, null)
+        );
+
+        String busca = "VESTIDO";
+
+        when(itemRepository.findByNomeContainsIgnoreCase(busca)).thenReturn(itensValidos);
+        List<Item> listagem = itemService.filtrarPorNome(busca);
+        assertEquals(3, listagem.size());
+
+    }
+
+    @Test
+    @DisplayName("Quando pesquisar por nome inexistente deve retornar ItemNaoEncontradoException")
+    void pesquisarPorNomeQuandoTermoNaoExisteDeveRetornarItemNaoEncontradoException() {
+        String busca = "calça";
+
+        when(itemRepository.findByNomeContainsIgnoreCase(busca)).thenReturn(List.of());
+
+        RuntimeException excecao = assertThrows(
+                ItemNaoEncontradoException.class,
+                () -> itemService.filtrarPorNome(busca)
+        );
+    }
+
+    @Test
+    @DisplayName("Quando tentar pesquisar sem digitar nenhum termo, deve lançar exceção")
+    void filtrarPorNomeQuandoPesquisarSemDigitarNadaDeveLancarNullPointerException() {
+        String nome = null;
+
+        NullPointerException excecao = assertThrows(
+                NullPointerException.class,
+                () -> itemService.filtrarPorNome(nome)
+        );
     }
 }

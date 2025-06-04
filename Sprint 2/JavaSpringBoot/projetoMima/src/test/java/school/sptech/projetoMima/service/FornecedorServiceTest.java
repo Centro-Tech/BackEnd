@@ -79,7 +79,7 @@ class FornecedorServiceTest {
         fornecedor.setNome("Fornecedor X");
         fornecedor.setEmail("email@exemplo.com");
         fornecedor.setTelefone("123456789");
-        
+
         when(repository.existsByNome("Fornecedor X")).thenReturn(true);
 
         assertThrows(FornecedorExistenteException.class, () -> {

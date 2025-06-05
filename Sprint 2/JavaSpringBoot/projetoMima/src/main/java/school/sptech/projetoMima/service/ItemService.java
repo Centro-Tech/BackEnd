@@ -189,17 +189,43 @@ public class ItemService {
     }
 
     public List<Item> filtrarPorCategoria (String categoria) {
-        List<Item> itens = itemRepository.findByCategoriaNomeContainsIgnoreCase(categoria);
+        List<Item> itens = itemRepository.findByCategoriaContainsIgnoreCase(categoria);
+
+        if(categoria == null) {
+            throw new NullPointerException("Não há nenhum termo digitado!");
+        }
+
+        if(itens.isEmpty()) {
+            throw new ItemNaoEncontradoException("Itens não encontrados no estoque!");
+        }
+
         return itens;
     }
 
     public List<Item> filtrarPorFornecedor (String nome) {
         List<Item> itens = itemRepository.findByFornecedorNomeContainsIgnoreCase(nome);
+
+        if(nome == null) {
+            throw new NullPointerException("Não há nenhum termo digitado!");
+        }
+
+        if(itens.isEmpty()) {
+            throw new ItemNaoEncontradoException("Itens não encontrados no estoque!");
+        }
         return itens;
     }
 
     public List<Item> filtrarPorNome (String nome) {
         List<Item> itens = itemRepository.findByNomeContainsIgnoreCase(nome);
+
+        if(nome == null) {
+            throw new NullPointerException("Não há nenhum termo digitado!");
+        }
+
+        if(itens.isEmpty()) {
+            throw new ItemNaoEncontradoException("Itens não encontrados no estoque!");
+        }
+
         return itens;
     }
 

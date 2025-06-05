@@ -10,7 +10,7 @@ public interface ItemRepository extends JpaRepository <Item, Integer> {
     boolean existsByCodigo(String codigo);
 
 
-    List<Item> findByCategoriaNomeContainsIgnoreCase(String categoria);
+    List<Item> findByCategoriaContainsIgnoreCase(String categoria);
 
     List<Item> findByFornecedorNomeContainsIgnoreCase(String nome);
 

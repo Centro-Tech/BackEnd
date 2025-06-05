@@ -8,6 +8,22 @@ import school.sptech.projetoMima.entity.Fornecedor;
 @Schema(description = "Entidade que representa os vestuários disponíveis na loja.")
 public class Item {
 
+    public Item(Integer id, String codigo, Integer qtdEstoque, String nome, Tamanho tamanho, Cor cor, Material material, Categoria categoria, Double preco, Fornecedor fornecedor) {
+        this.id = id;
+        this.codigo = codigo;
+        this.qtdEstoque = qtdEstoque;
+        this.nome = nome;
+        this.tamanho = tamanho;
+        this.cor = cor;
+        this.material = material;
+        this.categoria = categoria;
+        this.preco = preco;
+        this.fornecedor = fornecedor;
+    }
+
+    public Item() {
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Schema(description = "Identificador único do item", example = "1")

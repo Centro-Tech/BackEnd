@@ -188,19 +188,19 @@ public class ItemService {
         return itemRepository.save(item);
     }
 
-    public List<Item> filtrarPorCategoria (String categoria) {
-        List<Item> itens = itemRepository.findByCategoriaContainsIgnoreCase(categoria);
-
-        if(categoria == null) {
-            throw new NullPointerException("Não há nenhum termo digitado!");
+    public List<Item> filtrarPorCategoria(String categoria) {
+        if (categoria == null || categoria.trim().isEmpty()) {
+            throw new IllegalArgumentException("Não há nenhum termo digitado!");
         }
+        List<Item> itens = itemRepository.findByCategoriaNomeContainsIgnoreCase(categoria);
 
-        if(itens.isEmpty()) {
+        if (itens.isEmpty()) {
             throw new ItemNaoEncontradoException("Itens não encontrados no estoque!");
         }
 
         return itens;
     }
+
 
     public List<Item> filtrarPorFornecedor (String nome) {
         List<Item> itens = itemRepository.findByFornecedorNomeContainsIgnoreCase(nome);

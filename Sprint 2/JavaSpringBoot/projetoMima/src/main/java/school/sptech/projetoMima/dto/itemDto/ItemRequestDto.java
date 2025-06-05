@@ -7,51 +7,42 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import school.sptech.projetoMima.entity.Fornecedor;
 
-@Schema(name = "ItemRequestDto", example = """
-{
-  "nome": "Camiseta Estampada",
-  "qtdEstoque": 50,
-  "preco": 79.90,
-  "idTamanho": 2,
-  "idCor": 5,
-  "idMaterial": 3,
-  "idCategoria": 1,
-  "fornecedor": {
-    "id": 1,
-    "nome": "Empresa XYZ LTDA",
-    "telefone": "11987654321",
-    "email": "contato@empresa.com"
-  }
-}
-""")
 public class ItemRequestDto {
 
     @NotBlank
     @NotNull
     @Size(max = 100, min = 1)
+    @Schema(description = "Nome do item", example = "Camiseta", maxLength = 100, minLength = 1, required = true)
     private String nome;
 
     @NotNull
     @DecimalMin(value = "1.0")
+    @Schema(description = "Quantidade disponível no estoque", example = "50", minimum = "1", required = true)
     private Integer qtdEstoque;
 
     @NotNull
     @DecimalMin(value = "1.0")
+    @Schema(description = "Preço do item", example = "79.90", minimum = "1.0", required = true)
     private Double preco;
 
     @NotNull
+    @Schema(description = "ID do tamanho do item", example = "1", required = true)
     private Integer idTamanho;
 
     @NotNull
+    @Schema(description = "ID da cor do item", example = "1", required = true)
     private Integer idCor;
 
     @NotNull
+    @Schema(description = "ID do material do item", example = "1", required = true)
     private Integer idMaterial;
 
     @NotNull
+    @Schema(description = "ID da categoria do item", example = "1", required = true)
     private Integer idCategoria;
 
     @NotNull
+    @Schema(description = "Objeto fornecedor com os dados básicos", example = "{\"id\": 1, \"nome\": \"Empresa XYZ LTDA\", \"telefone\": \"11987654321\", \"email\": \"contato@empresa.com\"}", required = true)
     private Fornecedor fornecedor;
 
     public String getNome() {

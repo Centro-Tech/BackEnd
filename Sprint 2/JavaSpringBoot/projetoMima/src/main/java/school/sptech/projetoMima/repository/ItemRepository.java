@@ -5,12 +5,10 @@ import school.sptech.projetoMima.entity.item.Item;
 
 import java.util.List;
 import java.util.Optional;
-
-public interface ItemRepository extends JpaRepository <Item, Integer> {
+public interface ItemRepository extends JpaRepository<Item, Integer> {
     boolean existsByCodigo(String codigo);
 
-
-    List<Item> findByCategoriaContainsIgnoreCase(String categoria);
+    List<Item> findByCategoriaNomeContainsIgnoreCase(String nomeCategoria);
 
     List<Item> findByFornecedorNomeContainsIgnoreCase(String nome);
 

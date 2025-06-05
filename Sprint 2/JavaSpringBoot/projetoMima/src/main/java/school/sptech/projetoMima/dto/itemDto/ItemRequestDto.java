@@ -5,7 +5,6 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import school.sptech.projetoMima.dto.fornecedorDto.FornecedorRequestDto;
 import school.sptech.projetoMima.entity.Fornecedor;
 
 @Schema(name = "ItemRequestDto", example = """
@@ -13,10 +12,10 @@ import school.sptech.projetoMima.entity.Fornecedor;
   "nome": "Camiseta Estampada",
   "qtdEstoque": 50,
   "preco": 79.90,
-  "tamanho": "M",
-  "cor": "Azul",
-  "material": "Algodão",
-  "categoria": "Camisetas",
+  "idTamanho": 2,
+  "idCor": 5,
+  "idMaterial": 3,
+  "idCategoria": 1,
   "fornecedor": {
     "id": 1,
     "nome": "Empresa XYZ LTDA",
@@ -25,109 +24,97 @@ import school.sptech.projetoMima.entity.Fornecedor;
   }
 }
 """)
-
 public class ItemRequestDto {
+
     @NotBlank
     @NotNull
     @Size(max = 100, min = 1)
     private String nome;
 
     @NotNull
-    @NotBlank
     @DecimalMin(value = "1.0")
     private Integer qtdEstoque;
 
-    @NotBlank
-    @NotNull
-    @Size(max = 2, min = 1)
-    private String tamanho;
-
-    @NotBlank
-    @NotNull
-    @Size(max = 45, min = 1)
-    private String cor;
-
-    @NotBlank
-    @NotNull
-    @Size(max = 45, min = 1)
-    private String material;
-
-    @NotBlank
-    @NotNull
-    @Size(max = 45, min = 1)
-    private String categoria;
-
-    @NotBlank
     @NotNull
     @DecimalMin(value = "1.0")
     private Double preco;
 
-    @NotBlank
+    @NotNull
+    private Integer idTamanho;
+
+    @NotNull
+    private Integer idCor;
+
+    @NotNull
+    private Integer idMaterial;
+
+    @NotNull
+    private Integer idCategoria;
+
     @NotNull
     private Fornecedor fornecedor;
 
-    public @NotBlank @NotNull @Size(max = 100, min = 1) String getNome() {
+    public String getNome() {
         return nome;
     }
 
-    public void setNome(@NotBlank @NotNull @Size(max = 100, min = 1) String nome) {
+    public void setNome(String nome) {
         this.nome = nome;
     }
 
-    public @NotNull @NotBlank @DecimalMin(value = "1.0") Integer getQtdEstoque() {
+    public Integer getQtdEstoque() {
         return qtdEstoque;
     }
 
-    public void setQtdEstoque(@NotNull @NotBlank @DecimalMin(value = "1.0") Integer qtdEstoque) {
+    public void setQtdEstoque(Integer qtdEstoque) {
         this.qtdEstoque = qtdEstoque;
     }
 
-    public @NotBlank @NotNull @Size(max = 2, min = 1) String getTamanho() {
-        return tamanho;
-    }
-
-    public void setTamanho(@NotBlank @NotNull @Size(max = 2, min = 1) String
-                                   tamanho) {
-        this.tamanho = tamanho;
-    }
-
-    public @NotBlank @NotNull @Size(max = 45, min = 1) String getCor() {
-        return cor;
-    }
-
-    public void setCor(@NotBlank @NotNull @Size(max = 45, min = 1) String cor) {
-        this.cor = cor;
-    }
-
-    public @NotBlank @NotNull @Size(max = 45, min = 1) String getMaterial() {
-        return material;
-    }
-
-    public void setMaterial(@NotBlank @NotNull @Size(max = 45, min = 1) String material) {
-        this.material = material;
-    }
-
-    public @NotBlank @NotNull @Size(max = 45, min = 1) String getCategoria() {
-        return categoria;
-    }
-
-    public void setCategoria(@NotBlank @NotNull @Size(max = 45, min = 1) String categoria) {
-        this.categoria = categoria;
-    }
-
-    public @NotBlank @NotNull @DecimalMin(value = "1.0") Double getPreco() {
+    public Double getPreco() {
         return preco;
     }
 
-    public void setPreco(@NotBlank @NotNull @DecimalMin(value = "1.0") Double preco) {
+    public void setPreco(Double preco) {
         this.preco = preco;
     }
 
-    public @NotBlank @NotNull Fornecedor getFornecedor() {
+    public Integer getIdTamanho() {
+        return idTamanho;
+    }
+
+    public void setIdTamanho(Integer idTamanho) {
+        this.idTamanho = idTamanho;
+    }
+
+    public Integer getIdCor() {
+        return idCor;
+    }
+
+    public void setIdCor(Integer idCor) {
+        this.idCor = idCor;
+    }
+
+    public Integer getIdMaterial() {
+        return idMaterial;
+    }
+
+    public void setIdMaterial(Integer idMaterial) {
+        this.idMaterial = idMaterial;
+    }
+
+    public Integer getIdCategoria() {
+        return idCategoria;
+    }
+
+    public void setIdCategoria(Integer idCategoria) {
+        this.idCategoria = idCategoria;
+    }
+
+    public Fornecedor getFornecedor() {
         return fornecedor;
     }
 
-    public void setFornecedor(@NotBlank @NotNull Fornecedor fornecedor) {
+    public void setFornecedor(Fornecedor fornecedor) {
         this.fornecedor = fornecedor;
     }
 }

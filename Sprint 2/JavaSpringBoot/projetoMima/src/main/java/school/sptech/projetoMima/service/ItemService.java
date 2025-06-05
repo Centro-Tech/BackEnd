@@ -2,13 +2,22 @@ package school.sptech.projetoMima.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import school.sptech.projetoMima.dto.itemDto.ItemRequestDto;
 import school.sptech.projetoMima.entity.Fornecedor;
-import school.sptech.projetoMima.entity.item.Item;
+import school.sptech.projetoMima.entity.item.*;
 import school.sptech.projetoMima.exception.Item.ItemCampoVazioException;
 import school.sptech.projetoMima.exception.Item.ItemNaoEncontradoException;
 import school.sptech.projetoMima.exception.Item.ItemQuantidadeInvalida;
 import school.sptech.projetoMima.repository.ItemRepository;
 import school.sptech.projetoMima.repository.FornecedorRepository;
+import school.sptech.projetoMima.repository.auxiliares.CategoriaRepository;
+import school.sptech.projetoMima.repository.auxiliares.CorRepository;
+import school.sptech.projetoMima.repository.auxiliares.MaterialRepository;
+import school.sptech.projetoMima.repository.auxiliares.TamanhoRepository;
+import school.sptech.projetoMima.service.auxiliares.CategoriaService;
+import school.sptech.projetoMima.service.auxiliares.CorService;
+import school.sptech.projetoMima.service.auxiliares.MaterialService;
+import school.sptech.projetoMima.service.auxiliares.TamanhoService;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +31,17 @@ public class ItemService {
 
     @Autowired
     private FornecedorRepository fornecedorRepository;
+    @Autowired
+    private TamanhoRepository tamanhoRepository;
+    @Autowired
+    private CorRepository corRepository;
+
+    @Autowired
+    private MaterialRepository materialRepository;
+
+    @Autowired
+    private CategoriaRepository categoriaRepository;
+
 
     public Item buscarPorId(int id) {
         return itemRepository.findById(id).orElseThrow(() -> new ItemNaoEncontradoException("Item com o id " + id + " não encontrado."));
@@ -104,10 +124,7 @@ public class ItemService {
         return !texto.matches(caracteresValidos);
     }
 
-
-
-
-    public Item cadastrarItem(Item item, Fornecedor fornecedor) {
+    public Item cadastrarItem(Item item, Fornecedor fornecedor, ItemRequestDto dto) {
         String nome = item.getCategoria().getNome().toUpperCase();
         String tamanho = item.getTamanho().getNome().toUpperCase();
         String codigoIdentificacao = null;
@@ -116,8 +133,6 @@ public class ItemService {
        validarPreco(item);
        validarQuantidade(item);
        validarCaracteres(item);
-
-
 
         if (nome.contains("BERMUDA")) codigoIdentificacao = "BZ";
         else if (nome.contains("BLAZER")) codigoIdentificacao = "BL";
@@ -153,6 +168,22 @@ public class ItemService {
 
         item.setCodigo(codigoFinal);
         item.setFornecedor(fornecedor);
+
+        Tamanho tamanhoo = tamanhoRepository.findById(dto.getIdTamanho())
+                .orElseThrow(() -> new RuntimeException("Tamanho não encontrado"));
+        item.setTamanho(tamanhoo);
+
+        Cor cor = corRepository.findById(dto.getIdCor())
+                .orElseThrow(() -> new RuntimeException("Cor não encontrada"));
+        item.setCor(cor);
+
+        Material material = materialRepository.findById(dto.getIdMaterial())
+                .orElseThrow(() -> new RuntimeException("Material não encontrado"));
+        item.setMaterial(material);
+        
+        Categoria categoria = categoriaRepository.findById(dto.getIdCategoria())
+                .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
+        item.setCategoria(categoria);
 
         return itemRepository.save(item);
     }

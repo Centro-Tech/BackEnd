@@ -54,10 +54,15 @@ public class ItemController {
 
 
     @Operation(summary = "Cadastrar novo item")
-    @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "Item cadastrado com sucesso", content = @Content(schema = @Schema(implementation = Item.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos ou código duplicado"), @ApiResponse(responseCode = "404", description = "Fornecedor não encontrado")})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Item cadastrado com sucesso", content = @Content(schema = @Schema(implementation = Item.class))),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos ou código duplicado"),
+            @ApiResponse(responseCode = "404", description = "Fornecedor não encontrado")
+    })
     @PostMapping
     public ResponseEntity<ItemResponseDto> cadastrarItem(@Valid @RequestBody ItemRequestDto request) {
         System.out.println("Entrou no cadastrarItem");
+
         Item item = ItemMapper.toEntity(request);
 
         if (itemService.existsByCodigo(item.getCodigo())) {
@@ -78,7 +83,8 @@ public class ItemController {
             return ResponseEntity.status(400).body(null);
         }
 
-        Item novoItem = itemService.cadastrarItem(item, fornecedorOpt.get());
+        Item novoItem = itemService.cadastrarItem(item, fornecedorOpt.get(), request);
+
         return ResponseEntity.status(201).body(ItemMapper.toResponse(novoItem));
     }
 

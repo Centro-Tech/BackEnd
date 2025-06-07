@@ -3,6 +3,7 @@ package school.sptech.projetoMima.service.auxiliares;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import school.sptech.projetoMima.entity.item.Tamanho;
+import school.sptech.projetoMima.exception.Item.Auxiliares.TamanhoDuplicadoException;
 import school.sptech.projetoMima.repository.auxiliares.TamanhoRepository;
 
 import java.util.List;
@@ -16,6 +17,9 @@ public class TamanhoService {
     }
 
     public Tamanho salvar(Tamanho tamanho) {
+        if (repository.existsByNomeIgnoreCase(tamanho.getNome())) {
+            throw new TamanhoDuplicadoException("Tamanho já cadastrado com esse nome.");
+        }
         return repository.save(tamanho);
     }
 

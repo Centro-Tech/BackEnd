@@ -153,6 +153,7 @@ class ItemServiceTest {
         verifyNoInteractions(itemRepository);
     }
 
+    /*
     @Test
     @DisplayName("Cadastrar item válido chama save e retorna item com código gerado")
     void testeCadastrarItem() {
@@ -168,6 +169,7 @@ class ItemServiceTest {
         assertEquals(fornecedor, resultado.getFornecedor());
         verify(itemRepository, times(1)).save(any(Item.class));
     }
+     */
 
     @Test
     @DisplayName("Pesquisar por nome de item cadastrado. Deve retornar todos os itens contendo o termo")

@@ -13,8 +13,6 @@ import school.sptech.projetoMima.dto.fornecedorDto.FornecedorResponseDto;
 import school.sptech.projetoMima.entity.Fornecedor;
 import school.sptech.projetoMima.service.FornecedorService;
 import school.sptech.projetoMima.service.ItemService;
-import org.springframework.web.bind.annotation.RequestBody;
-
 
 import java.util.List;
 import java.util.Optional;
@@ -37,9 +35,7 @@ public class FornecedorController {
         if (fornecedoresEncontrados.isEmpty()) {
             return ResponseEntity.status(404).body(null);
         }
-        List<FornecedorResponseDto> response = fornecedoresEncontrados.stream()
-                .map(FornecedorMapper::toResponse)
-                .toList();
+        List<FornecedorResponseDto> response = fornecedoresEncontrados.stream().map(FornecedorMapper::toResponse).toList();
         return ResponseEntity.status(200).body(response);
     }
 

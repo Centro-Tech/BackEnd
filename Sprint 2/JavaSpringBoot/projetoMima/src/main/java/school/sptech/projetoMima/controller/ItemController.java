@@ -32,16 +32,17 @@ public class ItemController {
     @Autowired
     private FornecedorService fornecedorService;
 
+    @Operation(summary = "Buscar item por ID")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Item encontrado", content = @Content(schema = @Schema(implementation = ItemResponseDto.class))), @ApiResponse(responseCode = "404", description = "Item não encontrado")})
     @GetMapping("/{id}")
     public ResponseEntity<ItemResponseDto> buscarPorId(@PathVariable Integer id) {
-        Item                itemEncontrado = itemService.buscarPorId(id);
+        Item itemEncontrado = itemService.buscarPorId(id);
         ItemResponseDto itemResponse = ItemMapper.toResponse(itemEncontrado);
         return ResponseEntity.status(200).body(itemResponse);
     }
 
     @Operation(summary = "Buscar todos os itens em estoque")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Lista retornada com sucesso", content = @Content(schema = @Schema(implementation = Item.class))), @ApiResponse(responseCode = "204", description = "Nenhum item em estoque")
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Lista retornada com sucesso", content = @Content(schema = @Schema(implementation = Item.class))), @ApiResponse(responseCode = "204", description = "Nenhum item em estoque")})
     @GetMapping("/estoque")
     public ResponseEntity<List<ItemListDto>> listarEstoque() {
         List<Item> itens = itemService.listarEstoque();
@@ -52,13 +53,8 @@ public class ItemController {
         return ResponseEntity.status(200).body(response);
     }
 
-
     @Operation(summary = "Cadastrar novo item")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Item cadastrado com sucesso", content = @Content(schema = @Schema(implementation = Item.class))),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos ou código duplicado"),
-            @ApiResponse(responseCode = "404", description = "Fornecedor não encontrado")
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "Item cadastrado com sucesso", content = @Content(schema = @Schema(implementation = Item.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos ou código duplicado"), @ApiResponse(responseCode = "404", description = "Fornecedor não encontrado")})
     @PostMapping
     public ResponseEntity<ItemResponseDto> cadastrarItem(@Valid @RequestBody ItemRequestDto request) {
         System.out.println("Entrou no cadastrarItem");
@@ -88,7 +84,6 @@ public class ItemController {
         return ResponseEntity.status(201).body(ItemMapper.toResponse(novoItem));
     }
 
-
     @Operation(summary = "Deletar Item")
     @ApiResponses(value = {@ApiResponse(responseCode = "205", description = "Item deletado com sucesso"), @ApiResponse(responseCode = "404", description = "Item não encontrado")})
     @DeleteMapping("/{id}")
@@ -103,10 +98,7 @@ public class ItemController {
     }
 
     @Operation(summary = "Deletar vestuário por código")
-    @ApiResponses({
-            @ApiResponse(responseCode = "205", description = "Item deletado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Item não encontrado")
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "205", description = "Item deletado com sucesso"), @ApiResponse(responseCode = "404", description = "Item não encontrado")})
     @DeleteMapping("/item/{codigo}")
     public ResponseEntity<Void> deletarPorCodigo(@PathVariable String codigo) {
         try {
@@ -117,9 +109,10 @@ public class ItemController {
         }
     }
 
-
+    @Operation(summary = "Filtrar itens por nome")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Itens encontrados", content = @Content(schema = @Schema(implementation = ItemListDto.class))), @ApiResponse(responseCode = "204", description = "Nenhum item encontrado")})
     @GetMapping("/filtro-por-nome/{nome}")
-    public ResponseEntity<List<ItemListDto>> filtrarPorNome (@PathVariable String nome) {
+    public ResponseEntity<List<ItemListDto>> filtrarPorNome(@PathVariable String nome) {
         List<Item> itens = itemService.filtrarPorNome(nome);
 
         if (itens.isEmpty()) {
@@ -130,8 +123,10 @@ public class ItemController {
         return ResponseEntity.status(200).body(response);
     }
 
+    @Operation(summary = "Filtrar itens por fornecedor")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Itens encontrados", content = @Content(schema = @Schema(implementation = ItemListDto.class))), @ApiResponse(responseCode = "204", description = "Nenhum item encontrado")})
     @GetMapping("/filtro-por-fornecedor/{fornecedor}")
-    public ResponseEntity<List<ItemListDto>> filtrarPorFornecedor (@PathVariable String fornecedor) {
+    public ResponseEntity<List<ItemListDto>> filtrarPorFornecedor(@PathVariable String fornecedor) {
         List<Item> itens = itemService.filtrarPorFornecedor(fornecedor);
 
         if (itens.isEmpty()) {
@@ -142,8 +137,10 @@ public class ItemController {
         return ResponseEntity.status(200).body(response);
     }
 
+    @Operation(summary = "Filtrar itens por categoria")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Itens encontrados", content = @Content(schema = @Schema(implementation = ItemListDto.class))), @ApiResponse(responseCode = "204", description = "Nenhum item encontrado")})
     @GetMapping("/filtro-por-categoria/{categoria}")
-    public ResponseEntity<List<ItemListDto>> filtrarPorCategoria (@PathVariable String categoria) {
+    public ResponseEntity<List<ItemListDto>> filtrarPorCategoria(@PathVariable String categoria) {
         List<Item> itens = itemService.filtrarPorCategoria(categoria);
 
         if (itens.isEmpty()) {

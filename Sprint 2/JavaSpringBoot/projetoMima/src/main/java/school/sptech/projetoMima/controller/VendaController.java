@@ -29,7 +29,7 @@ public class VendaController {
     private VendaService vendaService;
 
     @Operation(summary = "Registrar uma nova venda")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Venda registrada com sucesso", content = @Content(schema = @Schema(implementation = VendaResponseDto.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos")})
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Venda registrada com sucesso", content = @Content(schema = @Schema(implementation = VendaResponseDto.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos") })
     @PutMapping("/vender")
     public ResponseEntity<VendaResponseDto> vender(@Valid @RequestBody VendaRequestDto request) {
         Venda vendaConvertida = VendaMapper.toEntity(request);
@@ -39,7 +39,7 @@ public class VendaController {
     }
 
     @Operation(summary = "Adicionar item a uma venda existente")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Item adicionado com sucesso", content = @Content(schema = @Schema(implementation = VendaResponseDto.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos")})
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Item adicionado com sucesso", content = @Content(schema = @Schema(implementation = VendaResponseDto.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos") })
     @PutMapping("/adicionar-item")
     public ResponseEntity<VendaResponseDto> adicionarItens(@Valid @RequestBody ItemVendaRequestDto request) {
         Venda venda = VendaMapper.toEntity(request.getVenda());
@@ -48,9 +48,8 @@ public class VendaController {
         return ResponseEntity.status(200).body(VendaMapper.toResponse(venda));
     }
 
-
     @Operation(summary = "Remover item de uma venda")
-    @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "Item removido com sucesso"), @ApiResponse(responseCode = "400", description = "Dados inválidos")})
+    @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Item removido com sucesso"), @ApiResponse(responseCode = "400", description = "Dados inválidos") })
     @DeleteMapping
     public ResponseEntity<Void> removerItemDaVenda(@Valid @RequestBody ItemVendaRequestDto request) {
         Venda venda = VendaMapper.toEntity(request.getVenda());
@@ -60,7 +59,7 @@ public class VendaController {
     }
 
     @Operation(summary = "Filtrar vendas por intervalo de datas")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Vendas encontradas", content = @Content(schema = @Schema(implementation = Venda.class))), @ApiResponse(responseCode = "204", description = "Nenhuma venda encontrada no intervalo")})
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Vendas encontradas", content = @Content(schema = @Schema(implementation = Venda.class))), @ApiResponse(responseCode = "204", description = "Nenhuma venda encontrada no intervalo") })
     @GetMapping("/filtrar-por-data")
     public ResponseEntity<List<Venda>> filtrarPorData(@RequestParam LocalDate inicio, @RequestParam LocalDate fim) {
         List<Venda> vendasEncontradas = vendaService.filtrarPorDatas(inicio, fim);
@@ -69,7 +68,7 @@ public class VendaController {
     }
 
     @Operation(summary = "Filtrar vendas por cliente")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Vendas encontradas", content = @Content(schema = @Schema(implementation = Venda.class))), @ApiResponse(responseCode = "204", description = "Nenhuma venda encontrada para o cliente")})
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Vendas encontradas", content = @Content(schema = @Schema(implementation = Venda.class))), @ApiResponse(responseCode = "204", description = "Nenhuma venda encontrada para o cliente") })
     @GetMapping("/filtrar-por-cliente")
     public ResponseEntity<List<Venda>> filtrarPorCliente(@RequestParam Cliente cliente) {
         List<Venda> vendasEncontradas = vendaService.filtrarPorCliente(cliente);
@@ -78,7 +77,7 @@ public class VendaController {
     }
 
     @Operation(summary = "Filtrar vendas por faixa de valor")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Vendas encontradas", content = @Content(schema = @Schema(implementation = Venda.class))), @ApiResponse(responseCode = "204", description = "Nenhuma venda encontrada na faixa de valor")})
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Vendas encontradas", content = @Content(schema = @Schema(implementation = Venda.class))), @ApiResponse(responseCode = "204", description = "Nenhuma venda encontrada na faixa de valor") })
     @GetMapping("/filtrar-por-valor")
     public ResponseEntity<List<Venda>> filtrarPorValor(@RequestParam Double valorMinimo, @RequestParam Double valorMax) {
         List<Venda> vendasEncontradas = vendaService.filtrarPorValor(valorMinimo, valorMax);

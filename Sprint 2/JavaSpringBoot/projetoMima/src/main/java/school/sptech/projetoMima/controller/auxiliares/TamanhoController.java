@@ -18,11 +18,12 @@ public class TamanhoController {
     }
 
     @Operation(summary = "Cadastrar novo tamanho")
-    @ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Tamanho cadastrado com sucesso") })
+    @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "Tamanho cadastrado com sucesso"), @ApiResponse(responseCode = "400", description = "Dados inválidos para cadastro"), @ApiResponse(responseCode = "409", description = "Tamanho já existente")})
     @PostMapping
     public Tamanho criar(@RequestBody Tamanho tamanho) {
         return service.salvar(tamanho);
     }
+
 
     @Operation(summary = "Excluir tamanho por ID")
     @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Tamanho excluído com sucesso"), @ApiResponse(responseCode = "404", description = "Tamanho não encontrado para exclusão") })

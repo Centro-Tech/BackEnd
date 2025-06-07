@@ -34,11 +34,12 @@ public class MaterialController {
     }
 
     @Operation(summary = "Cadastrar novo material")
-    @ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Material cadastrado com sucesso") })
+    @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "Material cadastrado com sucesso"), @ApiResponse(responseCode = "400", description = "Dados inválidos para cadastro"), @ApiResponse(responseCode = "409", description = "Material já existente")})
     @PostMapping
     public Material criar(@RequestBody Material material) {
         return service.salvar(material);
     }
+
 
     @Operation(summary = "Excluir material por ID")
     @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Material excluído com sucesso"), @ApiResponse(responseCode = "404", description = "Material não encontrado para exclusão") })

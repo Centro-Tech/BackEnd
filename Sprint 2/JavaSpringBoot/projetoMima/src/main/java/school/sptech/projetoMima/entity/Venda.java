@@ -1,5 +1,6 @@
 package school.sptech.projetoMima.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CurrentTimestamp;
@@ -34,6 +35,7 @@ public class Venda {
     private Usuario usuario;
 
     @OneToMany
+    @JsonManagedReference
     @Schema(description = "Lista de itens incluídos na venda")
     private List<ItemVenda> itemVenda;
 

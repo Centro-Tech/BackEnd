@@ -1,5 +1,7 @@
 package school.sptech.projetoMima.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import school.sptech.projetoMima.entity.item.Item;
@@ -25,6 +27,7 @@ public class ItemVenda {
 
     @ManyToOne
     @JoinColumn(name = "fkVenda")
+    @JsonBackReference
     @Schema(description = "Venda à qual este item pertence")
     private Venda venda;
 

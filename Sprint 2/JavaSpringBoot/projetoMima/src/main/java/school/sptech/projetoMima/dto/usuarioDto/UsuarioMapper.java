@@ -65,5 +65,13 @@ public class UsuarioMapper {
         return usuarioListarDto;
     }
 
+    public static Usuario toUsuarioFromUsuarioDetalhes(UsuarioDetalhesDto request) {
+        Usuario response = new Usuario();
+        response.setNome(request.getNome());
+        response.setEmail(request.getUsername());
+        response.setSenha(request.getPassword());
+        return response;
+    }
+
 
 }

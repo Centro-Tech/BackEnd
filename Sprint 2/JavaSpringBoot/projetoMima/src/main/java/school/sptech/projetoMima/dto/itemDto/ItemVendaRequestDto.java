@@ -20,6 +20,14 @@ public class ItemVendaRequestDto {
     @Valid
     private Integer qtdParaVender;
 
+    @Valid
+    @NotNull
+    private Integer clienteId;
+
+    @Valid
+    @NotNull
+    private Integer funcionarioId;
+
     public Integer getVendaId() {
         return vendaId;
     }
@@ -42,5 +50,21 @@ public class ItemVendaRequestDto {
 
     public void setQtdParaVender(Integer qtdParaVender) {
         this.qtdParaVender = qtdParaVender;
+    }
+
+    public Integer getClienteId() {
+        return clienteId;
+    }
+
+    public void setClienteId (Integer clienteId) {
+        this.clienteId = clienteId;
+    }
+
+    public Integer getFuncionarioId() {
+        return funcionarioId;
+    }
+
+    public void setFuncionarioId(Integer funcionarioId) {
+        this.funcionarioId = funcionarioId;
     }
 }

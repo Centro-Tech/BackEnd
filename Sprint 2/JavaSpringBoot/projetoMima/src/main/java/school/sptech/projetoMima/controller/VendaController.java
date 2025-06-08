@@ -34,16 +34,16 @@ public class VendaController {
     public ResponseEntity<VendaResponseDto> vender(@Valid @RequestBody VendaRequestDto request) {
         Venda venda = vendaService.vender(request);
         VendaResponseDto response = VendaMapper.toResponse(venda);
-        return ResponseEntity.status(200).body(response);
+        return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Adicionar item a uma venda existente")
+ /*   @Operation(summary = "Adicionar item a uma venda existente")
     @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Item adicionado com sucesso", content = @Content(schema = @Schema(implementation = VendaResponseDto.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos") })
     @PutMapping("/adicionar-item")
     public ResponseEntity<VendaResponseDto> adicionarItens(@Valid @RequestBody ItemVendaRequestDto request) {
         Venda venda = vendaService.adicionarItem(request);
         return ResponseEntity.status(200).body(VendaMapper.toResponse(venda));
-    }
+    }*/
 
 
     @Operation(summary = "Remover item de uma venda")

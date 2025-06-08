@@ -5,6 +5,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import school.sptech.projetoMima.dto.itemDto.ItemVendaRequestDto;
+import school.sptech.projetoMima.dto.usuarioDto.UsuarioDetalhesDto;
+import school.sptech.projetoMima.dto.usuarioDto.UsuarioMapper;
 import school.sptech.projetoMima.dto.vendaDto.VendaMapper;
 import school.sptech.projetoMima.dto.vendaDto.VendaRequestDto;
 import school.sptech.projetoMima.entity.Cliente;
@@ -14,6 +16,7 @@ import school.sptech.projetoMima.entity.Venda;
 import school.sptech.projetoMima.entity.item.Item;
 import school.sptech.projetoMima.exception.Usuario.UsuarioNaoEncontradoException;
 import school.sptech.projetoMima.exception.Venda.CarrinhoVazioException;
+import school.sptech.projetoMima.exception.Venda.EstoqueInsuficienteException;
 import school.sptech.projetoMima.exception.Venda.QuantidadeIndisponivelException;
 import school.sptech.projetoMima.repository.ClienteRepository;
 import school.sptech.projetoMima.repository.ItemRepository;
@@ -39,37 +42,47 @@ public class VendaService {
     private ItemRepository itemRepository;
 
     public Venda vender(VendaRequestDto dto) {
-        if (dto.getItensVenda().isEmpty()) {
-            throw new CarrinhoVazioException("Não há itens registrados para vender.");
-        }
-
         Cliente cliente = clienteRepository.findById(dto.getCliente())
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Cliente não encontrado"));
 
-        List<ItemVenda> itensVenda = dto.getItensVenda().stream()
-                .map(id -> itemVendaRepository.findById(id)
-                        .orElseThrow(() -> new CarrinhoVazioException(
-                                "ItemVenda com id " + id + " não encontrado")))
-                .toList();
-
-        for (ItemVenda itemVenda : itensVenda) {
-            int novaQtdEmEstoque = itemVenda.getItem().getQtdEstoque() - itemVenda.getQtdParaVender();
-            itemVenda.getItem().setQtdEstoque(novaQtdEmEstoque);
+        List<ItemVenda> itensCarrinho = itemVendaRepository.findByClienteIdAndVendaIsNull(cliente.getId());
+        if (itensCarrinho.isEmpty()) {
+            throw new CarrinhoVazioException("Carrinho está vazio");
         }
+
+        double valorTotal = itensCarrinho.stream()
+                .mapToDouble(iv -> iv.getItem().getPreco() * iv.getQtdParaVender())
+                .sum();
+
+       /* UsuarioDetalhesDto funcionario = (UsuarioDetalhesDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();*/
 
         Venda venda = new Venda();
         venda.setCliente(cliente);
-        venda.setItensVenda(itensVenda);
-        venda.setValorTotal(dto.getValorTotal());
+        /*venda.setUsuario(UsuarioMapper.toUsuarioFromUsuarioDetalhes(funcionario));*/
+        venda.setValorTotal(valorTotal);
+        venda.setItensVenda(itensCarrinho);
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Usuario usuarioLogado = (Usuario) authentication.getPrincipal();
-        venda.setUsuario(usuarioLogado);
+        vendaRepository.save(venda);
 
-        return vendaRepository.save(venda);
+
+        for (ItemVenda itemVenda : itensCarrinho) {
+            Item item = itemVenda.getItem();
+
+            if (item.getQtdEstoque() < itemVenda.getQtdParaVender()) {
+                throw new EstoqueInsuficienteException("Estoque insuficiente para: " + item.getNome());
+            }
+
+            item.setQtdEstoque(item.getQtdEstoque() - itemVenda.getQtdParaVender());
+            itemRepository.save(item);
+
+            itemVenda.setVenda(venda);
+            itemVendaRepository.save(itemVenda);
+        }
+
+        return venda;
     }
 
-    public Venda adicionarItem(ItemVendaRequestDto request) {
+/*    public Venda adicionarItem(ItemVendaRequestDto request) {
         Venda venda = vendaRepository.findById(request.getVendaId())
                 .orElseThrow(() -> new RuntimeException("Venda não encontrada"));
 
@@ -92,7 +105,7 @@ public class VendaService {
         venda.getItensVenda().add(itemVenda);
 
         return vendaRepository.save(venda);
-    }
+    }*/
 
     public void deletarItemDaVenda(Integer itemVendaId, Integer vendaId) {
         Venda venda = vendaRepository.findById(vendaId)

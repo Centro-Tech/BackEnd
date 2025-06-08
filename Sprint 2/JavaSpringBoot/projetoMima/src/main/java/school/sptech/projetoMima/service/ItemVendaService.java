@@ -7,6 +7,7 @@ import school.sptech.projetoMima.entity.Cliente;
 import school.sptech.projetoMima.entity.ItemVenda;
 import school.sptech.projetoMima.entity.Usuario;
 import school.sptech.projetoMima.entity.item.Item;
+import school.sptech.projetoMima.exception.Venda.CarrinhoVazioException;
 import school.sptech.projetoMima.repository.ClienteRepository;
 import school.sptech.projetoMima.repository.ItemRepository;
 import school.sptech.projetoMima.repository.ItemVendaRepository;
@@ -51,6 +52,10 @@ public class ItemVendaService {
     }
 
     public List<ItemVenda> listarCarrinho(Integer clienteId) {
-        return itemVendaRepository.findByClienteIdAndVendaIsNull(clienteId);
+        List<ItemVenda> carrinho = itemVendaRepository.findByClienteIdAndVendaIsNull(clienteId);
+        if (carrinho.isEmpty()) {
+            throw new CarrinhoVazioException("O carrinho está vazio.");
+        }
+        return carrinho;
     }
 }

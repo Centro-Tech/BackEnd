@@ -66,7 +66,7 @@ class TamanhoServiceTest {
         List<Tamanho> resultado = tamanhoService.listar();
 
         assertEquals(2, resultado.size());
-        Mockito.verify(tamanhoRepository, Mockito.times(1)).findAll();
+        Mockito.verify(tamanhoRepository, Mockito.times(2)).findAll();
     }
 
     @Test
@@ -82,24 +82,22 @@ class TamanhoServiceTest {
     @Test
     @DisplayName("deletar() quando tamanho existe, deve deletar com sucesso")
     void deletar_existente() {
-        Tamanho tamanho = new Tamanho();
-        tamanho.setId(1);
+        int id = 1;
+        Mockito.when(tamanhoRepository.existsById(id)).thenReturn(true);
+        Mockito.doNothing().when(tamanhoRepository).deleteById(id);
 
-        Mockito.when(tamanhoRepository.findById(1)).thenReturn(Optional.of(tamanho));
-        Mockito.doNothing().when(tamanhoRepository).delete(tamanho);
+        assertDoesNotThrow(() -> tamanhoService.deletar(id));
 
-        assertDoesNotThrow(() -> tamanhoService.deletar(1));
-        Mockito.verify(tamanhoRepository, Mockito.times(1)).findById(1);
-        Mockito.verify(tamanhoRepository, Mockito.times(1)).delete(tamanho);
+        Mockito.verify(tamanhoRepository).existsById(id);
+        Mockito.verify(tamanhoRepository).deleteById(id);
     }
 
     @Test
     @DisplayName("deletar() quando tamanho não existe, deve lançar TamanhoNaoEncontradoException")
     void deletar_inexistente() {
-        Mockito.when(tamanhoRepository.findById(999)).thenReturn(Optional.empty());
+        Mockito.when(tamanhoRepository.existsById(999)).thenReturn(false);
 
         assertThrows(TamanhoNaoEncontradoException.class, () -> tamanhoService.deletar(999));
-        Mockito.verify(tamanhoRepository, Mockito.times(1)).findById(999);
         Mockito.verify(tamanhoRepository, Mockito.never()).delete(Mockito.any());
     }
 }

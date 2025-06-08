@@ -72,23 +72,6 @@ public class ItemService {
                 nome.contains("VESTIDO");
     }
 
-    public void validarCampoVazio(Item item) {
-        String nome = item.getCategoria().getNome().toUpperCase();
-        String tamanho = item.getTamanho().getNome().toUpperCase();
-        String cor = item.getCor().getNome().toUpperCase();
-        String material = item.getMaterial().getNome().toUpperCase();
-        double qtdEstoque = item.getQtdEstoque();
-        Fornecedor fornecedorCadastrado =item.getFornecedor();
-
-        //pensando na lógica dos campos que a beneficiárias irão preencher, não oq realmente é enviado no corpo da requisição
-        if(nome.isBlank() || tamanho.isBlank() || cor.isBlank() || material.isBlank() || qtdEstoque <= 0 || fornecedorCadastrado == null ) {
-
-            throw new ItemCampoVazioException("Campos em vazio no cadastro de item");
-
-        }
-
-
-    }
 
     public void validarPreco(Item item) {
         if (item.getPreco() == null) {
@@ -236,5 +219,24 @@ public class ItemService {
         }
         itemRepository.delete(itemOpt.get());
     }
+
+    public void validarCampoVazio(Item item) {
+        Categoria categoria = item.getCategoria();
+        Tamanho tamanho = item.getTamanho();
+        Cor cor = item.getCor();
+        Material material = item.getMaterial();
+        Fornecedor fornecedorCadastrado = item.getFornecedor();
+
+        if (categoria == null || categoria.getNome() == null || categoria.getNome().isBlank()
+                || tamanho == null || tamanho.getNome() == null || tamanho.getNome().isBlank()
+                || cor == null || cor.getNome() == null || cor.getNome().isBlank()
+                || material == null || material.getNome() == null || material.getNome().isBlank()
+                || fornecedorCadastrado == null
+                || item.getQtdEstoque() <= 0) {
+            throw new ItemCampoVazioException("Campos em vazio no cadastro de item");
+        }
+    }
+
+
 
 }

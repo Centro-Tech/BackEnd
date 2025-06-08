@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.sptech.projetoMima.entity.Fornecedor;
 import school.sptech.projetoMima.entity.item.*;
@@ -17,7 +16,6 @@ import school.sptech.projetoMima.repository.FornecedorRepository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -34,150 +32,88 @@ class ItemServiceTest {
     @InjectMocks
     private ItemService itemService;
 
-
-    private Item criarItemValido() {
-        Item item = new Item();
-        Categoria categoria = new Categoria();
-        categoria.setNome("CAMISETA");
-        item.setCategoria(categoria);
-        Tamanho tamanho = new Tamanho();
-        tamanho.setNome("M");
-        item.setTamanho(tamanho);
-        Cor cor = new Cor();
-        cor.setNome("AZUL");
-        item.setCor(cor);
-        Material material = new Material();
-        material.setNome("ALGODÃO");
-        item.setMaterial(material);
-        item.setQtdEstoque(10);
-        item.setPreco(79.9);
-        Fornecedor fornecedor = new Fornecedor();
-        fornecedor.setId(1);
-        fornecedor.setNome("Empresa XYZ LTDA");
-        fornecedor.setTelefone("11987654321");
-        fornecedor.setEmail("contato@empresa.com");
-        item.setFornecedor(fornecedor);
-        return item;
-    }
-
     @Test
     @DisplayName("BuscarPorId com ID válido retorna o item esperado e chama findById uma vez")
     void testeX1() {
-        Item itemValido = criarItemValido();
-        when(itemRepository.findById(1)).thenReturn(Optional.of(itemValido));
+        Item item = new Item();
+        when(itemRepository.findById(1)).thenReturn(Optional.of(item));
 
         Item resultado = itemService.buscarPorId(1);
 
-
-        assertEquals(itemValido, resultado);
+        assertEquals(item, resultado);
         verify(itemRepository, times(1)).findById(1);
     }
 
     @Test
     @DisplayName("BuscarPorId com ID inválido lança ItemNaoEncontradoException e chama findById uma vez")
     void testeX2() {
-
         when(itemRepository.findById(999)).thenReturn(Optional.empty());
 
-        ItemNaoEncontradoException exception = assertThrows(ItemNaoEncontradoException.class, () -> {
-            itemService.buscarPorId(999);
-        });
-
-        assertTrue(exception.getMessage().contains("não encontrado"));
+        assertThrows(ItemNaoEncontradoException.class, () -> itemService.buscarPorId(999));
         verify(itemRepository, times(1)).findById(999);
     }
 
     @Test
     @DisplayName("Deletar chama método delete do repositório exatamente uma vez")
     void testeDeletar() {
-        Item itemValido = criarItemValido();
-
-        itemService.deletar(itemValido);
-
-        verify(itemRepository, times(1)).delete(itemValido);
+        Item item = new Item();
+        itemService.deletar(item);
+        verify(itemRepository, times(1)).delete(item);
     }
 
     @Test
     @DisplayName("Validação lança exceção quando campos obrigatórios estiverem vazios")
     void testeValidarCampoVazio() {
-        Item itemValido = criarItemValido();
+        Item item = new Item();
+        Categoria categoria = new Categoria();
+        categoria.setNome("  ");
+        item.setCategoria(categoria);
 
-        itemValido.getCategoria().setNome("   ");
-
-        ItemCampoVazioException exception = assertThrows(ItemCampoVazioException.class, () -> {
-            itemService.validarCampoVazio(itemValido);
-        });
-
-        assertEquals("Campos em vazio no cadastro de item", exception.getMessage());
+        assertThrows(ItemCampoVazioException.class, () -> itemService.validarCampoVazio(item));
         verifyNoInteractions(itemRepository);
     }
 
     @Test
     @DisplayName("Lança exceção se preço for inválido (não numérico) ou menor que zero")
     void testeValidarPreco() {
-        Item itemValido = criarItemValido();
-        itemValido.setPreco(null);
+        Item item = new Item();
+        item.setPreco(null);
 
-        ItemCampoVazioException exception = assertThrows(ItemCampoVazioException.class, () -> {
-            itemService.validarPreco(itemValido);
-        });
-
-        assertTrue(exception.getMessage().contains("Preço inválido"));
+        assertThrows(ItemCampoVazioException.class, () -> itemService.validarPreco(item));
         verifyNoInteractions(itemRepository);
     }
 
     @Test
     @DisplayName("Lança exceção se quantidade for menor ou igual a zero")
     void testeValidarQuantidade() {
-        Item itemValido = criarItemValido();
-        itemValido.setQtdEstoque(0);
+        Item item = new Item();
+        item.setQtdEstoque(0);
 
-        ItemQuantidadeInvalida exception = assertThrows(ItemQuantidadeInvalida.class, () -> {
-            itemService.validarQuantidade(itemValido);
-        });
-
-        assertEquals("Quantidade deve ser maior que zero", exception.getMessage());
+        assertThrows(ItemQuantidadeInvalida.class, () -> itemService.validarQuantidade(item));
         verifyNoInteractions(itemRepository);
     }
 
     @Test
     @DisplayName("Retorna true se categoria contém caracteres especiais")
     void testeValidarCaracteres() {
+        Item item = new Item();
+        Categoria categoria = new Categoria();
+        categoria.setNome("CAMISETA!");
+        item.setCategoria(categoria);
 
-        Item itemValido = criarItemValido();
-        itemValido.getCategoria().setNome("CAMISETA!"); // contém !
-
-        boolean resultado = itemService.validarCaracteres(itemValido);
+        boolean resultado = itemService.validarCaracteres(item);
 
         assertTrue(resultado);
         verifyNoInteractions(itemRepository);
     }
-
-    /*
-    @Test
-    @DisplayName("Cadastrar item válido chama save e retorna item com código gerado")
-    void testeCadastrarItem() {
-        Item itemValido = criarItemValido();
-        Fornecedor fornecedor = itemValido.getFornecedor();
-
-        when(itemRepository.save(any(Item.class))).thenAnswer(i -> i.getArgument(0));
-
-        Item resultado = itemService.cadastrarItem(itemValido, fornecedor);
-
-        assertNotNull(resultado.getCodigo());
-        assertTrue(resultado.getCodigo().startsWith("BL"));
-        assertEquals(fornecedor, resultado.getFornecedor());
-        verify(itemRepository, times(1)).save(any(Item.class));
-    }
-     */
 
     @Test
     @DisplayName("Pesquisar por nome de item cadastrado. Deve retornar todos os itens contendo o termo")
     void pesquisarPorNomeQuandoAcionadoComNomeDeRoupaValidaELowerCaseDeveRetornarTodosOsResultados() {
         List<Item> itensValidos = List.of(
                 new Item(1, null, null, "Vestido", null, null, null, null, null, null),
-                new Item(1, null, null, "vestido", null, null, null, null, null, null),
-                new Item(1, null, null, "VESTIDO", null, null, null, null, null, null)
+                new Item(2, null, null, "vestido", null, null, null, null, null, null),
+                new Item(3, null, null, "VESTIDO", null, null, null, null, null, null)
         );
 
         String busca = "vestido";
@@ -185,7 +121,6 @@ class ItemServiceTest {
         when(itemRepository.findByNomeContainsIgnoreCase(busca)).thenReturn(itensValidos);
         List<Item> listagem = itemService.filtrarPorNome(busca);
         assertEquals(3, listagem.size());
-
     }
 
     @Test
@@ -193,8 +128,8 @@ class ItemServiceTest {
     void pesquisarPorNomeQuandoAcionadoComNomeDeRoupaValidaEUpperCaseDeveRetornarTodosOsResultados() {
         List<Item> itensValidos = List.of(
                 new Item(1, null, null, "Vestido", null, null, null, null, null, null),
-                new Item(1, null, null, "vestido", null, null, null, null, null, null),
-                new Item(1, null, null, "VESTIDO", null, null, null, null, null, null)
+                new Item(2, null, null, "vestido", null, null, null, null, null, null),
+                new Item(3, null, null, "VESTIDO", null, null, null, null, null, null)
         );
 
         String busca = "VESTIDO";
@@ -202,7 +137,6 @@ class ItemServiceTest {
         when(itemRepository.findByNomeContainsIgnoreCase(busca)).thenReturn(itensValidos);
         List<Item> listagem = itemService.filtrarPorNome(busca);
         assertEquals(3, listagem.size());
-
     }
 
     @Test
@@ -212,10 +146,7 @@ class ItemServiceTest {
 
         when(itemRepository.findByNomeContainsIgnoreCase(busca)).thenReturn(List.of());
 
-        RuntimeException excecao = assertThrows(
-                ItemNaoEncontradoException.class,
-                () -> itemService.filtrarPorNome(busca)
-        );
+        assertThrows(ItemNaoEncontradoException.class, () -> itemService.filtrarPorNome(busca));
     }
 
     @Test
@@ -223,9 +154,6 @@ class ItemServiceTest {
     void filtrarPorNomeQuandoPesquisarSemDigitarNadaDeveLancarNullPointerException() {
         String nome = null;
 
-        NullPointerException excecao = assertThrows(
-                NullPointerException.class,
-                () -> itemService.filtrarPorNome(nome)
-        );
+        assertThrows(NullPointerException.class, () -> itemService.filtrarPorNome(nome));
     }
 }

@@ -17,4 +17,4 @@ insert into Cor (nome) values
     ('Preto');
 
 insert into Material (nome) values
-    ( 'Lã')
+    ( 'Lã');

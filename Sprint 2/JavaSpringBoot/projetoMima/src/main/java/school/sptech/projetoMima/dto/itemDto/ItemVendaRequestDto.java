@@ -10,25 +10,37 @@ public class ItemVendaRequestDto {
 
     @NotNull
     @Valid
-    private VendaRequestDto venda;
+    private Integer vendaId;
 
     @NotNull
     @Valid
-    private ItemVenda itemVenda;
+    private Integer itemId;
 
-    public VendaRequestDto getVenda() {
-        return venda;
+    @NotNull
+    @Valid
+    private Integer qtdParaVender;
+
+    public Integer getVendaId() {
+        return vendaId;
     }
 
-    public void setVenda(VendaRequestDto venda) {
-        this.venda = venda;
+    public void setVendaId(Integer vendaId) {
+        this.vendaId = vendaId;
     }
 
-    public ItemVenda getItemVenda() {
-        return itemVenda;
+    public Integer getItemId() {
+        return itemId;
     }
 
-    public void setItemVenda(ItemVenda itemVenda) {
-        this.itemVenda = itemVenda;
+    public void setItemId(Integer itemId) {
+        this.itemId = itemId;
+    }
+
+    public Integer getQtdParaVender() {
+        return qtdParaVender;
+    }
+
+    public void setQtdParaVender(Integer qtdParaVender) {
+        this.qtdParaVender = qtdParaVender;
     }
 }

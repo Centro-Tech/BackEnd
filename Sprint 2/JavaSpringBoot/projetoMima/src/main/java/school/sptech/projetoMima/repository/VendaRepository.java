@@ -7,13 +7,15 @@ import school.sptech.projetoMima.entity.Venda;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface VendaRepository extends JpaRepository<Venda, Integer> {
-    void deleteByItemVenda(ItemVenda itemParaDeletar);
 
     List<Venda> findByDataBetween(LocalDate inicio, LocalDate fim);
 
     List<Venda> findByCliente(Cliente cliente);
 
     List<Venda> findByValorTotalBetween(Double valorTotalAfter, Double valorTotalBefore);
+
+    Optional<Integer> findTopByClienteIdOrderByIdDesc(Integer clienteId);
 }

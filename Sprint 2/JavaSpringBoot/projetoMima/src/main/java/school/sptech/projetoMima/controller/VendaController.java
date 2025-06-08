@@ -32,9 +32,8 @@ public class VendaController {
     @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Venda registrada com sucesso", content = @Content(schema = @Schema(implementation = VendaResponseDto.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos") })
     @PutMapping("/vender")
     public ResponseEntity<VendaResponseDto> vender(@Valid @RequestBody VendaRequestDto request) {
-        Venda vendaConvertida = VendaMapper.toEntity(request);
-        vendaService.vender(vendaConvertida);
-        VendaResponseDto response = VendaMapper.toResponse(vendaConvertida);
+        Venda venda = vendaService.vender(request);
+        VendaResponseDto response = VendaMapper.toResponse(venda);
         return ResponseEntity.status(200).body(response);
     }
 
@@ -42,20 +41,21 @@ public class VendaController {
     @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Item adicionado com sucesso", content = @Content(schema = @Schema(implementation = VendaResponseDto.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos") })
     @PutMapping("/adicionar-item")
     public ResponseEntity<VendaResponseDto> adicionarItens(@Valid @RequestBody ItemVendaRequestDto request) {
-        Venda venda = VendaMapper.toEntity(request.getVenda());
-        ItemVenda itemVenda = request.getItemVenda();
-        vendaService.adicionarItem(itemVenda, venda);
+        Venda venda = vendaService.adicionarItem(request);
         return ResponseEntity.status(200).body(VendaMapper.toResponse(venda));
     }
+
 
     @Operation(summary = "Remover item de uma venda")
     @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Item removido com sucesso"), @ApiResponse(responseCode = "400", description = "Dados inválidos") })
     @DeleteMapping
     public ResponseEntity<Void> removerItemDaVenda(@Valid @RequestBody ItemVendaRequestDto request) {
-        Venda venda = VendaMapper.toEntity(request.getVenda());
-        ItemVenda itemVenda = request.getItemVenda();
+        Integer venda = request.getItemId();
+        Integer itemVenda = request.getVendaId();
+
         vendaService.deletarItemDaVenda(itemVenda, venda);
-        return ResponseEntity.status(204).build();
+
+        return ResponseEntity.noContent().build();  // 204 No Content
     }
 
     @Operation(summary = "Filtrar vendas por intervalo de datas")

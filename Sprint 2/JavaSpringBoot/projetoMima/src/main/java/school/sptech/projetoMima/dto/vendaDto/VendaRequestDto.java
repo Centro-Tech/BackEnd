@@ -20,12 +20,12 @@ public class VendaRequestDto {
     @Schema(description = "Cliente que está realizando a compra", required = true)
     @NotNull
     @Valid
-    private Cliente cliente;
+    private Integer clienteId;
 
     @Schema(description = "Lista de itens que compõem a venda", required = true)
     @NotEmpty
     @Valid
-    private List<ItemVenda> itensVenda;
+    private List<Integer> itensVenda;
 
     public @NotNull @PositiveOrZero Double getValorTotal() {
         return valorTotal;
@@ -35,19 +35,19 @@ public class VendaRequestDto {
         this.valorTotal = valorTotal;
     }
 
-    public @NotNull @Valid Cliente getCliente() {
-        return cliente;
+    public @NotNull @Valid Integer getCliente() {
+        return clienteId;
     }
 
-    public void setCliente(@NotNull @Valid Cliente cliente) {
-        this.cliente = cliente;
+    public void setCliente(@NotNull @Valid Integer cliente) {
+        this.clienteId = cliente;
     }
 
-    public @NotEmpty @Valid List<ItemVenda> getItensVenda() {
+    public @NotEmpty @Valid List<Integer> getItensVenda() {
         return itensVenda;
     }
 
-    public void setItensVenda(@NotEmpty @Valid List<ItemVenda> itensVenda) {
+    public void setItensVenda(@NotEmpty @Valid List<Integer> itensVenda) {
         this.itensVenda = itensVenda;
     }
 }

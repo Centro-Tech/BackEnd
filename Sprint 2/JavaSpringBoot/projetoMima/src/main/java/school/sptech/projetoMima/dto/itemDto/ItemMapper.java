@@ -56,7 +56,10 @@ public class ItemMapper {
         categoria.setNome(request.getNome());
         item.setCategoria(categoria);
 
-        item.setFornecedor(request.getFornecedor());
+        Fornecedor fornecedor = new Fornecedor();
+        fornecedor.setId(request.getIdFornecedor());
+        fornecedor.setNome(request.getNome());
+        item.setFornecedor(fornecedor);
 
         return item;
     }

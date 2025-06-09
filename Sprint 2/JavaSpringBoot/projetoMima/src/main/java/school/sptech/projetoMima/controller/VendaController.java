@@ -55,7 +55,7 @@ public class VendaController {
 
         vendaService.deletarItemDaVenda(itemVenda, venda);
 
-        return ResponseEntity.noContent().build();  // 204 No Content
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Filtrar vendas por intervalo de datas")

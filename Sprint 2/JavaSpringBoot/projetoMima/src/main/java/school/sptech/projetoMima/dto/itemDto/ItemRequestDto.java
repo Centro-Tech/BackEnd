@@ -43,7 +43,7 @@ public class ItemRequestDto {
 
     @NotNull
     @Schema(description = "Objeto fornecedor com os dados básicos", example = "{\"id\": 1, \"nome\": \"Empresa XYZ LTDA\", \"telefone\": \"11987654321\", \"email\": \"contato@empresa.com\"}", required = true)
-    private Fornecedor fornecedor;
+    private Integer idFornecedor;
 
     public String getNome() {
         return nome;
@@ -101,11 +101,11 @@ public class ItemRequestDto {
         this.idCategoria = idCategoria;
     }
 
-    public Fornecedor getFornecedor() {
-        return fornecedor;
+    public Integer getIdFornecedor() {
+        return idFornecedor;
     }
 
-    public void setFornecedor(Fornecedor fornecedor) {
-        this.fornecedor = fornecedor;
+    public void setIdFornecedor(Integer idFornecedor) {
+        this.idFornecedor = idFornecedor;
     }
 }

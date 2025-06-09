@@ -168,6 +168,10 @@ public class ItemService {
                 .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
         item.setCategoria(categoria);
 
+        Fornecedor fornecedor1 = fornecedorRepository.findById(dto.getIdFornecedor())
+                .orElseThrow(() -> new RuntimeException("Fornecedor não encontrado"));
+
+
         return itemRepository.save(item);
     }
 

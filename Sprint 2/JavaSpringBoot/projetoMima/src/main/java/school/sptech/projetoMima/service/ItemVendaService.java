@@ -6,12 +6,10 @@ import school.sptech.projetoMima.dto.itemDto.ItemVendaRequestDto;
 import school.sptech.projetoMima.entity.Cliente;
 import school.sptech.projetoMima.entity.ItemVenda;
 import school.sptech.projetoMima.entity.Usuario;
+import school.sptech.projetoMima.entity.Venda;
 import school.sptech.projetoMima.entity.item.Item;
 import school.sptech.projetoMima.exception.Venda.CarrinhoVazioException;
-import school.sptech.projetoMima.repository.ClienteRepository;
-import school.sptech.projetoMima.repository.ItemRepository;
-import school.sptech.projetoMima.repository.ItemVendaRepository;
-import school.sptech.projetoMima.repository.UsuarioRepository;
+import school.sptech.projetoMima.repository.*;
 
 import java.util.List;
 
@@ -58,4 +56,23 @@ public class ItemVendaService {
         }
         return carrinho;
     }
+
+    @Autowired
+    private VendaRepository vendaRepository;
+
+    public void finalizarCarrinho(Integer clienteId, Integer vendaId) {
+        List<ItemVenda> carrinho = itemVendaRepository.findByClienteIdAndVendaIsNull(clienteId);
+        if (carrinho.isEmpty()) {
+            throw new CarrinhoVazioException("Carrinho está vazio.");
+        }
+
+        Venda venda = vendaRepository.findById(vendaId)
+                .orElseThrow(() -> new RuntimeException("Venda não encontrada"));
+
+        for (ItemVenda item : carrinho) {
+            item.setVenda(venda);
+            itemVendaRepository.save(item);
+        }
+    }
+
 }

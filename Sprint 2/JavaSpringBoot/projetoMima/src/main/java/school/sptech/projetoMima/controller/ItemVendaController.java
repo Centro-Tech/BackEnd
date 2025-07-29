@@ -34,5 +34,13 @@ public class ItemVendaController {
                 .toList();
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/carrinho/finalizar/{clienteId}/{vendaId}")
+    public ResponseEntity<String> finalizarCarrinho(@PathVariable Integer clienteId,
+                                                    @PathVariable Integer vendaId) {
+        itemVendaService.finalizarCarrinho(clienteId, vendaId);
+        return ResponseEntity.ok("Carrinho finalizado com sucesso!");
+    }
+
 }
 

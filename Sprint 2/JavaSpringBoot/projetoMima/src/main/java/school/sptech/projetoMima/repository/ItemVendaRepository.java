@@ -22,6 +22,10 @@ public interface ItemVendaRepository extends JpaRepository<ItemVenda, Integer> {
     Optional<ItemVenda> buscarPorIdEVendaComJoin(@Param("idItemVenda") Integer idItemVenda,
                                                  @Param("idVenda") Integer idVenda);
 
+    @Query("SELECT iv FROM ItemVenda iv WHERE iv.cliente.id = :clienteId AND iv.venda IS NULL")
+    List<ItemVenda> buscarCarrinhoParaFinalizar(@Param("clienteId") Integer clienteId);
+
+
 
 }
 

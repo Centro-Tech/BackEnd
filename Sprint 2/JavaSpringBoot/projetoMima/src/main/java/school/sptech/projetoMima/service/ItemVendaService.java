@@ -61,7 +61,8 @@ public class ItemVendaService {
     private VendaRepository vendaRepository;
 
     public void finalizarCarrinho(Integer clienteId, Integer vendaId) {
-        List<ItemVenda> carrinho = itemVendaRepository.findByClienteIdAndVendaIsNull(clienteId);
+        List<ItemVenda> carrinho = itemVendaRepository.buscarCarrinhoParaFinalizar(clienteId);
+
         if (carrinho.isEmpty()) {
             throw new CarrinhoVazioException("Carrinho está vazio.");
         }
@@ -74,5 +75,6 @@ public class ItemVendaService {
             itemVendaRepository.save(item);
         }
     }
+
 
 }

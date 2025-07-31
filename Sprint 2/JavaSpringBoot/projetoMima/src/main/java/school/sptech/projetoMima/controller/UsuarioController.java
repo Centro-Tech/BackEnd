@@ -15,9 +15,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import school.sptech.projetoMima.dto.usuarioDto.*;
 import school.sptech.projetoMima.entity.Usuario;
+import school.sptech.projetoMima.repository.UsuarioRepository;
 import school.sptech.projetoMima.service.UsuarioService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -25,6 +27,9 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @Operation(summary = "Buscar usuários por ID")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "Usuário encontrado", content = @Content(schema = @Schema(implementation = UsuarioResumidoDto.class))), @ApiResponse(responseCode = "404", description = "Usuário não encontrado")})

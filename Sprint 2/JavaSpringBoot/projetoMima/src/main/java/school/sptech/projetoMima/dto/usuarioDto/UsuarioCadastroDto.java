@@ -19,8 +19,6 @@ public class UsuarioCadastroDto {
     @NotBlank @NotNull @Size(min = 2, max = 50)
     private String cargo;
 
-    @NotBlank @NotNull @Size(min = 5, max = 255)
-    private String endereco;
 
     @NotBlank @NotNull @Size(min = 6, max = 20)
     private String senha;
@@ -65,11 +63,4 @@ public class UsuarioCadastroDto {
         this.cargo = cargo;
     }
 
-    public @NotBlank @NotNull @Size(min = 5, max = 255) String getEndereco() {
-        return endereco;
-    }
-
-    public void setEndereco(@NotBlank @NotNull @Size(min = 5, max = 255) String endereco) {
-        this.endereco = endereco;
-    }
 }

@@ -1,5 +1,6 @@
 package school.sptech.projetoMima.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -107,6 +108,7 @@ public class VendaService {
         return vendaRepository.save(venda);
     }*/
 
+    @Transactional
     public void deletarItemDaVenda(Integer itemVendaId, Integer vendaId) {
         Venda venda = vendaRepository.findById(vendaId)
                 .orElseThrow(() -> new IllegalArgumentException("Venda não encontrada com ID: " + vendaId));
@@ -116,26 +118,21 @@ public class VendaService {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("ItemVenda com ID " + itemVendaId + " não encontrado na venda."));
 
-        venda.getItensVenda().remove(itemEncontrado);
 
-        double valorItem = itemEncontrado.getItem().getPreco() * itemEncontrado.getQtdParaVender();
+        Item item = itemEncontrado.getItem();
+        item.setQtdEstoque(item.getQtdEstoque() + itemEncontrado.getQtdParaVender());
+
+
+        double valorItem = item.getPreco() * itemEncontrado.getQtdParaVender();
         venda.setValorTotal(venda.getValorTotal() - valorItem);
 
+
+        venda.getItensVenda().remove(itemEncontrado);
+
+
+        itemRepository.save(item);
         vendaRepository.save(venda);
-    }
-
-
-
-    public List<Venda> filtrarPorDatas (LocalDate inicio, LocalDate fim) {
-        return vendaRepository.findByDataBetween(inicio, fim);
-    }
-
-    public List<Venda> filtrarPorCliente (Cliente cliente) {
-        return vendaRepository.findByCliente(cliente);
-    }
-
-    public List<Venda> filtrarPorValor (Double valorMinimo, Double valorMax) {
-        return vendaRepository.findByValorTotalBetween(valorMinimo, valorMax);
+        itemVendaRepository.delete(itemEncontrado);
     }
 
 

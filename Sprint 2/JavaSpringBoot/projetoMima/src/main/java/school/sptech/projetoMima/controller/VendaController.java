@@ -40,8 +40,7 @@ public class VendaController {
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Venda registrada com sucesso", content = @Content(schema = @Schema(implementation = VendaResponseDto.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos")})
     @PutMapping("/vender")
     public ResponseEntity<VendaResponseDto> vender(@Valid @RequestBody VendaRequestDto request) {
-        Venda venda = vendaService.vender(request);
-        VendaResponseDto response = VendaMapper.toResponse(venda);
+        VendaResponseDto response = vendaService.vender(request);
         return ResponseEntity.ok(response);
     }
 

@@ -5,9 +5,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
-import school.sptech.projetoMima.entity.Cliente;
-import school.sptech.projetoMima.entity.ItemVenda;
-
 import java.util.List;
 
 public class VendaRequestDto {
@@ -17,37 +14,35 @@ public class VendaRequestDto {
     @PositiveOrZero
     private Double valorTotal;
 
-    @Schema(description = "Cliente que está realizando a compra", required = true)
+    @Schema(description = "ID do cliente que está realizando a compra", required = true)
     @NotNull
-    @Valid
     private Integer clienteId;
 
-    @Schema(description = "Lista de itens que compõem a venda", required = true)
+    @Schema(description = "Lista de IDs dos itens que compõem a venda", required = true)
     @NotEmpty
-    @Valid
     private List<Integer> itensVenda;
 
-    public @NotNull @PositiveOrZero Double getValorTotal() {
+    public Double getValorTotal() {
         return valorTotal;
     }
 
-    public void setValorTotal(@NotNull @PositiveOrZero Double valorTotal) {
+    public void setValorTotal(Double valorTotal) {
         this.valorTotal = valorTotal;
     }
 
-    public @NotNull @Valid Integer getCliente() {
+    public Integer getClienteId() {
         return clienteId;
     }
 
-    public void setCliente(@NotNull @Valid Integer cliente) {
-        this.clienteId = cliente;
+    public void setClienteId(Integer clienteId) {
+        this.clienteId = clienteId;
     }
 
-    public @NotEmpty @Valid List<Integer> getItensVenda() {
+    public List<Integer> getItensVenda() {
         return itensVenda;
     }
 
-    public void setItensVenda(@NotEmpty @Valid List<Integer> itensVenda) {
+    public void setItensVenda(List<Integer> itensVenda) {
         this.itensVenda = itensVenda;
     }
 }

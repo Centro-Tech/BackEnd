@@ -10,7 +10,6 @@ public class UsuarioMapper {
         usuarioCadastro.setNome(funcionario.getNome());
         usuarioCadastro.setEmail(funcionario.getEmail());
         usuarioCadastro.setTelefone(funcionario.getTelefone());
-        usuarioCadastro.setEndereco(funcionario.getEndereco());
         usuarioCadastro.setSenha(funcionario.getSenha());
         return usuarioCadastro;
     }

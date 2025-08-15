@@ -37,7 +37,7 @@ public class Venda {
     @OneToMany
     @JsonManagedReference
     @Schema(description = "Lista de itens incluídos na venda")
-    private List<ItemVenda> itemVenda;
+    private List<ItemVenda> itensVenda;  // <- corrigido de 'itemVenda' para 'itensVenda'
 
     public Integer getId() {
         return id;
@@ -80,13 +80,14 @@ public class Venda {
     }
 
     public List<ItemVenda> getItensVenda() {
-        return itemVenda;
+        return itensVenda;
     }
 
-    public void setItensVenda(List<ItemVenda> itemVenda) {
-        this.itemVenda = itemVenda;
+    public void setItensVenda(List<ItemVenda> itensVenda) {
+        this.itensVenda = itensVenda;
     }
 
+    // Métodos auxiliares para manter compatibilidade
     public Usuario getFuncionario() {
         return usuario;
     }

@@ -50,7 +50,7 @@ public class UsuarioService {
         usuarioExistente.setTelefone(dto.getTelefone());
         usuarioExistente.setEmail(dto.getEmail());
         usuarioExistente.setCargo(dto.getCargo());
-        usuarioExistente.setEndereco(dto.getEndereco());
+
 
         return usuarioRepository.save(usuarioExistente);
     }

@@ -11,6 +11,7 @@ public class UsuarioMapper {
         usuarioCadastro.setEmail(funcionario.getEmail());
         usuarioCadastro.setTelefone(funcionario.getTelefone());
         usuarioCadastro.setSenha(funcionario.getSenha());
+        usuarioCadastro.setEndereco(funcionario.getEndereco());
         return usuarioCadastro;
     }
 

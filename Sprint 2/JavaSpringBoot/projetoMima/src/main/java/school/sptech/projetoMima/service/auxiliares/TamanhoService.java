@@ -42,7 +42,6 @@ public class TamanhoService {
         if (repository.findAll().isEmpty()) {
             throw new TamanhoListaVaziaException("não há tamanhos cadastrados");
         }
-
         return repository.findAll();
     }
 }

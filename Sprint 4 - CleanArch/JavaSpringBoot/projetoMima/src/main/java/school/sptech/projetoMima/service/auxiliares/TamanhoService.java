@@ -1,8 +1,7 @@
 package school.sptech.projetoMima.service.auxiliares;
 
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import school.sptech.projetoMima.entity.item.Tamanho;
+import school.sptech.projetoMima.core.domain.item.Tamanho;
 import school.sptech.projetoMima.exception.Item.Auxiliares.TamanhoDuplicadoException;
 import school.sptech.projetoMima.exception.Item.Auxiliares.TamanhoListaVaziaException;
 import school.sptech.projetoMima.exception.Item.Auxiliares.TamanhoNaoEncontradoException;

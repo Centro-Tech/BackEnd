@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.sptech.projetoMima.entity.item.Categoria;
+import school.sptech.projetoMima.core.domain.item.Categoria;
 import school.sptech.projetoMima.exception.Item.Auxiliares.CategoriaDuplicadaException;
 import school.sptech.projetoMima.exception.Item.Auxiliares.CategoriaInvalidoException;
 import school.sptech.projetoMima.exception.Item.Auxiliares.CategoriaListaVaziaException;

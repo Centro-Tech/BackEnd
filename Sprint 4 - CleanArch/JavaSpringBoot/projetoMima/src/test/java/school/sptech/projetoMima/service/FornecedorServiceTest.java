@@ -10,7 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import school.sptech.projetoMima.entity.Fornecedor;
+import school.sptech.projetoMima.core.domain.Fornecedor;
 import school.sptech.projetoMima.exception.Fornecedor.FornecedorExistenteException;
 import school.sptech.projetoMima.repository.FornecedorRepository;
 

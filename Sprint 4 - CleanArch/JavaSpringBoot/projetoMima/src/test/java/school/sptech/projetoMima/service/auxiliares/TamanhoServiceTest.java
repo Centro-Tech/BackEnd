@@ -9,8 +9,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import school.sptech.projetoMima.dto.itemDto.auxiliares.TamanhoDto;
-import school.sptech.projetoMima.entity.item.Tamanho;
+import school.sptech.projetoMima.core.domain.item.Tamanho;
 import school.sptech.projetoMima.exception.Item.Auxiliares.TamanhoListaVaziaException;
 import school.sptech.projetoMima.exception.Item.Auxiliares.TamanhoNaoEncontradoException;
 import school.sptech.projetoMima.repository.auxiliares.TamanhoRepository;

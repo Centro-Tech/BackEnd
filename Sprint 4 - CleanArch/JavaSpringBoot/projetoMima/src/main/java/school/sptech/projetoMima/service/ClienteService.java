@@ -2,9 +2,9 @@ package school.sptech.projetoMima.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import school.sptech.projetoMima.dto.clienteDto.ClienteCadastroDto;
-import school.sptech.projetoMima.dto.clienteDto.ClienteMapper;
-import school.sptech.projetoMima.entity.Cliente;
+import school.sptech.projetoMima.core.adapter.clienteDto.ClienteCadastroDto;
+import school.sptech.projetoMima.core.infrastructure.cliente.ClienteMapper;
+import school.sptech.projetoMima.core.domain.Cliente;
 import school.sptech.projetoMima.exception.Cliente.ClienteListaVaziaException;
 import school.sptech.projetoMima.exception.Cliente.ClienteNaoEncontradoException;
 import school.sptech.projetoMima.repository.ClienteRepository;

@@ -2,9 +2,9 @@ package school.sptech.projetoMima.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import school.sptech.projetoMima.dto.itemDto.ItemRequestDto;
-import school.sptech.projetoMima.entity.Fornecedor;
-import school.sptech.projetoMima.entity.item.*;
+import school.sptech.projetoMima.core.adapter.itemDto.ItemRequestDto;
+import school.sptech.projetoMima.core.domain.Fornecedor;
+import school.sptech.projetoMima.core.domain.item.*;
 import school.sptech.projetoMima.exception.Item.ItemCampoVazioException;
 import school.sptech.projetoMima.exception.Item.ItemNaoEncontradoException;
 import school.sptech.projetoMima.exception.Item.ItemQuantidadeInvalida;
@@ -14,10 +14,6 @@ import school.sptech.projetoMima.repository.auxiliares.CategoriaRepository;
 import school.sptech.projetoMima.repository.auxiliares.CorRepository;
 import school.sptech.projetoMima.repository.auxiliares.MaterialRepository;
 import school.sptech.projetoMima.repository.auxiliares.TamanhoRepository;
-import school.sptech.projetoMima.service.auxiliares.CategoriaService;
-import school.sptech.projetoMima.service.auxiliares.CorService;
-import school.sptech.projetoMima.service.auxiliares.MaterialService;
-import school.sptech.projetoMima.service.auxiliares.TamanhoService;
 
 import java.util.List;
 import java.util.Optional;

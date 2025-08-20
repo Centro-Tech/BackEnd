@@ -3,7 +3,7 @@ package school.sptech.projetoMima.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import school.sptech.projetoMima.entity.ItemVenda;
+import school.sptech.projetoMima.core.domain.ItemVenda;
 
 import java.util.List;
 import java.util.Optional;

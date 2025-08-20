@@ -5,10 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import school.sptech.projetoMima.dto.itemDto.ItemVendaRequestDto;
-import school.sptech.projetoMima.dto.itemVendaDto.ItemVendaMapper;
-import school.sptech.projetoMima.dto.itemVendaDto.ItemVendaResponseDto;
-import school.sptech.projetoMima.entity.ItemVenda;
+import school.sptech.projetoMima.core.adapter.itemDto.ItemVendaRequestDto;
+import school.sptech.projetoMima.core.infrastructure.itemVenda.ItemVendaMapper;
+import school.sptech.projetoMima.core.adapter.itemVendaDto.ItemVendaResponseDto;
+import school.sptech.projetoMima.core.domain.ItemVenda;
 import school.sptech.projetoMima.service.ItemVendaService;
 
 import java.util.List;

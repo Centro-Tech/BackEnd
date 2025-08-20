@@ -8,11 +8,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import school.sptech.projetoMima.dto.clienteDto.ClienteCadastroDto;
-import school.sptech.projetoMima.dto.clienteDto.ClienteListagemDto;
-import school.sptech.projetoMima.dto.clienteDto.ClienteMapper;
-import school.sptech.projetoMima.dto.clienteDto.ClienteResumidoDto;
-import school.sptech.projetoMima.entity.Cliente;
+import school.sptech.projetoMima.core.adapter.clienteDto.ClienteCadastroDto;
+import school.sptech.projetoMima.core.adapter.clienteDto.ClienteListagemDto;
+import school.sptech.projetoMima.core.infrastructure.cliente.ClienteMapper;
+import school.sptech.projetoMima.core.adapter.clienteDto.ClienteResumidoDto;
+import school.sptech.projetoMima.core.domain.Cliente;
 import school.sptech.projetoMima.service.ClienteService;
 
 import java.util.List;

@@ -7,10 +7,10 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import school.sptech.projetoMima.dto.fornecedorDto.FornecedorMapper;
-import school.sptech.projetoMima.dto.fornecedorDto.FornecedorRequestDto;
-import school.sptech.projetoMima.dto.fornecedorDto.FornecedorResponseDto;
-import school.sptech.projetoMima.entity.Fornecedor;
+import school.sptech.projetoMima.core.infrastructure.fornecedor.FornecedorMapper;
+import school.sptech.projetoMima.core.adapter.fornecedorDto.FornecedorRequestDto;
+import school.sptech.projetoMima.core.adapter.fornecedorDto.FornecedorResponseDto;
+import school.sptech.projetoMima.core.domain.Fornecedor;
 import school.sptech.projetoMima.service.FornecedorService;
 import school.sptech.projetoMima.service.ItemService;
 

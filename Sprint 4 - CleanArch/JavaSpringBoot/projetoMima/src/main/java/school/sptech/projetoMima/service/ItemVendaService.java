@@ -2,12 +2,12 @@ package school.sptech.projetoMima.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import school.sptech.projetoMima.dto.itemDto.ItemVendaRequestDto;
-import school.sptech.projetoMima.entity.Cliente;
-import school.sptech.projetoMima.entity.ItemVenda;
-import school.sptech.projetoMima.entity.Usuario;
-import school.sptech.projetoMima.entity.Venda;
-import school.sptech.projetoMima.entity.item.Item;
+import school.sptech.projetoMima.core.adapter.itemDto.ItemVendaRequestDto;
+import school.sptech.projetoMima.core.domain.Cliente;
+import school.sptech.projetoMima.core.domain.ItemVenda;
+import school.sptech.projetoMima.core.domain.Usuario;
+import school.sptech.projetoMima.core.domain.Venda;
+import school.sptech.projetoMima.core.domain.item.Item;
 import school.sptech.projetoMima.exception.Venda.CarrinhoVazioException;
 import school.sptech.projetoMima.repository.*;
 

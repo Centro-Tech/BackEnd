@@ -2,7 +2,7 @@ package school.sptech.projetoMima.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import school.sptech.projetoMima.entity.Fornecedor;
+import school.sptech.projetoMima.core.domain.Fornecedor;
 import school.sptech.projetoMima.exception.Fornecedor.FornecedorExistenteException;
 import school.sptech.projetoMima.exception.Fornecedor.FornecedorNaoEncontradoException;
 import school.sptech.projetoMima.repository.FornecedorRepository;

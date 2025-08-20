@@ -1,7 +1,7 @@
 package school.sptech.projetoMima.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import school.sptech.projetoMima.entity.item.Item;
+import school.sptech.projetoMima.core.domain.item.Item;
 
 import java.util.List;
 import java.util.Optional;

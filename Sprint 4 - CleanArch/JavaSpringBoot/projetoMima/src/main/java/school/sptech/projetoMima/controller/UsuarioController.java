@@ -13,8 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import school.sptech.projetoMima.dto.usuarioDto.*;
-import school.sptech.projetoMima.entity.Usuario;
+import school.sptech.projetoMima.core.adapter.usuarioDto.*;
+import school.sptech.projetoMima.core.domain.Usuario;
+import school.sptech.projetoMima.core.infrastructure.usuario.UsuarioMapper;
 import school.sptech.projetoMima.repository.UsuarioRepository;
 import school.sptech.projetoMima.service.UsuarioService;
 

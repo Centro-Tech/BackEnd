@@ -1,8 +1,7 @@
 package school.sptech.projetoMima.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.repository.CrudRepository;
-import school.sptech.projetoMima.entity.Usuario;
+import school.sptech.projetoMima.core.domain.Usuario;
 
 import java.util.Optional;
 

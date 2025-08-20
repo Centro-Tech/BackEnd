@@ -1,7 +1,7 @@
 package school.sptech.projetoMima.repository.auxiliares;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import school.sptech.projetoMima.entity.item.Categoria;
+import school.sptech.projetoMima.core.domain.item.Categoria;
 
 public interface CategoriaRepository extends JpaRepository<Categoria, Integer> {
 

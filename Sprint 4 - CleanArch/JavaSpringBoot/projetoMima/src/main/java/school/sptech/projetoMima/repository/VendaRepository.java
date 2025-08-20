@@ -1,8 +1,8 @@
 package school.sptech.projetoMima.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import school.sptech.projetoMima.entity.Cliente;
-import school.sptech.projetoMima.entity.Venda;
+import school.sptech.projetoMima.core.domain.Cliente;
+import school.sptech.projetoMima.core.domain.Venda;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;

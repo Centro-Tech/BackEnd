@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.web.bind.annotation.*;
-import school.sptech.projetoMima.entity.item.Cor;
+import school.sptech.projetoMima.core.domain.item.Cor;
 import school.sptech.projetoMima.service.auxiliares.CorService;
 
 import java.util.List;

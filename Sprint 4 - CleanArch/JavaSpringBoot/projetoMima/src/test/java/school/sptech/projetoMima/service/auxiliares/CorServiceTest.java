@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.sptech.projetoMima.entity.item.Cor;
+import school.sptech.projetoMima.core.domain.item.Cor;
 import school.sptech.projetoMima.exception.Item.Auxiliares.CorDuplicadaException;
 import school.sptech.projetoMima.exception.Item.Auxiliares.CorListaVaziaException;
 import school.sptech.projetoMima.exception.Item.Auxiliares.CorNaoEncontradoException;

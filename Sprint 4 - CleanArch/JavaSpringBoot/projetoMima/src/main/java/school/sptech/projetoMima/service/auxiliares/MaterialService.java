@@ -1,7 +1,7 @@
 package school.sptech.projetoMima.service.auxiliares;
 
 import org.springframework.stereotype.Service;
-import school.sptech.projetoMima.entity.item.Material;
+import school.sptech.projetoMima.core.domain.item.Material;
 import school.sptech.projetoMima.exception.Item.Auxiliares.MaterialDuplicadoException;
 import school.sptech.projetoMima.exception.Item.Auxiliares.MaterialInvalidoException;
 import school.sptech.projetoMima.exception.Item.Auxiliares.MaterialListaVaziaException;

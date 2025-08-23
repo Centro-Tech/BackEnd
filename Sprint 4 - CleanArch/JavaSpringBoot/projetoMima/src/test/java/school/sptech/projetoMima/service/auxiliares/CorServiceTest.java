@@ -8,10 +8,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.sptech.projetoMima.core.domain.item.Cor;
-import school.sptech.projetoMima.exception.Item.Auxiliares.CorDuplicadaException;
-import school.sptech.projetoMima.exception.Item.Auxiliares.CorListaVaziaException;
-import school.sptech.projetoMima.exception.Item.Auxiliares.CorNaoEncontradoException;
-import school.sptech.projetoMima.repository.auxiliares.CorRepository;
+import school.sptech.projetoMima.SemCleanArch.exception.Item.Auxiliares.CorDuplicadaException;
+import school.sptech.projetoMima.SemCleanArch.exception.Item.Auxiliares.CorListaVaziaException;
+import school.sptech.projetoMima.SemCleanArch.exception.Item.Auxiliares.CorNaoEncontradoException;
+import school.sptech.projetoMima.SemCleanArch.repositorySemCleanArch.auxiliares.CorRepository;
+import school.sptech.projetoMima.SemCleanArch.serviceSemCleanArch.auxiliares.CorService;
 
 import java.util.ArrayList;
 import java.util.List;

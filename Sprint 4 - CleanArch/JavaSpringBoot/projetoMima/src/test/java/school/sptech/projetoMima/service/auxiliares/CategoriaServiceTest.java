@@ -8,11 +8,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.sptech.projetoMima.core.domain.item.Categoria;
-import school.sptech.projetoMima.exception.Item.Auxiliares.CategoriaDuplicadaException;
-import school.sptech.projetoMima.exception.Item.Auxiliares.CategoriaInvalidoException;
-import school.sptech.projetoMima.exception.Item.Auxiliares.CategoriaListaVaziaException;
-import school.sptech.projetoMima.exception.Item.Auxiliares.CategoriaNaoEncontradoException;
-import school.sptech.projetoMima.repository.auxiliares.CategoriaRepository;
+import school.sptech.projetoMima.SemCleanArch.exception.Item.Auxiliares.CategoriaDuplicadaException;
+import school.sptech.projetoMima.SemCleanArch.exception.Item.Auxiliares.CategoriaInvalidoException;
+import school.sptech.projetoMima.SemCleanArch.exception.Item.Auxiliares.CategoriaListaVaziaException;
+import school.sptech.projetoMima.SemCleanArch.exception.Item.Auxiliares.CategoriaNaoEncontradoException;
+import school.sptech.projetoMima.SemCleanArch.repositorySemCleanArch.auxiliares.CategoriaRepository;
+import school.sptech.projetoMima.SemCleanArch.serviceSemCleanArch.auxiliares.CategoriaService;
 
 import java.util.Arrays;
 import java.util.List;

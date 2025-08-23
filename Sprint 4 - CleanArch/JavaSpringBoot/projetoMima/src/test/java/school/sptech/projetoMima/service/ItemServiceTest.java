@@ -7,11 +7,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.sptech.projetoMima.core.domain.item.*;
-import school.sptech.projetoMima.exception.Item.ItemCampoVazioException;
-import school.sptech.projetoMima.exception.Item.ItemNaoEncontradoException;
-import school.sptech.projetoMima.exception.Item.ItemQuantidadeInvalida;
-import school.sptech.projetoMima.repository.ItemRepository;
-import school.sptech.projetoMima.repository.FornecedorRepository;
+import school.sptech.projetoMima.SemCleanArch.exception.Item.ItemCampoVazioException;
+import school.sptech.projetoMima.SemCleanArch.exception.Item.ItemNaoEncontradoException;
+import school.sptech.projetoMima.SemCleanArch.exception.Item.ItemQuantidadeInvalida;
+import school.sptech.projetoMima.SemCleanArch.repositorySemCleanArch.ItemRepository;
+import school.sptech.projetoMima.SemCleanArch.repositorySemCleanArch.FornecedorRepository;
+import school.sptech.projetoMima.SemCleanArch.serviceSemCleanArch.ItemService;
 
 import java.util.List;
 import java.util.Optional;

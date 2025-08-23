@@ -10,9 +10,10 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import school.sptech.projetoMima.core.domain.item.Tamanho;
-import school.sptech.projetoMima.exception.Item.Auxiliares.TamanhoListaVaziaException;
-import school.sptech.projetoMima.exception.Item.Auxiliares.TamanhoNaoEncontradoException;
-import school.sptech.projetoMima.repository.auxiliares.TamanhoRepository;
+import school.sptech.projetoMima.SemCleanArch.exception.Item.Auxiliares.TamanhoListaVaziaException;
+import school.sptech.projetoMima.SemCleanArch.exception.Item.Auxiliares.TamanhoNaoEncontradoException;
+import school.sptech.projetoMima.SemCleanArch.repositorySemCleanArch.auxiliares.TamanhoRepository;
+import school.sptech.projetoMima.SemCleanArch.serviceSemCleanArch.auxiliares.TamanhoService;
 
 import java.util.ArrayList;
 import java.util.List;

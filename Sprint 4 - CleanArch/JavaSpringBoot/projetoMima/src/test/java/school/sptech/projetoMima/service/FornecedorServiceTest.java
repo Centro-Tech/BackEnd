@@ -11,8 +11,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import school.sptech.projetoMima.core.domain.Fornecedor;
-import school.sptech.projetoMima.exception.Fornecedor.FornecedorExistenteException;
-import school.sptech.projetoMima.repository.FornecedorRepository;
+import school.sptech.projetoMima.SemCleanArch.exception.Fornecedor.FornecedorExistenteException;
+import school.sptech.projetoMima.SemCleanArch.repositorySemCleanArch.FornecedorRepository;
+import school.sptech.projetoMima.SemCleanArch.serviceSemCleanArch.FornecedorService;
 
 import static org.mockito.Mockito.when;
 

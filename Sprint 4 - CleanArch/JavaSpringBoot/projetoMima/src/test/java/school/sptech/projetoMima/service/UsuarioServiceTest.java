@@ -7,11 +7,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.sptech.projetoMima.core.adapter.usuarioDto.UsuarioCadastroDto;
+import school.sptech.projetoMima.core.adapter.usuario.UsuarioCadastroDto;
 import school.sptech.projetoMima.core.domain.Usuario;
-import school.sptech.projetoMima.exception.Usuario.UsuarioListaVaziaException;
-import school.sptech.projetoMima.exception.Usuario.UsuarioNaoEncontradoException;
-import school.sptech.projetoMima.repository.UsuarioRepository;
+import school.sptech.projetoMima.SemCleanArch.exception.Usuario.UsuarioListaVaziaException;
+import school.sptech.projetoMima.SemCleanArch.exception.Usuario.UsuarioNaoEncontradoException;
+import school.sptech.projetoMima.SemCleanArch.repositorySemCleanArch.UsuarioRepository;
+import school.sptech.projetoMima.SemCleanArch.serviceSemCleanArch.UsuarioService;
 
 import java.util.ArrayList;
 import java.util.List;

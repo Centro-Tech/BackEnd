@@ -52,21 +52,26 @@ public class SecurityConfiguracao {
     };
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, AutenticacaoEntryPoint autenticacaoJwtEntryPoint) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http,
+                                           AutenticacaoEntryPoint autenticacaoJwtEntryPoint) throws Exception {
         http
-                .cors().and()
-                .csrf().disable()
-                .authorizeHttpRequests(authorize -> authorize
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ Ajuste no CORS
+                .csrf(csrf -> csrf.disable()) // ✅ Nova forma
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers(URLS_PUBLICAS).permitAll()
                         .anyRequest().authenticated()
                 )
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(autenticacaoJwtEntryPoint))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(autenticacaoJwtEntryPoint)
+                )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                );
 
-        http.headers(headers -> headers.frameOptions().disable()); // h2-console
+        // Permite acesso ao H2-console
+        http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
+        // Adiciona o filtro JWT antes do UsernamePasswordAuthenticationFilter
         http.addFilterBefore(jwtAuthenticationFilterBean(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -76,7 +81,9 @@ public class SecurityConfiguracao {
     public AuthenticationManager authManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder authBuilder =
                 http.getSharedObject(AuthenticationManagerBuilder.class);
-        authBuilder.authenticationProvider(new AutenticacaoProvider(autenticacaoService, passwordEncoder()));
+        authBuilder.authenticationProvider(
+                new AutenticacaoProvider(autenticacaoService, passwordEncoder())
+        );
         return authBuilder.build();
     }
 
@@ -98,23 +105,22 @@ public class SecurityConfiguracao {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuracao = new CorsConfiguration();
-        configuracao.applyPermitDefaultValues();
-        configuracao.setAllowedMethods(
-                Arrays.asList(
-                        HttpMethod.GET.name(),
-                        HttpMethod.POST.name(),
-                        HttpMethod.PUT.name(),
-                        HttpMethod.PATCH.name(),
-                        HttpMethod.DELETE.name(),
-                        HttpMethod.OPTIONS.name(),
-                        HttpMethod.HEAD.name()
-                )
-        );
+        configuracao.setAllowedOriginPatterns(List.of("*"));
+        configuracao.setAllowedMethods(Arrays.asList(
+                HttpMethod.GET.name(),
+                HttpMethod.POST.name(),
+                HttpMethod.PUT.name(),
+                HttpMethod.PATCH.name(),
+                HttpMethod.DELETE.name(),
+                HttpMethod.OPTIONS.name(),
+                HttpMethod.HEAD.name()
+        ));
+        configuracao.setAllowedHeaders(List.of("*"));
+        configuracao.setAllowCredentials(true);
         configuracao.setExposedHeaders(List.of(HttpHeaders.CONTENT_DISPOSITION));
 
         UrlBasedCorsConfigurationSource origem = new UrlBasedCorsConfigurationSource();
         origem.registerCorsConfiguration("/**", configuracao);
-
         return origem;
     }
 }

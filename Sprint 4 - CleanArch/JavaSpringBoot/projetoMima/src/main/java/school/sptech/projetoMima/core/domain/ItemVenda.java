@@ -1,64 +1,101 @@
 package school.sptech.projetoMima.core.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.*;
 import school.sptech.projetoMima.core.domain.item.Item;
 
+@Entity
+@Schema(description = "Representa um item incluído em uma venda, contendo a quantidade, o item vendido, e as associações com fornecedor, venda, cliente e funcionário.")
 public class ItemVenda {
 
-    private final Integer id;
-    private final Item item;
-    private final Fornecedor fornecedor;
-    private final Venda venda;
-    private final Cliente cliente;
-    private final Usuario funcionario;
-    private final Integer qtdParaVender;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(description = "Identificador único do item da venda", example = "501", type = "integer", format = "int32")
+    private Integer id;
 
-    public ItemVenda(Integer id, Item item, Fornecedor fornecedor, Venda venda,
-                     Cliente cliente, Usuario funcionario, Integer qtdParaVender) {
-        if (qtdParaVender == null || qtdParaVender <= 0) {
-            throw new IllegalArgumentException("Quantidade deve ser maior que zero.");
-        }
-        this.id = id;
-        this.item = item;
-        this.fornecedor = fornecedor;
-        this.venda = venda;
-        this.cliente = cliente;
-        this.funcionario = funcionario;
-        this.qtdParaVender = qtdParaVender;
+    @ManyToOne
+    @JoinColumn(name = "fkItem")
+    @Schema(description = "Item que está sendo vendido neste registro")
+    private Item item;
+
+    @ManyToOne
+    @JoinColumn(name = "fkItemFornecedor")
+    @Schema(description = "Fornecedor responsável por fornecer o item vendido")
+    private Fornecedor fornecedor;
+
+    @ManyToOne
+    @JoinColumn(name = "fkVenda")
+    @JsonBackReference
+    @Schema(description = "Venda à qual este item pertence")
+    private Venda venda;
+
+    @ManyToOne
+    @JoinColumn(name = "fkVendaCliente")
+    @Schema(description = "Cliente que realizou a compra deste item")
+    private Cliente cliente;
+
+    @ManyToOne
+    @JoinColumn(name = "fkVendaFuncionario")
+    @Schema(description = "Funcionário responsável pela venda deste item")
+    private Usuario funcionario;
+
+    @Schema(description = "Quantidade do item incluído na venda", example = "3", type = "integer", format = "int32")
+    private Integer qtdParaVender;
+
+    public Integer getQtdParaVender() {
+        return qtdParaVender;
     }
 
-    public Integer getId() {
-        return id;
+    public void setQtdParaVender(Integer qtdParaVender) {
+        this.qtdParaVender = qtdParaVender;
     }
 
     public Item getItem() {
         return item;
     }
 
+    public void setItem(Item item) {
+        this.item = item;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public Fornecedor getFornecedor() {
         return fornecedor;
+    }
+
+    public void setFornecedor(Fornecedor fornecedor) {
+        this.fornecedor = fornecedor;
     }
 
     public Venda getVenda() {
         return venda;
     }
 
+    public void setVenda(Venda venda) {
+        this.venda = venda;
+    }
+
     public Cliente getCliente() {
         return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
     }
 
     public Usuario getFuncionario() {
         return funcionario;
     }
 
-    public Integer getQtdParaVender() {
-        return qtdParaVender;
-    }
-
-    @Override
-    public String toString() {
-        return String.format(
-                "ItemVenda{id=%d, item=%s, fornecedor=%s, venda=%s, cliente=%s, funcionario=%s, qtdParaVender=%d}",
-                id, item, fornecedor, venda, cliente, funcionario, qtdParaVender
-        );
+    public void setFuncionario(Usuario funcionario) {
+        this.funcionario = funcionario;
     }
 }

@@ -1,64 +1,80 @@
 package school.sptech.projetoMima.core.domain;
 
-import school.sptech.projetoMima.core.domain.shared.Email;
-import school.sptech.projetoMima.core.domain.shared.Endereco;
-import school.sptech.projetoMima.core.domain.shared.Telefone;
-import school.sptech.projetoMima.core.domain.shared.Cpf;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
+@Entity
+@Schema(description = "Entidade que representa um cliente da loja.")
 public class Cliente {
 
-    private final Integer idCliente;
-    private final String nome;
-    private final Telefone telefone;
-    private final Cpf cpf;
-    private final Email email;
-    private final Endereco endereco;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(description = "Identificador único do cliente", example = "1")
+    private Integer idCliente;
 
-    public Cliente(Integer idCliente, String nome, String telefone, String cpf, String email, Endereco endereco) {
-        this(idCliente, nome,
-                new Telefone(telefone),
-                new Cpf(cpf),
-                new Email(email),
-                endereco);
+    @Schema(description = "Nome completo do cliente", example = "João da Silva")
+    private String nome;
+
+    @Schema(description = "Número de telefone do cliente", example = "(11) 91234-5678")
+    private String telefone;
+
+    @Schema(description = "CPF do cliente", example = "123.456.789-00")
+    private String CPF;
+
+    @Schema(description = "Endereço de e-mail do cliente", example = "joao.silva@email.com")
+    private String email;
+
+    @Schema(description = "Endereço residencial do cliente", example = "Rua das Flores, 123 - São Paulo/SP")
+    private String endereco;
+
+    public Integer getId() {
+        return idCliente;
     }
 
-    public Cliente(Integer idCliente, String nome, Telefone telefone, Cpf cpf, Email email, Endereco endereco) {
+    public void setId(Integer idCliente) {
         this.idCliente = idCliente;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public String getTelefone() {
+        return telefone;
+    }
+
+    public void setTelefone(String telefone) {
         this.telefone = telefone;
-        this.cpf = cpf;
+    }
+
+    public String getCPF() {
+        return CPF;
+    }
+
+    public void setCPF(String CPF) {
+        this.CPF = CPF;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(String endereco) {
         this.endereco = endereco;
-    }
-
-    public Integer getIdCliente() { return idCliente; }
-    public String getNome() { return nome; }
-    public Telefone getTelefone() { return telefone; }
-    public Cpf getCpf() { return cpf; }
-    public Email getEmail() { return email; }
-    public Endereco getEndereco() { return endereco; }
-
-    public Cliente atualizarDados(String nome, String telefone, String cpf, String email, Endereco endereco) {
-        return new Cliente(
-                this.idCliente,
-                nome != null ? nome : this.nome,
-                telefone != null ? new Telefone(telefone) : this.telefone,
-                cpf != null ? new Cpf(cpf) : this.cpf,
-                email != null ? new Email(email) : this.email,
-                endereco != null ? endereco : this.endereco
-        );
-    }
-
-    @Override
-    public String toString() {
-        return String.format(
-                "Cliente{idCliente=%d, nome='%s', telefone='%s', cpf='%s', email='%s', endereco='%s'}",
-                idCliente,
-                nome,
-                telefone.getValor(),
-                cpf.getNumero(),
-                email.getValor(),
-                endereco
-        );
     }
 }

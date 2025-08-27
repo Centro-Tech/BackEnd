@@ -7,12 +7,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.sptech.projetoMima.core.domain.Cliente;
-import school.sptech.projetoMima.SemCleanArch.controllerSemCleanArch.ClienteController;
-import school.sptech.projetoMima.SemCleanArch.exception.Cliente.ClienteInvalidoException;
-import school.sptech.projetoMima.SemCleanArch.exception.Cliente.ClienteListaVaziaException;
-import school.sptech.projetoMima.SemCleanArch.exception.Cliente.ClienteNaoEncontradoException;
-import school.sptech.projetoMima.SemCleanArch.serviceSemCleanArch.ClienteService;
+import school.sptech.projetoMima.dto.clienteDto.ClienteCadastroDto;
+import school.sptech.projetoMima.exception.Cliente.ClienteInvalidoException;
+import school.sptech.projetoMima.exception.Cliente.ClienteListaVaziaException;
+import school.sptech.projetoMima.exception.Cliente.ClienteNaoEncontradoException;
+import school.sptech.projetoMima.service.ClienteService;
 
 import java.util.ArrayList;
 import java.util.List;

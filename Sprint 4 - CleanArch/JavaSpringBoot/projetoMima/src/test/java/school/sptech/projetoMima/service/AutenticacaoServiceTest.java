@@ -9,9 +9,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import school.sptech.projetoMima.core.domain.Usuario;
-import school.sptech.projetoMima.SemCleanArch.repositorySemCleanArch.UsuarioRepository;
-import school.sptech.projetoMima.SemCleanArch.serviceSemCleanArch.AutenticacaoService;
+import school.sptech.projetoMima.repository.UsuarioRepository;
 
 import java.util.Optional;
 

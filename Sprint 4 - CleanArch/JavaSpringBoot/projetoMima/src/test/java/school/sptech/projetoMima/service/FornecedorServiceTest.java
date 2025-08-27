@@ -10,10 +10,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
+import school.sptech.projetoMima.core.application.exception.Fornecedor.FornecedorExistenteException;
+import school.sptech.projetoMima.core.application.usecase.FornecedorService;
 import school.sptech.projetoMima.core.domain.Fornecedor;
-import school.sptech.projetoMima.SemCleanArch.exception.Fornecedor.FornecedorExistenteException;
-import school.sptech.projetoMima.SemCleanArch.repositorySemCleanArch.FornecedorRepository;
-import school.sptech.projetoMima.SemCleanArch.serviceSemCleanArch.FornecedorService;
+import school.sptech.projetoMima.infrastructure.persistance.FornecedorRepository;
 
 import static org.mockito.Mockito.when;
 

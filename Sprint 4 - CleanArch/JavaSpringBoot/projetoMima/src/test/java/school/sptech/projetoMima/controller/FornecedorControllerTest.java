@@ -10,15 +10,14 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
-import school.sptech.projetoMima.core.adapter.fornecedor.FornecedorRequestDto;
-import school.sptech.projetoMima.core.adapter.fornecedor.FornecedorResponseDto;
-import school.sptech.projetoMima.core.domain.Fornecedor;
-import static org.mockito.Mockito.*;
+import school.sptech.projetoMima.dto.fornecedorDto.FornecedorMapper;
+import school.sptech.projetoMima.dto.fornecedorDto.FornecedorRequestDto;
+import school.sptech.projetoMima.dto.fornecedorDto.FornecedorResponseDto;
 
-import school.sptech.projetoMima.SemCleanArch.controllerSemCleanArch.FornecedorController;
-import school.sptech.projetoMima.SemCleanArch.exception.Fornecedor.FornecedorExistenteException;
-import school.sptech.projetoMima.SemCleanArch.exception.Fornecedor.FornecedorNaoEncontradoException;
-import school.sptech.projetoMima.SemCleanArch.serviceSemCleanArch.FornecedorService;
+import static org.mockito.Mockito.*;
+import school.sptech.projetoMima.exception.Fornecedor.FornecedorExistenteException;
+import school.sptech.projetoMima.exception.Fornecedor.FornecedorNaoEncontradoException;
+import school.sptech.projetoMima.service.FornecedorService;
 
 import java.util.ArrayList;
 import java.util.List;

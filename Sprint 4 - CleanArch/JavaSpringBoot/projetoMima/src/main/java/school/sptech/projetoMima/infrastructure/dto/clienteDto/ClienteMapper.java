@@ -1,5 +1,6 @@
 package school.sptech.projetoMima.core.application.dto.clienteDto;
 
+import school.sptech.projetoMima.core.application.command.Cliente.CriarClienteCommand;
 import school.sptech.projetoMima.core.domain.Cliente;
 
 public class ClienteMapper {
@@ -30,7 +31,7 @@ public class ClienteMapper {
         return dto;
     }
 
-    public static Cliente toEntity(ClienteCadastroDto dto) {
+    public static Cliente toEntity(CriarClienteCommand dto) {
         Cliente cliente = new Cliente();
         cliente.setNome(dto.getNome());
         cliente.setTelefone(dto.getTelefone());

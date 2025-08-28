@@ -1,21 +1,21 @@
 package school.sptech.projetoMima.core.application.usecase.Cliente;
 
-import school.sptech.projetoMima.core.adapter.Cliente.ClienteMutation;
+import school.sptech.projetoMima.core.adapter.Cliente.ClienteGateway;
 import school.sptech.projetoMima.core.domain.Cliente;
 
 public class AtualizarClienteUseCase {
 
-    private final ClienteMutation clienteMutation;
+    private final ClienteGateway clienteGateway;
 
-    public AtualizarClienteUseCase(ClienteMutation clienteMutation) {
-        this.clienteMutation = clienteMutation;
+    public AtualizarClienteUseCase(ClienteGateway clienteGateway) {
+        this.clienteGateway = clienteGateway;
     }
 
     Cliente execute(Integer id, Cliente clienteAtualizado) {
-        if (!clienteMutation.existsById(id)) {
+        if (!clienteGateway.existsById(id)) {
             throw new RuntimeException("Cliente não encontrado");
         }
         clienteAtualizado.setId(id);
-        return clienteMutation.save(clienteAtualizado);
+        return clienteGateway.save(clienteAtualizado);
     }
 }

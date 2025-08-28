@@ -4,7 +4,7 @@ import school.sptech.projetoMima.core.domain.Cliente;
 
 import java.util.List;
 
-public interface ClienteMutation {
+public interface ClienteGateway {
     Cliente save(Cliente cliente);
     boolean existsByCpf(String cpf);
 

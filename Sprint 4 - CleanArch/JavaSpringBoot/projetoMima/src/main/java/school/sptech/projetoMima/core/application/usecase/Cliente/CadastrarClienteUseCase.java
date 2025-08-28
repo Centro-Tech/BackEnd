@@ -1,21 +1,20 @@
 package school.sptech.projetoMima.core.application.usecase.Cliente;
 
-import school.sptech.projetoMima.core.adapter.Cliente.ClienteMutation;
+import school.sptech.projetoMima.core.adapter.Cliente.ClienteGateway;
 import school.sptech.projetoMima.core.application.command.Cliente.CriarClienteCommand;
-import school.sptech.projetoMima.core.application.dto.clienteDto.ClienteCadastroDto;
 import school.sptech.projetoMima.core.application.dto.clienteDto.ClienteMapper;
 import school.sptech.projetoMima.core.domain.Cliente;
 
 public class CadastrarClienteUseCase {
 
-    private final ClienteMutation clienteMutation;
+    private final ClienteGateway clienteGateway;
 
-    public CadastrarClienteUseCase(ClienteMutation clienteMutation) {
-        this.clienteMutation = clienteMutation;
+    public CadastrarClienteUseCase(ClienteGateway clienteGateway) {
+        this.clienteGateway = clienteGateway;
     }
 
     public Cliente execute(CriarClienteCommand dto) {
         Cliente cliente = ClienteMapper.toEntity(dto);
-        return clienteMutation.save(cliente);
+        return clienteGateway.save(cliente);
     }
 }

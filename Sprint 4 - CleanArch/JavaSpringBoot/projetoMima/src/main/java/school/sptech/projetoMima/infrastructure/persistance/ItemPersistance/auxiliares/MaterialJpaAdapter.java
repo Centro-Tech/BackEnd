@@ -1,15 +1,16 @@
-package school.sptech.projetoMima.infrastructure.bd.Item.auxiliares.Material;
+package school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares;
 
 import school.sptech.projetoMima.core.adapter.Item.auxiliares.MaterialGateway;
 import school.sptech.projetoMima.core.domain.item.Material;
+import school.sptech.projetoMima.infrastructure.bd.Item.auxiliares.Material.MaterialRepository;
 
 import java.util.List;
 
-public class MaterialJpaRepository implements MaterialGateway {
+public class MaterialJpaAdapter implements MaterialGateway {
 
     private final MaterialRepository materialRepository;
 
-    public MaterialJpaRepository(MaterialRepository materialRepository) {
+    public MaterialJpaAdapter(MaterialRepository materialRepository) {
         this.materialRepository = materialRepository;
     }
 

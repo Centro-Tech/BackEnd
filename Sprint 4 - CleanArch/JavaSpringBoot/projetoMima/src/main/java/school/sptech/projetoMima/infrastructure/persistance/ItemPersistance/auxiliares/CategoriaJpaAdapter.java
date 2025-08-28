@@ -1,15 +1,16 @@
-package school.sptech.projetoMima.infrastructure.bd.Item.auxiliares.Categoria;
+package school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares;
 
 import school.sptech.projetoMima.core.adapter.Item.auxiliares.CategoriaGateway;
 import school.sptech.projetoMima.core.domain.item.Categoria;
+import school.sptech.projetoMima.infrastructure.bd.Item.auxiliares.Categoria.CategoriaRepository;
 
 import java.util.List;
 
-public class CategoriaJpaRepository implements CategoriaGateway {
+public class CategoriaJpaAdapter implements CategoriaGateway {
 
     private final CategoriaRepository categoriaRepository;
 
-    public CategoriaJpaRepository(CategoriaRepository categoriaRepository) {
+    public CategoriaJpaAdapter(CategoriaRepository categoriaRepository) {
         this.categoriaRepository = categoriaRepository;
     }
 

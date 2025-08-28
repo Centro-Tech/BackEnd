@@ -15,7 +15,6 @@ import school.sptech.projetoMima.core.domain.ItemVenda;
 import school.sptech.projetoMima.core.domain.Venda;
 import school.sptech.projetoMima.core.domain.item.Item;
 import school.sptech.projetoMima.infrastructure.persistance.ClienteRepository;
-import school.sptech.projetoMima.infrastructure.persistance.ItemRepository;
 import school.sptech.projetoMima.infrastructure.persistance.ItemVendaRepository;
 import school.sptech.projetoMima.infrastructure.persistance.VendaRepository;
 import java.time.LocalDate;

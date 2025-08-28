@@ -1,15 +1,16 @@
-package school.sptech.projetoMima.infrastructure.bd.Item.auxiliares.Cor;
+package school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares;
 
 import school.sptech.projetoMima.core.adapter.Item.auxiliares.CorGateway;
 import school.sptech.projetoMima.core.domain.item.Cor;
+import school.sptech.projetoMima.infrastructure.bd.Item.auxiliares.Cor.CorRepository;
 
 import java.util.List;
 
-public class CorJpaRepository implements CorGateway {
+public class CorJpaAdapter implements CorGateway {
 
     private final CorRepository corRepository;
 
-    public CorJpaRepository(CorRepository corRepository) {
+    public CorJpaAdapter(CorRepository corRepository) {
         this.corRepository = corRepository;
     }
 

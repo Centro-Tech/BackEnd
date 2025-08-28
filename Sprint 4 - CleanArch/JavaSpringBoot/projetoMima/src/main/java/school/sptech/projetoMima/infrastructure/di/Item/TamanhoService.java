@@ -5,7 +5,7 @@ import school.sptech.projetoMima.core.application.exception.Item.Auxiliares.Tama
 import school.sptech.projetoMima.core.application.exception.Item.Auxiliares.TamanhoListaVaziaException;
 import school.sptech.projetoMima.core.application.exception.Item.Auxiliares.TamanhoNaoEncontradoException;
 import school.sptech.projetoMima.core.domain.item.Tamanho;
-import school.sptech.projetoMima.infrastructure.persistance.auxiliares.TamanhoRepository;
+import school.sptech.projetoMima.infrastructure.bd.Item.auxiliares.Tamanho.TamanhoRepository;
 
 import java.util.List;
 

@@ -6,7 +6,7 @@ import school.sptech.projetoMima.core.application.exception.Item.Auxiliares.Mate
 import school.sptech.projetoMima.core.application.exception.Item.Auxiliares.MaterialListaVaziaException;
 import school.sptech.projetoMima.core.application.exception.Item.Auxiliares.MaterialNaoEncontradoException;
 import school.sptech.projetoMima.core.domain.item.Material;
-import school.sptech.projetoMima.infrastructure.persistance.auxiliares.MaterialRepository;
+import school.sptech.projetoMima.infrastructure.bd.Item.auxiliares.Material.MaterialRepository;
 
 import java.util.List;
 

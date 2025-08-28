@@ -13,7 +13,6 @@ import school.sptech.projetoMima.core.application.usecase.ItemService;
 import school.sptech.projetoMima.core.domain.item.Categoria;
 import school.sptech.projetoMima.core.domain.item.Item;
 import school.sptech.projetoMima.infrastructure.persistance.FornecedorRepository;
-import school.sptech.projetoMima.infrastructure.persistance.ItemRepository;
 
 import java.util.List;
 import java.util.Optional;

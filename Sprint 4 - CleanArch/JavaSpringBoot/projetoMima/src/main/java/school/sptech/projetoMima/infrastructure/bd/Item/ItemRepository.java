@@ -1,4 +1,4 @@
-package school.sptech.projetoMima.infrastructure.persistance;
+package school.sptech.projetoMima.infrastructure.bd.Item;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import school.sptech.projetoMima.core.domain.item.Item;
@@ -15,4 +15,6 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
     List<Item> findByNomeContainsIgnoreCase(String nome);
 
     Optional<Item> findByCodigo(String codigo);
+
+    void deleteByCodigo(String codigo);
 }

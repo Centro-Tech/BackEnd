@@ -1,26 +1,10 @@
 package school.sptech.projetoMima.core.domain;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-
-@Entity
 public class Fornecedor {
 
-    @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
-    @Schema(description = "Identificador único do fornecedor gerado automaticamente pelo sistema", example = "1", type = "integer", format = "int32", required = true)
     private Integer id;
-
-    @Schema(description = "Nome completo ou razão social do fornecedor", example = "Empresa XYZ LTDA", type = "string", maxLength = 100, required = true)
     private String nome;
-
-    @Schema(description = "Número de telefone do fornecedor com DDD", example = "11987654321", type = "string", required = true)
     private String telefone;
-
-    @Schema(description = "Endereço de e-mail para contato com o fornecedor", example = "contato@empresa.com", type = "string", format = "email", required = true)
     private String email;
 
     public Integer getId() {

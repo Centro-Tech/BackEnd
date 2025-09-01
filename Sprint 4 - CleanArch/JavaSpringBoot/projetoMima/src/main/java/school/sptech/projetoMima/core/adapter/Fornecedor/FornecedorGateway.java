@@ -17,4 +17,6 @@ public interface FornecedorGateway {
     Fornecedor findById(Integer id);
 
     List<Fornecedor> findAll();
+
+    void deleteById(Integer id);
 }

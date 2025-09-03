@@ -1,5 +1,10 @@
 package school.sptech.projetoMima.core.adapter.Usuario;
 
+import school.sptech.projetoMima.core.domain.Usuario;
+
+import java.util.List;
+import java.util.Optional;
+
 public interface UsuarioGateway {
     Optional<Usuario> findById(Integer id);
     List<Usuario> findAll();

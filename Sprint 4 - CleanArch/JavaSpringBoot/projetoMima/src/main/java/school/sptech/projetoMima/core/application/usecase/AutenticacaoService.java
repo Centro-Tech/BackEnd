@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import school.sptech.projetoMima.core.application.dto.usuarioDto.UsuarioDetalhesDto;
 import school.sptech.projetoMima.core.domain.Usuario;
-import school.sptech.projetoMima.infrastructure.persistance.UsuarioRepository;
+import school.sptech.projetoMima.infrastructure.bd.Usuario.UsuarioRepository;
 
 import java.util.Optional;
 

@@ -12,7 +12,8 @@ import school.sptech.projetoMima.core.application.dto.usuarioDto.*;
 import school.sptech.projetoMima.core.application.exception.Usuario.UsuarioListaVaziaException;
 import school.sptech.projetoMima.core.application.exception.Usuario.UsuarioNaoEncontradoException;
 import school.sptech.projetoMima.core.domain.Usuario;
-import school.sptech.projetoMima.infrastructure.persistance.UsuarioRepository;
+import school.sptech.projetoMima.infrastructure.bd.Usuario.UsuarioEntity;
+import school.sptech.projetoMima.infrastructure.bd.Usuario.UsuarioRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,20 +33,20 @@ public class UsuarioService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    public Usuario findFuncionarioById(int id) {
+    public UsuarioEntity findFuncionarioById(int id) {
         return usuarioRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Funcionário com o ID " + id + " não encontrado!"));
     }
 
-    public Usuario cadastrarFuncionario(UsuarioCadastroDto dto) {
-        Usuario usuarioCad = UsuarioMapper.toEntity(dto);
+    public UsuarioEntity cadastrarFuncionario(UsuarioCadastroDto dto) {
+        UsuarioEntity usuarioCad = UsuarioMapper.toEntity(dto);
         String senhaPadrao = gerarSenhaPadrao();
         usuarioCad.setSenha(passwordEncoder.encode(senhaPadrao));
         return usuarioRepository.save(usuarioCad);
     }
 
-    public Usuario atualizarFuncionario(UsuarioCadastroDto dto, Integer id) {
-        Usuario usuarioExistente = usuarioRepository.findById(id)
+    public UsuarioEntity atualizarFuncionario(UsuarioCadastroDto dto, Integer id) {
+        UsuarioEntity usuarioExistente = usuarioRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Funcionário com o ID " + id + " não encontrado!"));
 
         usuarioExistente.setNome(dto.getNome());
@@ -56,8 +57,8 @@ public class UsuarioService {
         return usuarioRepository.save(usuarioExistente);
     }
 
-    public List<Usuario> listarFuncionarios() {
-        List<Usuario> usuarios = new ArrayList<>(usuarioRepository.findAll());
+    public List<UsuarioEntity> listarFuncionarios() {
+        List<UsuarioEntity> usuarios = new ArrayList<>(usuarioRepository.findAll());
         if (usuarios.isEmpty()) {
             throw new UsuarioListaVaziaException("Lista de funcionários está vazia");
         }
@@ -71,13 +72,13 @@ public class UsuarioService {
         usuarioRepository.deleteById(id);
     }
 
-    public UsuarioTokenDto autenticar(Usuario usuario) {
+    public UsuarioTokenDto autenticar(UsuarioEntity usuario) {
         final UsernamePasswordAuthenticationToken credentials =
                 new UsernamePasswordAuthenticationToken(usuario.getEmail(), usuario.getSenha());
 
         final Authentication authentication = authenticationManager.authenticate(credentials);
 
-        Usuario usuarioAutenticado = usuarioRepository.findByEmail(usuario.getEmail())
+        UsuarioEntity usuarioAutenticado = usuarioRepository.findByEmail(usuario.getEmail())
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Email do usuário não cadastrado"));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -88,11 +89,11 @@ public class UsuarioService {
     }
 
     public List<UsuarioListarDto> listarTodos() {
-        List<Usuario> usuariosEncontrados = usuarioRepository.findAll();
+        List<UsuarioEntity> usuariosEncontrados = usuarioRepository.findAll();
         return usuariosEncontrados.stream().map(UsuarioMapper::of).toList();
     }
 
-    public void criar(Usuario novoUsuario) {
+    public void criar(UsuarioEntity novoUsuario) {
         String senhaCriptografada = passwordEncoder.encode(novoUsuario.getSenha());
         novoUsuario.setSenha(senhaCriptografada);
 
@@ -112,7 +113,7 @@ public class UsuarioService {
 
         String email = auth.getName();
 
-        Usuario usuario = usuarioRepository.findByEmail(email)
+        UsuarioEntity usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado com o e-mail: " + email));
 
         if (!passwordEncoder.matches(dto.getSenhaAtual(), usuario.getSenha())) {

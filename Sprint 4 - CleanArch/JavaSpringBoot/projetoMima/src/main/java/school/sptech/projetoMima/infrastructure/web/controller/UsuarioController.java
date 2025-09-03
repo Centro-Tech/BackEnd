@@ -7,17 +7,19 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import school.sptech.projetoMima.application.dto.usuarioDto.*;
+
+import school.sptech.projetoMima.core.application.command.Usuario.CriarUsuarioCommand;
+import school.sptech.projetoMima.core.application.command.Usuario.AtualizarUsuarioCommand;
+import school.sptech.projetoMima.core.application.command.Usuario.LoginUsuarioCommand;
+import school.sptech.projetoMima.core.application.command.Usuario.TrocarSenhaCommand;
 import school.sptech.projetoMima.core.application.dto.usuarioDto.*;
-import school.sptech.projetoMima.core.application.usecase.UsuarioService;
-import school.sptech.projetoMima.core.domain.Usuario;
-import school.sptech.projetoMima.infrastructure.persistance.UsuarioRepository;
+import school.sptech.projetoMima.core.application.usecase.Usuario.*;
+import school.sptech.projetoMima.core.domain.*;
 
 
 import java.util.List;
@@ -26,13 +28,31 @@ import java.util.List;
 @RequestMapping("/usuarios")
 public class UsuarioController {
 
-    @Autowired
-    private UsuarioService usuarioService;
+    private final CriarUsuarioUseCase criarUsuarioUseCase;
+    private final AtualizarUsuarioUseCase atualizarUsuarioUseCase;
+    private final ListarUsuariosUseCase listarUsuariosUseCase;
+    private final BuscarUsuarioPorIdUseCase buscarUsuarioPorIdUseCase;
+    private final ExcluirUsuarioUseCase excluirUsuarioUseCase;
+    private final AutenticarUsuarioUseCase autenticarUsuarioUseCase;
+    private final TrocarSenhaUseCase trocarSenhaUseCase;
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    public UsuarioController(CriarUsuarioUseCase criarUsuarioUseCase,
+                             AtualizarUsuarioUseCase atualizarUsuarioUseCase,
+                             ListarUsuariosUseCase listarUsuariosUseCase,
+                             BuscarUsuarioPorIdUseCase buscarUsuarioPorIdUseCase,
+                             ExcluirUsuarioUseCase excluirUsuarioUseCase,
+                             AutenticarUsuarioUseCase autenticarUsuarioUseCase,
+                             TrocarSenhaUseCase trocarSenhaUseCase) {
+        this.criarUsuarioUseCase = criarUsuarioUseCase;
+        this.atualizarUsuarioUseCase = atualizarUsuarioUseCase;
+        this.listarUsuariosUseCase = listarUsuariosUseCase;
+        this.buscarUsuarioPorIdUseCase = buscarUsuarioPorIdUseCase;
+        this.excluirUsuarioUseCase = excluirUsuarioUseCase;
+        this.autenticarUsuarioUseCase = autenticarUsuarioUseCase;
+        this.trocarSenhaUseCase = trocarSenhaUseCase;
+    }
 
-    @Operation(summary = "Buscar usuários por ID")
+    @Operation(summary = "Buscar usuário por ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Usuário encontrado",
                     content = @Content(schema = @Schema(implementation = UsuarioResumidoDto.class))),
@@ -40,20 +60,14 @@ public class UsuarioController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResumidoDto> buscarPorId(@PathVariable Integer id) {
-        Usuario usuario = usuarioService.findFuncionarioById(id);
-        UsuarioResumidoDto dto = UsuarioMapper.toResumidoDto(usuario);
-        return ResponseEntity.ok(dto);
+        Usuario usuario = buscarUsuarioPorIdUseCase.executar(id);
+        return ResponseEntity.ok(UsuarioMapper.toResumidoDto(usuario));
     }
 
-    @Operation(summary = "Listar todos os funcionários")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Usuários listados com sucesso",
-                    content = @Content(schema = @Schema(implementation = UsuarioResumidoDto.class))),
-            @ApiResponse(responseCode = "404", description = "Nenhum usuário encontrado")
-    })
+    @Operation(summary = "Listar todos os usuários")
     @GetMapping
     public ResponseEntity<List<UsuarioResumidoDto>> listar() {
-        List<Usuario> usuarios = usuarioService.listarFuncionarios();
+        List<Usuario> usuarios = listarUsuariosUseCase.executar();
         List<UsuarioResumidoDto> response = usuarios.stream()
                 .map(UsuarioMapper::toResumidoDto)
                 .toList();
@@ -61,90 +75,84 @@ public class UsuarioController {
     }
 
     @Operation(summary = "Cadastrar funcionário com senha padrão")
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Funcionário criado com sucesso",
-                    content = @Content(schema = @Schema(implementation = UsuarioResumidoDto.class))),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos")
-    })
     @PostMapping("/funcionarios")
     public ResponseEntity<UsuarioResumidoDto> cadastrarFuncionario(@RequestBody UsuarioCadastroDto dto) {
-        Usuario novoUsuario = usuarioService.cadastrarFuncionario(dto);
-        return ResponseEntity.status(201).body(UsuarioMapper.toResumidoDto(novoUsuario));
+        CriarUsuarioCommand cmd = new CriarUsuarioCommand();
+        cmd.nome = dto.getNome();
+        cmd.email = dto.getEmail();
+        cmd.telefone = dto.getTelefone();
+        cmd.cargo = dto.getCargo();
+        cmd.endereco = dto.getEndereco();
+
+        Usuario novo = criarUsuarioUseCase.executar(cmd, true);
+        return ResponseEntity.status(HttpStatus.CREATED).body(UsuarioMapper.toResumidoDto(novo));
     }
 
-    @Operation(summary = "Atualizar Usuário")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso",
-                    content = @Content(schema = @Schema(implementation = UsuarioCadastroDto.class))),
-            @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
-    })
+    @Operation(summary = "Criar novo usuário com senha informada (criptografada)")
+    @SecurityRequirement(name = "Bearer")
+    @PostMapping("/criar")
+    public ResponseEntity<Void> criar(@RequestBody @Valid UsuarioCriacaoDto dto) {
+        CriarUsuarioCommand cmd = new CriarUsuarioCommand();
+        cmd.nome = dto.getNome();
+        cmd.email = dto.getEmail();
+        cmd.senha = dto.getSenha();
+
+        criarUsuarioUseCase.executar(cmd, false);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @Operation(summary = "Atualizar usuário")
     @PutMapping("/{id}")
     public ResponseEntity<UsuarioResumidoDto> atualizar(@RequestBody UsuarioCadastroDto dto,
                                                         @PathVariable Integer id) {
-        Usuario usuarioAtualizado = usuarioService.atualizarFuncionario(dto, id);
-        UsuarioResumidoDto dtoResposta = UsuarioMapper.toResumidoDto(usuarioAtualizado);
-        return ResponseEntity.ok(dtoResposta);
+        AtualizarUsuarioCommand cmd = new AtualizarUsuarioCommand();
+        cmd.id = id;
+        cmd.nome = dto.getNome();
+        cmd.telefone = dto.getTelefone();
+        cmd.email = dto.getEmail();
+        cmd.cargo = dto.getCargo();
+        cmd.endereco = dto.getEndereco();
+
+        Usuario atualizado = atualizarUsuarioUseCase.executar(cmd);
+        return ResponseEntity.ok(UsuarioMapper.toResumidoDto(atualizado));
     }
 
     @Operation(summary = "Deletar usuário por ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Usuário deletado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
-    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Integer id) {
-        usuarioService.excluir(id);
-        return ResponseEntity.status(204).build();
+        excluirUsuarioUseCase.executar(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PostMapping("/criar")
-    @SecurityRequirement(name = "Bearer")
-    @Operation(summary = "Criar novo usuário com senha informada (criptografada)")
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
-            @ApiResponse(responseCode = "401", description = "Não autorizado")
-    })
-    public ResponseEntity<Void> criar(@RequestBody @Valid UsuarioCriacaoDto usuarioCriacaoDto) {
-        final Usuario novoUsuario = UsuarioMapper.of(usuarioCriacaoDto);
-        this.usuarioService.criar(novoUsuario);
-        return ResponseEntity.status(201).build();
-    }
-
-    @PostMapping("/login")
     @Operation(summary = "Realizar login de usuário")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Login realizado com sucesso",
-                    content = @Content(schema = @Schema(implementation = UsuarioTokenDto.class))),
-            @ApiResponse(responseCode = "400", description = "Credenciais inválidas"),
-            @ApiResponse(responseCode = "404", description = "Email do usuário não cadastrado")
-    })
-    public ResponseEntity<UsuarioTokenDto> login(@RequestBody UsuarioLoginDto usuarioLoginDto) {
-        final Usuario usuario = UsuarioMapper.of(usuarioLoginDto);
-        UsuarioTokenDto usuarioTokenDto = this.usuarioService.autenticar(usuario);
-        return ResponseEntity.status(200).body(usuarioTokenDto);
+    @PostMapping("/login")
+    public ResponseEntity<UsuarioTokenDto> login(@RequestBody UsuarioLoginDto dto) {
+        LoginUsuarioCommand cmd = new LoginUsuarioCommand();
+        cmd.email = dto.getEmail();
+        cmd.senha = dto.getSenha();
+
+        AutenticarUsuarioUseCase.Resultado res = autenticarUsuarioUseCase.executar(cmd);
+        UsuarioTokenDto tokenDto = UsuarioMapper.of(res.usuario(), res.token());
+
+        return ResponseEntity.ok(tokenDto);
     }
 
-    @PutMapping("/trocar-senha")
     @Operation(summary = "Trocar a senha do usuário autenticado")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Senha alterada com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Erro na alteração da senha (ex: senha atual incorreta)"),
-            @ApiResponse(responseCode = "401", description = "Usuário não autenticado")
-    })
+    @PutMapping("/trocar-senha")
     public ResponseEntity<String> trocarSenha(@RequestBody TrocarSenhaDto dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String emailUsuario = authentication.getName();
+        String emailUsuario = authentication == null ? "anonymousUser" : authentication.getName();
 
-        if (emailUsuario.equals("anonymousUser")) {
+        if ("anonymousUser".equals(emailUsuario)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário não autenticado");
         }
 
-        try {
-            usuarioService.trocarSenha(dto);
-            return ResponseEntity.ok("Senha alterada com sucesso");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        TrocarSenhaCommand cmd = new TrocarSenhaCommand();
+        cmd.emailAutenticado = emailUsuario;
+        cmd.senhaAtual = dto.getSenhaAtual();
+        cmd.novaSenha = dto.getNovaSenha();
+
+        trocarSenhaUseCase.executar(cmd);
+        return ResponseEntity.ok("Senha alterada com sucesso");
     }
 }

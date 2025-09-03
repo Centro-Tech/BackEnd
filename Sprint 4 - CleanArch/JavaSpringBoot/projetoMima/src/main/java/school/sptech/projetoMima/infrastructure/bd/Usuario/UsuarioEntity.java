@@ -1,16 +1,11 @@
-package school.sptech.projetoMima.core.domain;
+package school.sptech.projetoMima.infrastructure.bd.Usuario;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 @Schema(description = "Classe base para os usuários, contendo nome, CPF, email, telefone e endereço.")
-public class Usuario {
-
+public class UsuarioEntity {
     @Schema(description = "Identificador único do usuário", example = "1", type = "integer", format = "int32")
     private Integer id;
 
@@ -45,11 +40,11 @@ public class Usuario {
     @Schema(description = "Cargo do funcionário dentro da empresa, como por exemplo 'Atendente', 'Gerente de vendas' ou 'Estoquista'", example = "Gerente de vendas", type = "string", minLength = 2, maxLength = 50, required = true)
     private String cargo;
 
-    public Usuario() {
+    public UsuarioEntity() {
 
     }
 
-    public Usuario(String nome, String cpf, String email, String telefone, String endereco, String senha, String cargo) {
+    public UsuarioEntity(String nome, String cpf, String email, String telefone, String endereco, String senha, String cargo) {
         this.nome = nome;
         this.email = email;
         this.telefone = telefone;
@@ -114,3 +109,5 @@ public class Usuario {
         this.cargo = cargo;
     }
 }
+
+

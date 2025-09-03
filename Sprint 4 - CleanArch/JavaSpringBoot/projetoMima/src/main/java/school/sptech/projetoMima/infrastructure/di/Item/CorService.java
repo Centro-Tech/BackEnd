@@ -5,7 +5,7 @@ import school.sptech.projetoMima.core.application.exception.Item.Auxiliares.CorD
 import school.sptech.projetoMima.core.application.exception.Item.Auxiliares.CorListaVaziaException;
 import school.sptech.projetoMima.core.application.exception.Item.Auxiliares.CorNaoEncontradoException;
 import school.sptech.projetoMima.core.domain.item.Cor;
-import school.sptech.projetoMima.infrastructure.bd.Item.auxiliares.Cor.CorRepository;
+import school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares.Cor.CorRepository;
 
 import java.util.List;
 

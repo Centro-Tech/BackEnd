@@ -9,7 +9,7 @@ import school.sptech.projetoMima.core.domain.ItemVenda;
 import school.sptech.projetoMima.core.domain.Usuario;
 import school.sptech.projetoMima.core.domain.Venda;
 import school.sptech.projetoMima.core.domain.item.Item;
-import school.sptech.projetoMima.infrastructure.bd.Usuario.UsuarioRepository;
+import school.sptech.projetoMima.infrastructure.persistance.UsuarioPersistance.UsuarioRepository;
 import school.sptech.projetoMima.infrastructure.persistance.*;
 
 import java.util.List;

@@ -1,16 +1,15 @@
-package school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares;
+package school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares.Tamanho;
 
 import school.sptech.projetoMima.core.adapter.Item.auxiliares.TamanhoGateway;
 import school.sptech.projetoMima.core.domain.item.Tamanho;
-import school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares.Tamanho.TamanhoRepository;
 
 import java.util.List;
 
-public class TamanhoJpaAdapter implements TamanhoGateway {
+public class TamanhoJpaRepository implements TamanhoGateway {
 
     private final TamanhoRepository tamanhoRepository;
 
-    public TamanhoJpaAdapter(TamanhoRepository tamanhoRepository) {
+    public TamanhoJpaRepository(TamanhoRepository tamanhoRepository) {
         this.tamanhoRepository = tamanhoRepository;
     }
 

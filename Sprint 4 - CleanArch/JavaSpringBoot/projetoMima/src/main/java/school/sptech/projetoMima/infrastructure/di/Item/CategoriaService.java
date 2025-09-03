@@ -6,7 +6,7 @@ import school.sptech.projetoMima.core.application.exception.Item.Auxiliares.Cate
 import school.sptech.projetoMima.core.application.exception.Item.Auxiliares.CategoriaListaVaziaException;
 import school.sptech.projetoMima.core.application.exception.Item.Auxiliares.CategoriaNaoEncontradoException;
 import school.sptech.projetoMima.core.domain.item.Categoria;
-import school.sptech.projetoMima.infrastructure.bd.Item.auxiliares.Categoria.CategoriaRepository;
+import school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares.Categoria.CategoriaRepository;
 
 import java.util.List;
 

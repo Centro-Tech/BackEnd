@@ -1,4 +1,4 @@
-package school.sptech.projetoMima.infrastructure.persistance.UsuarioPersistance;
+package school.sptech.projetoMima.infrastructure.di.UsuarioBeanConfig;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

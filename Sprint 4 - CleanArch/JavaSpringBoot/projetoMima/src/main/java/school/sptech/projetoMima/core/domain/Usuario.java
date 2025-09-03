@@ -10,8 +10,6 @@ import jakarta.validation.constraints.Size;
 
 public class Usuario {
 
-    private Integer id;
-
     private String nome;
 
     private String email;
@@ -29,21 +27,13 @@ public class Usuario {
 
     }
 
-    public Usuario(String nome, String cpf, String email, String telefone, String endereco, String senha, String cargo) {
+    public Usuario(String nome, String email, String telefone, String endereco, String senha, String cargo) {
         this.nome = nome;
         this.email = email;
         this.telefone = telefone;
         this.endereco = endereco;
         this.senha = senha;
         this.cargo = cargo;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public String getNome() {

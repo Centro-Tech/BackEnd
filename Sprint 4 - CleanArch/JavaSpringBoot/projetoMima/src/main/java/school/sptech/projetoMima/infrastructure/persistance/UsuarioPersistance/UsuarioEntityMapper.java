@@ -6,7 +6,6 @@ public class UsuarioEntityMapper {
 
     public static UsuarioEntity toEntity(Usuario u) {
         UsuarioEntity e = new UsuarioEntity();
-        e.setId(u.getId());
         e.setNome(u.getNome());
         e.setEmail(u.getEmail());
         e.setTelefone(u.getTelefone());
@@ -18,7 +17,6 @@ public class UsuarioEntityMapper {
 
     public static Usuario toDomain(UsuarioEntity e) {
         return new Usuario(
-                e.getId(),
                 e.getNome(),
                 e.getEmail(),
                 e.getTelefone(),

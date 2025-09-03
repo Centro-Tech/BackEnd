@@ -1,11 +1,18 @@
 package school.sptech.projetoMima.infrastructure.persistance.UsuarioPersistance;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+@Entity
 @Schema(description = "Classe base para os usuários, contendo nome, CPF, email, telefone e endereço.")
 public class UsuarioEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Schema(description = "Identificador único do usuário", example = "1", type = "integer", format = "int32")
     private Integer id;
 

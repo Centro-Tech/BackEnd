@@ -3,6 +3,8 @@ package school.sptech.projetoMima.core.application.usecase.Usuario;
 import school.sptech.projetoMima.core.adapter.Usuario.CryptoGateway;
 import school.sptech.projetoMima.core.adapter.Usuario.UsuarioGateway;
 import school.sptech.projetoMima.core.application.command.Usuario.TrocarSenhaCommand;
+import school.sptech.projetoMima.core.application.exception.Usuario.UsuarioNaoEncontradoException;
+import school.sptech.projetoMima.core.domain.Usuario;
 
 public class TrocarSenhaUseCase {
 

@@ -23,10 +23,6 @@ public class Usuario {
 
     private String cargo;
 
-    public Usuario() {
-
-    }
-
     public Usuario(String nome, String email, String telefone, String endereco, String senha, String cargo) {
         this.nome = nome;
         this.email = email;

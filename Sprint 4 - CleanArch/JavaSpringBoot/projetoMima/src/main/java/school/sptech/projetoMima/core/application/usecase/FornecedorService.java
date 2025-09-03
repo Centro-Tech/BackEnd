@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import school.sptech.projetoMima.core.application.exception.Fornecedor.FornecedorExistenteException;
 import school.sptech.projetoMima.core.application.exception.Fornecedor.FornecedorNaoEncontradoException;
 import school.sptech.projetoMima.core.domain.Fornecedor;
-import school.sptech.projetoMima.infrastructure.persistance.FornecedorRepository;
+import school.sptech.projetoMima.infrastructure.persistance.FornecedorPersistance.FornecedorRepository;
 
 import java.util.List;
 import java.util.Optional;

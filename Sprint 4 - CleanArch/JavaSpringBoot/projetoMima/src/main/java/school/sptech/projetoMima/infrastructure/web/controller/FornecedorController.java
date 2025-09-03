@@ -7,9 +7,11 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import school.sptech.projetoMima.core.application.command.Fornecedor.CadastrarFornecedorCommand;
 import school.sptech.projetoMima.core.application.dto.fornecedorDto.FornecedorMapper;
 import school.sptech.projetoMima.core.application.dto.fornecedorDto.FornecedorRequestDto;
 import school.sptech.projetoMima.core.application.dto.fornecedorDto.FornecedorResponseDto;
+import school.sptech.projetoMima.core.application.usecase.Fornecedor.CadastrarFornecedorUseCase;
 import school.sptech.projetoMima.core.application.usecase.FornecedorService;
 import school.sptech.projetoMima.core.application.usecase.ItemService;
 import school.sptech.projetoMima.core.domain.Fornecedor;
@@ -21,11 +23,11 @@ import java.util.Optional;
 @RequestMapping("/fornecedores")
 public class FornecedorController {
 
-    @Autowired
-    private FornecedorService fornecedorService;
+    private final CadastrarFornecedorUseCase cadastrarFornecedorUseCase;
 
-    @Autowired
-    private ItemService itemService;
+    public FornecedorController(CadastrarFornecedorUseCase cadastrarFornecedorUseCase) {
+        this.cadastrarFornecedorUseCase = cadastrarFornecedorUseCase;
+    }
 
     @Operation(summary = "Listar todos os fornecedores")
     @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Fornecedores encontrados com sucesso"), @ApiResponse(responseCode = "404", description = "Nenhum fornecedor encontrado na base de dados") })
@@ -55,8 +57,13 @@ public class FornecedorController {
     @ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Fornecedor cadastrado com sucesso"), @ApiResponse(responseCode = "409", description = "Conflito: Fornecedor com este CNPJ já existe") })
     @PostMapping
     public ResponseEntity<FornecedorResponseDto> cadastrar(@Valid @RequestBody FornecedorRequestDto request) {
-        Fornecedor fornecedor = FornecedorMapper.toEntity(request);
-        Fornecedor fornecedorCadastrado = fornecedorService.cadastrar(fornecedor);
+        CadastrarFornecedorCommand command = new CadastrarFornecedorCommand(
+                request.getNome(),
+                request.getTelefone(),
+                request.getEmail()
+        );
+        
+        Fornecedor fornecedorCadastrado = cadastrarFornecedorUseCase.execute(command);
         return ResponseEntity.status(201).body(FornecedorMapper.toResponse(fornecedorCadastrado));
     }
 

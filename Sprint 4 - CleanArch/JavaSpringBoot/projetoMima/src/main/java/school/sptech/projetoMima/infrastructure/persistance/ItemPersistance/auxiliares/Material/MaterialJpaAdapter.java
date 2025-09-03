@@ -1,8 +1,7 @@
-package school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares;
+package school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares.Material;
 
 import school.sptech.projetoMima.core.adapter.Item.auxiliares.MaterialGateway;
 import school.sptech.projetoMima.core.domain.item.Material;
-import school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares.Material.MaterialRepository;
 
 import java.util.List;
 

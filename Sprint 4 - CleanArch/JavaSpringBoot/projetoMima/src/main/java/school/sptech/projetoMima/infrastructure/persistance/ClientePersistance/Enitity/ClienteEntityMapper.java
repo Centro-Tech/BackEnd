@@ -1,4 +1,4 @@
-package school.sptech.projetoMima.infrastructure.persistance.ClientePersistance;
+package school.sptech.projetoMima.infrastructure.persistance.ClientePersistance.Enitity;
 
 import school.sptech.projetoMima.core.domain.Cliente;
 

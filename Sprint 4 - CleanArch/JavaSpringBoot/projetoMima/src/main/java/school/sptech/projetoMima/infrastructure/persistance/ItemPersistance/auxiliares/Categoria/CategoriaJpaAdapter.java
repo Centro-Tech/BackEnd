@@ -1,8 +1,7 @@
-package school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares;
+package school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares.Categoria;
 
 import school.sptech.projetoMima.core.adapter.Item.auxiliares.CategoriaGateway;
 import school.sptech.projetoMima.core.domain.item.Categoria;
-import school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares.Categoria.CategoriaRepository;
 
 import java.util.List;
 

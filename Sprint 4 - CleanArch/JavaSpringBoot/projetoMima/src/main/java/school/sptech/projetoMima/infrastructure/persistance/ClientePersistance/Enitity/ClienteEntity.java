@@ -1,4 +1,4 @@
-package school.sptech.projetoMima.infrastructure.persistance.ClientePersistance;
+package school.sptech.projetoMima.infrastructure.persistance.ClientePersistance.Enitity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

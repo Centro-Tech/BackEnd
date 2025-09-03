@@ -23,7 +23,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Service
-public class VendaService {
+public class    VendaService {
 
     @Autowired
     private VendaRepository vendaRepository;
@@ -38,7 +38,7 @@ public class VendaService {
     private ItemRepository itemRepository;
 
     public VendaResponseDto vender(VendaRequestDto dto) {
-        Cliente cliente = clienteRepository.findById(dto.getClienteId())
+        Cliente cliente = clienteRepository.findById(d  to.getClienteId())
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Cliente não encontrado"));
 
         List<ItemVenda> itensCarrinho = itemVendaRepository.findByClienteIdAndVendaIsNull(cliente.getId());

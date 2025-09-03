@@ -1,18 +1,15 @@
 package school.sptech.projetoMima.infrastructure.web.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import school.sptech.projetoMima.core.application.dto.clienteDto.ClienteCadastroDto;
+import school.sptech.projetoMima.core.application.command.Cliente.AtualizarClienteCommand;
+import school.sptech.projetoMima.core.application.command.Cliente.CadastrarClienteCommand;
+import school.sptech.projetoMima.core.application.command.Cliente.ExcluirClienteCommand;
+import school.sptech.projetoMima.core.application.command.Cliente.BuscarClientePorIdCommand;
+import school.sptech.projetoMima.core.application.usecase.Cliente.*;
 import school.sptech.projetoMima.core.application.dto.clienteDto.ClienteListagemDto;
 import school.sptech.projetoMima.core.application.dto.clienteDto.ClienteMapper;
 import school.sptech.projetoMima.core.application.dto.clienteDto.ClienteResumidoDto;
-import school.sptech.projetoMima.core.application.usecase.ClienteService;
 import school.sptech.projetoMima.core.domain.Cliente;
 
 import java.util.List;
@@ -21,49 +18,64 @@ import java.util.List;
 @RequestMapping("/clientes")
 public class ClienteController {
 
-    @Autowired
-    private ClienteService clienteService;
+    private final CadastrarClienteUseCase cadastrarClienteUseCase;
+    private final AtualizarClienteUseCase atualizarClienteUseCase;
+    private final ExcluirClienteUseCase excluirClienteUseCase;
+    private final BuscarClientePorIdUseCase buscarClientePorIdUseCase;
+    private final ListarClientesUseCase listarClientesUseCase;
 
-    @Operation(summary = "Buscar cliente por ID")
-    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Cliente encontrado", content = @Content(schema = @Schema(implementation = ClienteResumidoDto.class))), @ApiResponse(responseCode = "404", description = "Cliente não encontrado") })
-    @GetMapping("/{id}")
-    public ResponseEntity<ClienteResumidoDto> buscarPorId(@PathVariable Integer id) {
-        Cliente cliente = clienteService.findClienteById(id);
-        ClienteResumidoDto dto = ClienteMapper.toResumidoDto(cliente);
-        return ResponseEntity.ok(dto);
+    public ClienteController(CadastrarClienteUseCase cadastrarClienteUseCase,
+                             AtualizarClienteUseCase atualizarClienteUseCase,
+                             ExcluirClienteUseCase excluirClienteUseCase,
+                             BuscarClientePorIdUseCase buscarClientePorIdUseCase,
+                             ListarClientesUseCase listarClientesUseCase) {
+        this.cadastrarClienteUseCase = cadastrarClienteUseCase;
+        this.atualizarClienteUseCase = atualizarClienteUseCase;
+        this.excluirClienteUseCase = excluirClienteUseCase;
+        this.buscarClientePorIdUseCase = buscarClientePorIdUseCase;
+        this.listarClientesUseCase = listarClientesUseCase;
     }
 
-    @Operation(summary = "Listar todos os clientes")
-    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Clientes listados com sucesso", content = @Content(schema = @Schema(implementation = ClienteListagemDto.class))), @ApiResponse(responseCode = "404", description = "Nenhum cliente encontrado") })
+    @GetMapping("/{id}")
+    public ResponseEntity<ClienteResumidoDto> buscarPorId(@PathVariable Integer id) {
+        Cliente cliente = buscarClientePorIdUseCase.execute(new BuscarClientePorIdCommand(id));
+        return ResponseEntity.ok(ClienteMapper.toResumidoDto(cliente));
+    }
+
+    //pegar a dto e converter em command depois
+
     @GetMapping
     public ResponseEntity<List<ClienteListagemDto>> listar() {
-        List<Cliente> clientes = clienteService.listarClientes();
-        List<ClienteListagemDto> response = clientes.stream().map(ClienteMapper::toList).toList();
+        List<Cliente> clientes = listarClientesUseCase.execute();
+        List<ClienteListagemDto> response = clientes.stream()
+                .map(ClienteMapper::toList)
+                .toList();
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Inserir novo cliente")
-    @ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Cliente criado com sucesso", content = @Content(schema = @Schema(implementation = ClienteCadastroDto.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos") })
     @PostMapping
-    public ResponseEntity<ClienteResumidoDto> cadastrar(@RequestBody ClienteCadastroDto dto) {
-        Cliente novoCliente = clienteService.cadastrarCliente(dto);
+    public ResponseEntity<ClienteResumidoDto> cadastrar(@RequestBody CadastrarClienteCommand command) {
+        Cliente novoCliente = cadastrarClienteUseCase.execute(command);
         return ResponseEntity.status(201).body(ClienteMapper.toResumidoDto(novoCliente));
     }
 
-    @Operation(summary = "Atualizar cliente")
-    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Cliente atualizado com sucesso", content = @Content(schema = @Schema(implementation = ClienteCadastroDto.class))), @ApiResponse(responseCode = "404", description = "Cliente não encontrado") })
     @PutMapping("/{id}")
-    public ResponseEntity<ClienteResumidoDto> atualizar(@RequestBody ClienteCadastroDto dto, @PathVariable Integer id) {
-        Cliente clienteAtualizado = clienteService.atualizarCliente(dto, id);
-        ClienteResumidoDto dtoResposta = ClienteMapper.toResumidoDto(clienteAtualizado);
-        return ResponseEntity.ok(dtoResposta);
+    public ResponseEntity<ClienteResumidoDto> atualizar(@RequestBody AtualizarClienteCommand command, @PathVariable Integer id) {
+        AtualizarClienteCommand commandComId = new AtualizarClienteCommand(
+                id,
+                command.nome(),
+                command.email(),
+                command.cpf(),
+                command.telefone()
+        );
+
+        Cliente clienteAtualizado = atualizarClienteUseCase.execute(commandComId);
+        return ResponseEntity.ok(ClienteMapper.toResumidoDto(clienteAtualizado));
     }
 
-    @Operation(summary = "Deletar cliente por ID")
-    @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Cliente deletado com sucesso"), @ApiResponse(responseCode = "404", description = "Cliente não encontrado") })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Integer id) {
-        clienteService.excluir(id);
-        return ResponseEntity.status(204).build();
+        excluirClienteUseCase.execute(new ExcluirClienteCommand(id));
+        return ResponseEntity.noContent().build();
     }
 }

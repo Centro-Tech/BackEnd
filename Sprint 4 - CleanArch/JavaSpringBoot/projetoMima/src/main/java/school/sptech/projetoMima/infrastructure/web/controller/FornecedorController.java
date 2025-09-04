@@ -10,8 +10,10 @@ import school.sptech.projetoMima.core.application.command.Fornecedor.CadastrarFo
 import school.sptech.projetoMima.core.application.dto.fornecedorDto.FornecedorMapper;
 import school.sptech.projetoMima.core.application.dto.fornecedorDto.FornecedorRequestDto;
 import school.sptech.projetoMima.core.application.dto.fornecedorDto.FornecedorResponseDto;
+import school.sptech.projetoMima.core.application.usecase.Fornecedor.BuscarFornecedorPorIdUseCase;
 import school.sptech.projetoMima.core.application.usecase.Fornecedor.CadastrarFornecedorUseCase;
 import school.sptech.projetoMima.core.application.usecase.Fornecedor.DeletarFornecedorUseCase;
+import school.sptech.projetoMima.core.application.usecase.Fornecedor.ListarFornecedoresUseCase;
 import school.sptech.projetoMima.core.domain.Fornecedor;
 
 import java.util.List;
@@ -23,17 +25,21 @@ public class FornecedorController {
 
     private final CadastrarFornecedorUseCase cadastrarFornecedorUseCase;
     private final DeletarFornecedorUseCase deletarFornecedorUseCase;
+    private final ListarFornecedoresUseCase listarFornecedoresUseCase;
+    private final BuscarFornecedorPorIdUseCase buscarFornecedorPorIdUseCase;
 
-    public FornecedorController(CadastrarFornecedorUseCase cadastrarFornecedorUseCase, DeletarFornecedorUseCase deletarFornecedorUseCase) {
+    public FornecedorController(CadastrarFornecedorUseCase cadastrarFornecedorUseCase, DeletarFornecedorUseCase deletarFornecedorUseCase, ListarFornecedoresUseCase listarFornecedoresUseCase, BuscarFornecedorPorIdUseCase buscarFornecedorPorIdUseCase) {
         this.cadastrarFornecedorUseCase = cadastrarFornecedorUseCase;
         this.deletarFornecedorUseCase = deletarFornecedorUseCase;
+        this.listarFornecedoresUseCase = listarFornecedoresUseCase;
+        this.buscarFornecedorPorIdUseCase = buscarFornecedorPorIdUseCase;
     }
 
     @Operation(summary = "Listar todos os fornecedores")
     @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Fornecedores encontrados com sucesso"), @ApiResponse(responseCode = "404", description = "Nenhum fornecedor encontrado na base de dados") })
     @GetMapping
     public ResponseEntity<List<FornecedorResponseDto>> listar() {
-        List<Fornecedor> fornecedoresEncontrados = fornecedorService.listar();
+        List<Fornecedor> fornecedoresEncontrados = listarFornecedoresUseCase.execute();
         if (fornecedoresEncontrados.isEmpty()) {
             return ResponseEntity.status(404).body(null);
         }
@@ -45,12 +51,12 @@ public class FornecedorController {
     @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Fornecedor encontrado com sucesso"), @ApiResponse(responseCode = "404", description = "Fornecedor não encontrado com o ID informado") })
     @GetMapping("/{id}")
     public ResponseEntity<FornecedorResponseDto> buscar(@PathVariable int id) {
-        Optional<Fornecedor> fornecedor = fornecedorService.findById(id);
+        Optional<Fornecedor> fornecedor = Optional.ofNullable(buscarFornecedorPorIdUseCase.execute(id));
         if (fornecedor.isPresent()) {
             Fornecedor fornecedorNovo = fornecedor.get();
             return ResponseEntity.ok(FornecedorMapper.toResponse(fornecedorNovo));
         }
-        return ResponseEntity.status(404).body(null);
+        return ResponseEntity.notFound().build();
     }
 
     @Operation(summary = "Cadastrar novo fornecedor")

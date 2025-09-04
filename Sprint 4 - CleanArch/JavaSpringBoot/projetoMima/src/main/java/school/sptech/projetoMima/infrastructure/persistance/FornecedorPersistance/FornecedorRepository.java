@@ -5,10 +5,15 @@ import org.springframework.stereotype.Repository;
 import school.sptech.projetoMima.core.domain.Fornecedor;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FornecedorRepository extends JpaRepository<FornecedorEntity, Integer> {
     boolean existsByNome(String nome);
 
     List<FornecedorEntity> findAll();
+
+    Optional<FornecedorEntity> findById(Integer id);
+
+    void deleteById(Integer id);
 }

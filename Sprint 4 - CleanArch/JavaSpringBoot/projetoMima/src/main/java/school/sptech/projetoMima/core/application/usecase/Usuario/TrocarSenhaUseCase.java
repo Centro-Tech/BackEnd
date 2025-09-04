@@ -17,14 +17,14 @@ public class TrocarSenhaUseCase {
     }
 
     public void executar(TrocarSenhaCommand cmd) {
-        Usuario usuario = gateway.findByEmail(cmd.emailAutenticado)
-                .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado com o e-mail: " + cmd.emailAutenticado));
+        Usuario usuario = gateway.findByEmail(cmd.emailAutenticado())
+                .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado com o e-mail: " + cmd.emailAutenticado()));
 
-        if (!crypto.matches(cmd.senhaAtual, usuario.getSenha())) {
+        if (!crypto.matches(cmd.senhaAtual(), usuario.getSenha())) {
             throw new RuntimeException("Senha atual incorreta.");
         }
 
-        usuario.setSenha(crypto.encode(cmd.novaSenha));
+        usuario.setSenha(crypto.encode(cmd.novaSenha()));
         gateway.save(usuario);
     }
 }

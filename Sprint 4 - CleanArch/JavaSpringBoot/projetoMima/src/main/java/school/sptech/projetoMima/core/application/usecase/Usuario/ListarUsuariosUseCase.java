@@ -16,7 +16,9 @@ public class ListarUsuariosUseCase {
 
     public List<Usuario> executar() {
         List<Usuario> lista = gateway.findAll();
-        if (lista.isEmpty()) throw new UsuarioListaVaziaException("Lista de funcionários está vazia");
+        if (lista.isEmpty()) {
+            throw new UsuarioListaVaziaException("Lista de funcionários está vazia");
+        }
         return lista;
     }
 }

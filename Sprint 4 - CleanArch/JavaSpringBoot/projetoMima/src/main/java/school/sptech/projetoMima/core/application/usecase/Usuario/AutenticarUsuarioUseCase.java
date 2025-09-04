@@ -22,9 +22,9 @@ public class AutenticarUsuarioUseCase {
     public record Resultado(Usuario usuario, String token) {}
 
     public Resultado executar(LoginUsuarioCommand cmd) {
-        Object authentication = authGateway.authenticate(cmd.email, cmd.senha);
+        Object authentication = authGateway.authenticate(cmd.email(), cmd.senha());
 
-        Usuario usuario = usuarioGateway.findByEmail(cmd.email)
+        Usuario usuario = usuarioGateway.findByEmail(cmd.email())
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Email do usuário não cadastrado"));
 
         String token = tokenGateway.generate(authentication);

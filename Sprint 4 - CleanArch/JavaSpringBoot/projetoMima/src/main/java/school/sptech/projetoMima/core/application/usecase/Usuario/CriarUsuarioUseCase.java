@@ -16,10 +16,15 @@ public class CriarUsuarioUseCase {
     }
 
     public Usuario executar(CriarUsuarioCommand cmd, boolean usarSenhaPadrao) {
-        String senha = usarSenhaPadrao ? "Mima@123" : cmd.senha;
-        Usuario novo = new Usuario(cmd.nome, cmd.email, cmd.telefone,
-                cmd.endereco == null ? "" : cmd.endereco,
-                crypto.encode(senha), cmd.cargo);
+        String senha = usarSenhaPadrao ? "Mima@123" : cmd.senha();
+        Usuario novo = new Usuario(
+                cmd.nome(),
+                cmd.email(),
+                cmd.telefone(),
+                cmd.endereco() == null ? "" : cmd.endereco(),
+                crypto.encode(senha),
+                cmd.cargo()
+        );
         return gateway.save(novo);
     }
 }

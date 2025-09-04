@@ -4,74 +4,78 @@ import school.sptech.projetoMima.core.domain.Usuario;
 
 public class UsuarioMapper {
 
+    public static Usuario fromCadastroDto(UsuarioCadastroDto dto) {
+        return new Usuario(
+                dto.getNome(),
+                dto.getEmail(),
+                dto.getTelefone(),
+                dto.getEndereco(),
+                dto.getSenha(),
+                dto.getCargo()
+        );
+    }
 
-    public static Usuario toEntity(UsuarioCadastroDto funcionario) {
-        Usuario usuarioCadastro = new Usuario();
-        usuarioCadastro.setNome(funcionario.getNome());
-        usuarioCadastro.setEmail(funcionario.getEmail());
-        usuarioCadastro.setTelefone(funcionario.getTelefone());
-        usuarioCadastro.setSenha(funcionario.getSenha());
-        usuarioCadastro.setEndereco(funcionario.getEndereco());
-        return usuarioCadastro;
+    public static Usuario fromCriacaoDto(UsuarioCriacaoDto dto) {
+        return new Usuario(
+                dto.getNome(),
+                dto.getEmail(),
+                null, // telefone opcional
+                null, // endereco opcional
+                dto.getSenha(),
+                null  // cargo opcional
+        );
+    }
+
+    public static Usuario fromLoginDto(UsuarioLoginDto dto) {
+        return new Usuario(
+                null,
+                dto.getEmail(),
+                null,
+                null,
+                dto.getSenha(),
+                null
+        );
+    }
+
+    public static Usuario fromDetalhesDto(UsuarioDetalhesDto dto) {
+        return new Usuario(
+                dto.getNome(),
+                dto.getUsername(),
+                null,
+                null,
+                dto.getPassword(),
+                null
+        );
     }
 
     public static UsuarioResumidoDto toResumidoDto(Usuario usuario) {
-        UsuarioResumidoDto usuarioResumidoDto = new UsuarioResumidoDto();
-        usuarioResumidoDto.setCargo(usuario.getCargo());
-        usuarioResumidoDto.setNome(usuario.getNome());
-
-        return usuarioResumidoDto;
+        UsuarioResumidoDto dto = new UsuarioResumidoDto();
+        dto.setNome(usuario.getNome());
+        dto.setCargo(usuario.getCargo());
+        return dto;
     }
 
     public static UsuarioListagemDto toListagemDto(Usuario usuario) {
-        UsuarioListagemDto listagemDto = new UsuarioListagemDto();
-        listagemDto.setNome(usuario.getNome());
-        listagemDto.setEmail(usuario.getEmail());
-        return listagemDto;
+        UsuarioListagemDto dto = new UsuarioListagemDto();
+        dto.setNome(usuario.getNome());
+        dto.setEmail(usuario.getEmail());
+        dto.setCargo(usuario.getCargo());
+        return dto;
     }
 
-    public static Usuario of(UsuarioCriacaoDto usuarioCriacaoDto) {
-        Usuario usuario = new Usuario();
-
-        usuario.setEmail(usuarioCriacaoDto.getEmail());
-        usuario.setNome(usuarioCriacaoDto.getNome());
-        usuario.setSenha(usuarioCriacaoDto.getSenha());
-        return usuario;
+    public static UsuarioListarDto toListarDto(Usuario usuario) {
+        UsuarioListarDto dto = new UsuarioListarDto();
+        dto.setNome(usuario.getNome());
+        dto.setEmail(usuario.getEmail());
+        dto.setSenha(usuario.getSenha());
+        return dto;
     }
 
-    public static Usuario of(UsuarioLoginDto usuarioLoginDto) {
-        Usuario usuario = new Usuario();
-        usuario.setEmail(usuarioLoginDto.getEmail());
-        usuario.setSenha(usuarioLoginDto.getSenha());
-        return usuario;
+    public static UsuarioTokenDto toTokenDto(Usuario usuario, String token) {
+        UsuarioTokenDto dto = new UsuarioTokenDto();
+        dto.setNome(usuario.getNome());
+        dto.setEmail(usuario.getEmail());
+        dto.setToken(token);
+        return dto;
     }
-
-    public static UsuarioTokenDto of(Usuario usuario, String token) {
-        UsuarioTokenDto usuarioTokenDto = new UsuarioTokenDto();
-        usuarioTokenDto.setId(usuario.getId());
-        usuarioTokenDto.setEmail(usuario.getEmail());
-        usuarioTokenDto.setNome(usuario.getNome());
-        usuarioTokenDto.setToken(token);
-
-        return usuarioTokenDto;
-    }
-
-    public static UsuarioListarDto of(Usuario usuario) {
-        UsuarioListarDto usuarioListarDto = new UsuarioListarDto();
-        usuarioListarDto.setId(usuario.getId());
-        usuarioListarDto.setEmail(usuario.getEmail());
-        usuarioListarDto.setNome(usuario.getNome());
-
-        return usuarioListarDto;
-    }
-
-    public static Usuario toUsuarioFromUsuarioDetalhes(UsuarioDetalhesDto request) {
-        Usuario response = new Usuario();
-        response.setNome(request.getNome());
-        response.setEmail(request.getUsername());
-        response.setSenha(request.getPassword());
-        return response;
-    }
-
-
 }

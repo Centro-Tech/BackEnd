@@ -18,6 +18,19 @@ public class UsuarioCriacaoDto {
     @Schema(description = "Senha do usuário", example = "******")
     private String senha;
 
+    @Size(min = 5, max = 100)
+    @Schema(description = "Senha do usuário", example = "******")
+    private String telefone;
+
+    @Size(min = 5, max = 100)
+    @Schema(description = "Senha do usuário", example = "******")
+    private String cargo;
+
+    @Size(min = 5, max = 100)
+    @Schema(description = "Senha do usuário", example = "******")
+    private String endereco;
+
+
     public String getNome() {
         return nome;
     }
@@ -40,5 +53,29 @@ public class UsuarioCriacaoDto {
 
     public void setSenha(String senha) {
         this.senha = senha;
+    }
+
+    public String getTelefone() {
+        return telefone;
+    }
+
+    public void setTelefone(String telefone) {
+        this.telefone = telefone;
+    }
+
+    public String getCargo() {
+        return cargo;
+    }
+
+    public void setCargo(String cargo) {
+        this.cargo = cargo;
+    }
+
+    public String getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(String endereco) {
+        this.endereco = endereco;
     }
 }

@@ -13,16 +13,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import school.sptech.projetoMima.core.application.command.Usuario.CriarUsuarioCommand;
-import school.sptech.projetoMima.core.application.command.Usuario.AtualizarUsuarioCommand;
-import school.sptech.projetoMima.core.application.command.Usuario.LoginUsuarioCommand;
-import school.sptech.projetoMima.core.application.command.Usuario.TrocarSenhaCommand;
+import school.sptech.projetoMima.core.application.command.Usuario.*;
 import school.sptech.projetoMima.core.application.dto.usuarioDto.*;
 import school.sptech.projetoMima.core.application.usecase.Usuario.*;
-import school.sptech.projetoMima.core.domain.*;
-
+import school.sptech.projetoMima.core.domain.Usuario;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -70,32 +67,43 @@ public class UsuarioController {
         List<Usuario> usuarios = listarUsuariosUseCase.executar();
         List<UsuarioResumidoDto> response = usuarios.stream()
                 .map(UsuarioMapper::toResumidoDto)
-                .toList();
+                .collect(Collectors.toList());
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Cadastrar funcionário com senha padrão")
     @PostMapping("/funcionarios")
     public ResponseEntity<UsuarioResumidoDto> cadastrarFuncionario(@RequestBody UsuarioCadastroDto dto) {
-        CriarUsuarioCommand cmd = new CriarUsuarioCommand();
-        cmd.nome = dto.getNome();
-        cmd.email = dto.getEmail();
-        cmd.telefone = dto.getTelefone();
-        cmd.cargo = dto.getCargo();
-        cmd.endereco = dto.getEndereco();
+        Usuario usuarioDomain = UsuarioMapper.fromCadastroDto(dto);
+
+        CriarUsuarioCommand cmd = new CriarUsuarioCommand(
+                usuarioDomain.getNome(),
+                usuarioDomain.getEmail(),
+                null, // senha padrão
+                usuarioDomain.getTelefone(),
+                usuarioDomain.getCargo(),
+                usuarioDomain.getEndereco()
+        );
 
         Usuario novo = criarUsuarioUseCase.executar(cmd, true);
-        return ResponseEntity.status(HttpStatus.CREATED).body(UsuarioMapper.toResumidoDto(novo));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(UsuarioMapper.toResumidoDto(novo));
     }
 
-    @Operation(summary = "Criar novo usuário com senha informada (criptografada)")
+    @Operation(summary = "Criar novo usuário com senha informada")
     @SecurityRequirement(name = "Bearer")
     @PostMapping("/criar")
     public ResponseEntity<Void> criar(@RequestBody @Valid UsuarioCriacaoDto dto) {
-        CriarUsuarioCommand cmd = new CriarUsuarioCommand();
-        cmd.nome = dto.getNome();
-        cmd.email = dto.getEmail();
-        cmd.senha = dto.getSenha();
+        Usuario usuarioDomain = UsuarioMapper.fromCriacaoDto(dto);
+
+        CriarUsuarioCommand cmd = new CriarUsuarioCommand(
+                usuarioDomain.getNome(),
+                usuarioDomain.getEmail(),
+                usuarioDomain.getSenha(),
+                usuarioDomain.getTelefone(),
+                usuarioDomain.getCargo(),
+                usuarioDomain.getEndereco()
+        );
 
         criarUsuarioUseCase.executar(cmd, false);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -105,13 +113,16 @@ public class UsuarioController {
     @PutMapping("/{id}")
     public ResponseEntity<UsuarioResumidoDto> atualizar(@RequestBody UsuarioCadastroDto dto,
                                                         @PathVariable Integer id) {
-        AtualizarUsuarioCommand cmd = new AtualizarUsuarioCommand();
-        cmd.id = id;
-        cmd.nome = dto.getNome();
-        cmd.telefone = dto.getTelefone();
-        cmd.email = dto.getEmail();
-        cmd.cargo = dto.getCargo();
-        cmd.endereco = dto.getEndereco();
+        Usuario usuarioDomain = UsuarioMapper.fromCadastroDto(dto);
+
+        AtualizarUsuarioCommand cmd = new AtualizarUsuarioCommand(
+                id,
+                usuarioDomain.getNome(),
+                usuarioDomain.getEmail(),
+                usuarioDomain.getTelefone(),
+                usuarioDomain.getCargo(),
+                usuarioDomain.getEndereco()
+        );
 
         Usuario atualizado = atualizarUsuarioUseCase.executar(cmd);
         return ResponseEntity.ok(UsuarioMapper.toResumidoDto(atualizado));
@@ -127,12 +138,11 @@ public class UsuarioController {
     @Operation(summary = "Realizar login de usuário")
     @PostMapping("/login")
     public ResponseEntity<UsuarioTokenDto> login(@RequestBody UsuarioLoginDto dto) {
-        LoginUsuarioCommand cmd = new LoginUsuarioCommand();
-        cmd.email = dto.getEmail();
-        cmd.senha = dto.getSenha();
+        Usuario usuarioDomain = UsuarioMapper.fromLoginDto(dto);
+        LoginUsuarioCommand cmd = new LoginUsuarioCommand(usuarioDomain.getEmail(), usuarioDomain.getSenha());
 
         AutenticarUsuarioUseCase.Resultado res = autenticarUsuarioUseCase.executar(cmd);
-        UsuarioTokenDto tokenDto = UsuarioMapper.of(res.usuario(), res.token());
+        UsuarioTokenDto tokenDto = UsuarioMapper.toTokenDto(res.usuario(), res.token());
 
         return ResponseEntity.ok(tokenDto);
     }
@@ -141,17 +151,16 @@ public class UsuarioController {
     @PutMapping("/trocar-senha")
     public ResponseEntity<String> trocarSenha(@RequestBody TrocarSenhaDto dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String emailUsuario = authentication == null ? "anonymousUser" : authentication.getName();
+        String emailUsuario = (authentication != null) ? authentication.getName() : "anonymousUser";
 
         if ("anonymousUser".equals(emailUsuario)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário não autenticado");
         }
-
-        TrocarSenhaCommand cmd = new TrocarSenhaCommand();
-        cmd.emailAutenticado = emailUsuario;
-        cmd.senhaAtual = dto.getSenhaAtual();
-        cmd.novaSenha = dto.getNovaSenha();
-
+        TrocarSenhaCommand cmd = new TrocarSenhaCommand(
+                emailUsuario,
+                dto.getSenhaAtual(),
+                dto.getNovaSenha()
+        );
         trocarSenhaUseCase.executar(cmd);
         return ResponseEntity.ok("Senha alterada com sucesso");
     }

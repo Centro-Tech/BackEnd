@@ -13,14 +13,14 @@ public class AtualizarUsuarioUseCase {
     }
 
     public Usuario executar(AtualizarUsuarioCommand cmd) {
-        Usuario existente = gateway.findById(cmd.id)
-                .orElseThrow(() -> new UsuarioNaoEncontradoException("Funcionário com o ID " + cmd.id + " não encontrado!"));
+        Usuario existente = gateway.findById(cmd.id())
+                .orElseThrow(() -> new UsuarioNaoEncontradoException("Funcionário com o ID " + cmd.id() + " não encontrado!"));
 
-        existente.setNome(cmd.nome);
-        existente.setTelefone(cmd.telefone);
-        existente.setEmail(cmd.email);
-        existente.setCargo(cmd.cargo);
-        existente.setEndereco(cmd.endereco);
+        existente.setNome(cmd.nome());
+        existente.setTelefone(cmd.telefone());
+        existente.setEmail(cmd.email());
+        existente.setCargo(cmd.cargo());
+        existente.setEndereco(cmd.endereco());
 
         return gateway.save(existente);
     }

@@ -12,7 +12,9 @@ public class ExcluirUsuarioUseCase {
     }
 
     public void executar(Integer id) {
-        if (!gateway.existsById(id)) throw new UsuarioNaoEncontradoException("Funcionário não encontrado");
+        if (!gateway.existsById(id)) {
+            throw new UsuarioNaoEncontradoException("Funcionário não encontrado");
+        }
         gateway.deleteById(id);
     }
 }

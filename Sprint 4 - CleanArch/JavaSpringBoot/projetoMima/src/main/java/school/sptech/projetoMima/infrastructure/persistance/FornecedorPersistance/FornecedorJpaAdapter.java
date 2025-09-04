@@ -1,14 +1,10 @@
 package school.sptech.projetoMima.infrastructure.persistance.FornecedorPersistance;
 
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import school.sptech.projetoMima.core.adapter.Fornecedor.FornecedorGateway;
 import school.sptech.projetoMima.core.domain.Fornecedor;
-import school.sptech.projetoMima.core.domain.Usuario;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import static school.sptech.projetoMima.infrastructure.persistance.FornecedorPersistance.FornecedorEntityMapper.toDomain;
 
 @Service

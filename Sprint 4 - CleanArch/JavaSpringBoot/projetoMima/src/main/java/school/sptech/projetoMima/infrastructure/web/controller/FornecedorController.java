@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import school.sptech.projetoMima.core.application.command.Fornecedor.CadastrarFornecedorCommand;
@@ -12,8 +11,7 @@ import school.sptech.projetoMima.core.application.dto.fornecedorDto.FornecedorMa
 import school.sptech.projetoMima.core.application.dto.fornecedorDto.FornecedorRequestDto;
 import school.sptech.projetoMima.core.application.dto.fornecedorDto.FornecedorResponseDto;
 import school.sptech.projetoMima.core.application.usecase.Fornecedor.CadastrarFornecedorUseCase;
-import school.sptech.projetoMima.core.application.usecase.FornecedorService;
-import school.sptech.projetoMima.core.application.usecase.ItemService;
+import school.sptech.projetoMima.core.application.usecase.Fornecedor.DeletarFornecedorUseCase;
 import school.sptech.projetoMima.core.domain.Fornecedor;
 
 import java.util.List;
@@ -24,9 +22,11 @@ import java.util.Optional;
 public class FornecedorController {
 
     private final CadastrarFornecedorUseCase cadastrarFornecedorUseCase;
+    private final DeletarFornecedorUseCase deletarFornecedorUseCase;
 
-    public FornecedorController(CadastrarFornecedorUseCase cadastrarFornecedorUseCase) {
+    public FornecedorController(CadastrarFornecedorUseCase cadastrarFornecedorUseCase, DeletarFornecedorUseCase deletarFornecedorUseCase) {
         this.cadastrarFornecedorUseCase = cadastrarFornecedorUseCase;
+        this.deletarFornecedorUseCase = deletarFornecedorUseCase;
     }
 
     @Operation(summary = "Listar todos os fornecedores")
@@ -62,7 +62,7 @@ public class FornecedorController {
                 request.getTelefone(),
                 request.getEmail()
         );
-        
+
         Fornecedor fornecedorCadastrado = cadastrarFornecedorUseCase.execute(command);
         return ResponseEntity.status(201).body(FornecedorMapper.toResponse(fornecedorCadastrado));
     }
@@ -71,7 +71,7 @@ public class FornecedorController {
     @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Fornecedor excluído com sucesso"), @ApiResponse(responseCode = "404", description = "Fornecedor não encontrado para exclusão") })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable int id) {
-        fornecedorService.deletar(id);
+        deletarFornecedorUseCase.execute(id);
         return ResponseEntity.status(204).build();
     }
 }

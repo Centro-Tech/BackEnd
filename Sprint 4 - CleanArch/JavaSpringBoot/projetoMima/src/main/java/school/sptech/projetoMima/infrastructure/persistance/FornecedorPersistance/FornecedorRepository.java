@@ -9,5 +9,6 @@ import java.util.List;
 @Repository
 public interface FornecedorRepository extends JpaRepository<FornecedorEntity, Integer> {
     boolean existsByNome(String nome);
-    List<Fornecedor> findByNomeEqualsIgnoreCase(String nome);
+
+    List<FornecedorEntity> findAll();
 }

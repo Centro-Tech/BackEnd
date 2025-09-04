@@ -1,6 +1,5 @@
 package school.sptech.projetoMima.infrastructure.persistance.FornecedorPersistance;
 
-import school.sptech.projetoMima.core.application.command.Fornecedor.CadastrarFornecedorCommand;
 import school.sptech.projetoMima.core.domain.Fornecedor;
 
 public class FornecedorEntityMapper {

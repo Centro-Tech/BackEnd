@@ -1,9 +1,6 @@
 package school.sptech.projetoMima.core.application.usecase.Fornecedor;
 
 import school.sptech.projetoMima.core.adapter.Fornecedor.FornecedorGateway;
-import school.sptech.projetoMima.core.application.command.Cliente.ExcluirClienteCommand;
-import school.sptech.projetoMima.core.application.command.Fornecedor.ExcluirFornecedorCommand;
-import school.sptech.projetoMima.core.application.exception.Cliente.ClienteNaoEncontradoException;
 import school.sptech.projetoMima.core.application.exception.Fornecedor.FornecedorNaoEncontradoException;
 
 public class DeletarFornecedorUseCase {
@@ -14,10 +11,10 @@ public class DeletarFornecedorUseCase {
         this.gateway = gateway;
     }
 
-    public void execute(ExcluirFornecedorCommand id) {
-        if (!gateway.existsById(id.id())) {
+    public void execute(Integer id) {
+        if (!gateway.existsById(id)) {
             throw new FornecedorNaoEncontradoException("Fornecedor não encontrado");
         }
-        gateway.deleteById(id.id());
+        gateway.deleteById(id);
     }
 }

@@ -1,3 +1,20 @@
 package school.sptech.projetoMima.core.application.usecase.Item.auxiliares.CategoriaUseCase;
 
-public class ListarCategoriasUseCase { }
+import school.sptech.projetoMima.core.adapter.Item.auxiliares.CategoriaGateway;
+import school.sptech.projetoMima.core.domain.item.Categoria;
+import school.sptech.projetoMima.core.application.exception.Item.Auxiliares.CategoriaNaoEncontradoException;
+import java.util.List;
+
+public class ListarCategoriasUseCase {
+    private final CategoriaGateway gateway;
+
+    public ListarCategoriasUseCase(CategoriaGateway gateway) {
+        this.gateway = gateway;
+    }
+
+    public List<Categoria> execute() {
+        List<Categoria> categorias = gateway.findAll();
+        if(categorias.isEmpty()) throw new CategoriaNaoEncontradoException("Nenhuma categoria encontrada.");
+        return categorias;
+    }
+}

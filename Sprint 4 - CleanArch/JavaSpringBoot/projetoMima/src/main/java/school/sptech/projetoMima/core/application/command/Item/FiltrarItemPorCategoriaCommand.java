@@ -1,5 +1,9 @@
 package school.sptech.projetoMima.core.application.command.Item;
 
-public record FiltrarItemPorCategoriaCommand(
-        String Categoria
-) { }
+public class FiltrarItemPorCategoriaCommand {
+    public final Integer idCategoria;
+
+    public FiltrarItemPorCategoriaCommand(Integer idCategoria) {
+        this.idCategoria = idCategoria;
+    }
+}

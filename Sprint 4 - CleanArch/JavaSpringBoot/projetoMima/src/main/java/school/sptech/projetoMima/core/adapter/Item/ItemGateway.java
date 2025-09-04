@@ -27,4 +27,8 @@ public interface ItemGateway {
     List<Item> findByFornecedorNomeContainsIgnoreCase(String nome);
 
     List<Item> findByNomeContainsIgnoreCase(String nome);
+
+    Optional<List<Item>> findByCodigoContainsIgnoreCase(String codigo);
+
+    void delete(Item item);
 }

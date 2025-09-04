@@ -1,7 +1,6 @@
 package school.sptech.projetoMima.core.application.dto.clienteDto;
 
 import school.sptech.projetoMima.core.application.command.Cliente.CadastrarClienteCommand;
-import school.sptech.projetoMima.core.application.command.Cliente.CriarClienteCommand;
 import school.sptech.projetoMima.core.domain.Cliente;
 
 public class ClienteMapper {

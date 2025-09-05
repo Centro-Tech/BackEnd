@@ -5,9 +5,14 @@ import java.util.List;
 
 public interface TamanhoGateway {
     Tamanho save(Tamanho tamanho);
+
     boolean existsByNomeIgnoreCase(String nome);
+
     boolean existsById(Integer id);
+
     void deleteById(Integer id);
+
     List<Tamanho> findAll();
+
     Tamanho findById(Integer id);
 }

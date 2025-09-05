@@ -1,7 +1,7 @@
 package school.sptech.projetoMima.core.application.usecase.Item.auxiliares.TamanhoUseCase;
 
 import school.sptech.projetoMima.core.adapter.Item.auxiliares.TamanhoGateway;
-import school.sptech.projetoMima.core.application.command.Fornecedor.CadastrarFornecedorCommand;
+import school.sptech.projetoMima.core.application.command.Item.auxiliares.TamanhoCommad.CriarTamanhoCommand;
 import school.sptech.projetoMima.core.application.exception.Item.Auxiliares.TamanhoDuplicadoException;
 import school.sptech.projetoMima.core.domain.item.Tamanho;
 
@@ -13,7 +13,7 @@ public class CriarTamanhoUseCase {
         this.gateway = gateway;
     }
 
-    public Tamanho execute (CadastrarFornecedorCommand command) {
+    public Tamanho execute (CriarTamanhoCommand command) {
 
         if (gateway.existsByNomeIgnoreCase(command.nome())) {
             throw new TamanhoDuplicadoException("Já existe um tamanho com esse nome");

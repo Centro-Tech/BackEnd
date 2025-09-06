@@ -3,7 +3,9 @@ package school.sptech.projetoMima.infrastructure.web.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import school.sptech.projetoMima.core.application.command.Fornecedor.CadastrarFornecedorCommand;
@@ -16,11 +18,13 @@ import school.sptech.projetoMima.core.application.usecase.Fornecedor.DeletarForn
 import school.sptech.projetoMima.core.application.usecase.Fornecedor.ListarFornecedoresUseCase;
 import school.sptech.projetoMima.core.domain.Fornecedor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/fornecedores")
+@Tag(name = "Fornecedor", description = "Operações relacionadas aos fornecedores")
 public class FornecedorController {
 
     private final CadastrarFornecedorUseCase cadastrarFornecedorUseCase;
@@ -36,21 +40,27 @@ public class FornecedorController {
     }
 
     @Operation(summary = "Listar todos os fornecedores")
-    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Fornecedores encontrados com sucesso"), @ApiResponse(responseCode = "404", description = "Nenhum fornecedor encontrado na base de dados") })
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Fornecedores listados com sucesso"),
+        @ApiResponse(responseCode = "204", description = "Nenhum fornecedor encontrado")
+    })
     @GetMapping
     public ResponseEntity<List<FornecedorResponseDto>> listar() {
         List<Fornecedor> fornecedoresEncontrados = listarFornecedoresUseCase.execute();
         if (fornecedoresEncontrados.isEmpty()) {
-            return ResponseEntity.status(404).body(null);
+            return ResponseEntity.status(204).body(null);
         }
         List<FornecedorResponseDto> response = fornecedoresEncontrados.stream().map(FornecedorMapper::toResponse).toList();
         return ResponseEntity.status(200).body(response);
     }
 
     @Operation(summary = "Buscar fornecedor por ID")
-    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Fornecedor encontrado com sucesso"), @ApiResponse(responseCode = "404", description = "Fornecedor não encontrado com o ID informado") })
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Fornecedor encontrado com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Fornecedor não encontrado")
+    })
     @GetMapping("/{id}")
-    public ResponseEntity<FornecedorResponseDto> buscar(@PathVariable int id) {
+    public ResponseEntity<FornecedorResponseDto> buscarPorId(@PathVariable Integer id) {
         Optional<Fornecedor> fornecedor = Optional.ofNullable(buscarFornecedorPorIdUseCase.execute(id));
         if (fornecedor.isPresent()) {
             Fornecedor fornecedorNovo = fornecedor.get();
@@ -60,23 +70,32 @@ public class FornecedorController {
     }
 
     @Operation(summary = "Cadastrar novo fornecedor")
-    @ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Fornecedor cadastrado com sucesso"), @ApiResponse(responseCode = "409", description = "Conflito: Fornecedor com este CNPJ já existe") })
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Fornecedor cadastrado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos para cadastro"),
+        @ApiResponse(responseCode = "409", description = "Fornecedor já existente")
+    })
     @PostMapping
-    public ResponseEntity<FornecedorResponseDto> cadastrar(@Valid @RequestBody FornecedorRequestDto request) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<FornecedorResponseDto> cadastrar(@Valid @RequestBody FornecedorRequestDto requestDto) {
         CadastrarFornecedorCommand command = new CadastrarFornecedorCommand(
-                request.getNome(),
-                request.getTelefone(),
-                request.getEmail()
+                requestDto.getNome(),
+                requestDto.getTelefone(),
+                requestDto.getEmail()
         );
 
         Fornecedor fornecedorCadastrado = cadastrarFornecedorUseCase.execute(command);
         return ResponseEntity.status(201).body(FornecedorMapper.toResponse(fornecedorCadastrado));
     }
 
-    @Operation(summary = "Excluir fornecedor")
-    @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Fornecedor excluído com sucesso"), @ApiResponse(responseCode = "404", description = "Fornecedor não encontrado para exclusão") })
+    @Operation(summary = "Excluir fornecedor por ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Fornecedor excluído com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Fornecedor não encontrado para exclusão")
+    })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluir(@PathVariable int id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
         deletarFornecedorUseCase.execute(id);
         return ResponseEntity.status(204).build();
     }

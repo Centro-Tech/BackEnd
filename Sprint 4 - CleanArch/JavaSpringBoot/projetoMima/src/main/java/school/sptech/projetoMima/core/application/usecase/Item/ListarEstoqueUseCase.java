@@ -14,6 +14,9 @@ public class ListarEstoqueUseCase {
     }
 
     public List<Item> execute() {
-        return itemGateway.findAll();
+        return itemGateway.findAll()
+                .stream()
+                .filter(item -> item.getQtdEstoque() != null && item.getQtdEstoque() > 0)
+                .toList();
     }
 }

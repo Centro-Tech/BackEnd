@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 @Schema(name = "Material", description = "Representa o material de um item")
 public class Material {
 
+    private Integer id;
     private String nome;
 
     public String getNome() {
@@ -17,5 +18,14 @@ public class Material {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public Integer getId() {
+
+        return id;
+
+    }
+    public void setId(Integer id) {
+        this.id = id;
     }
 }

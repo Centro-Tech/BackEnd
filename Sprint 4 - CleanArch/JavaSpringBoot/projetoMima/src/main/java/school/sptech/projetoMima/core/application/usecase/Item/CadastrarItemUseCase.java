@@ -3,7 +3,7 @@ package school.sptech.projetoMima.core.application.usecase.Item;
 import school.sptech.projetoMima.core.adapter.Fornecedor.FornecedorGateway;
 import school.sptech.projetoMima.core.adapter.Item.ItemGateway;
 import school.sptech.projetoMima.core.application.command.Item.CadastrarItemCommand;
-import school.sptech.projetoMima.core.application.exception.Item.ItemCampoVazioException;
+import school.sptech.projetoMima.core.application.exception.Item.ItemInvalidoException;
 import school.sptech.projetoMima.core.adapter.Item.auxiliares.*;
 import school.sptech.projetoMima.core.domain.item.Item;
 import school.sptech.projetoMima.core.domain.Fornecedor;
@@ -55,14 +55,36 @@ public class CadastrarItemUseCase {
     }
 
     private void validarCampos(Item item) {
-        if(item.getCategoria() == null || item.getCategoria().getNome() == null || item.getCategoria().getNome().isBlank()
-                || item.getTamanho() == null || item.getTamanho().getNome() == null || item.getTamanho().getNome().isBlank()
-                || item.getCor() == null || item.getCor().getNome() == null || item.getCor().getNome().isBlank()
-                || item.getMaterial() == null || item.getMaterial().getNome() == null || item.getMaterial().getNome().isBlank()
-                || item.getFornecedor() == null
-                || item.getQtdEstoque() <= 0
-                || item.getPreco() == null || item.getPreco() <= 0) {
-            throw new ItemCampoVazioException("Campos inválidos ou vazios no cadastro de item");
+        if (item.getNome() == null || item.getNome().isBlank()) {
+            throw new ItemInvalidoException("Nome do item é obrigatório");
+        }
+
+        if (item.getQtdEstoque() == null || item.getQtdEstoque() <= 0) {
+            throw new ItemInvalidoException("Quantidade em estoque deve ser maior que zero");
+        }
+
+        if (item.getPreco() == null || item.getPreco() <= 0) {
+            throw new ItemInvalidoException("Preço deve ser maior que zero");
+        }
+
+        if (item.getCategoria() == null || item.getCategoria().getNome() == null || item.getCategoria().getNome().isBlank()) {
+            throw new ItemInvalidoException("Categoria é obrigatória");
+        }
+
+        if (item.getTamanho() == null || item.getTamanho().getNome() == null || item.getTamanho().getNome().isBlank()) {
+            throw new ItemInvalidoException("Tamanho é obrigatório");
+        }
+
+        if (item.getCor() == null || item.getCor().getNome() == null || item.getCor().getNome().isBlank()) {
+            throw new ItemInvalidoException("Cor é obrigatória");
+        }
+
+        if (item.getMaterial() == null || item.getMaterial().getNome() == null || item.getMaterial().getNome().isBlank()) {
+            throw new ItemInvalidoException("Material é obrigatório");
+        }
+
+        if (item.getFornecedor() == null) {
+            throw new ItemInvalidoException("Fornecedor é obrigatório");
         }
     }
 

@@ -1,10 +1,8 @@
 package school.sptech.projetoMima.core.application.usecase.Item.auxiliares.TamanhoUseCase;
 
 import school.sptech.projetoMima.core.adapter.Item.auxiliares.TamanhoGateway;
-import school.sptech.projetoMima.core.application.exception.Item.Auxiliares.TamanhoNaoEncontradoException;
 
 public class DeletarTamanhoUseCase {
-
     private final TamanhoGateway gateway;
 
     public DeletarTamanhoUseCase(TamanhoGateway gateway) {
@@ -12,9 +10,14 @@ public class DeletarTamanhoUseCase {
     }
 
     public void execute(Integer id) {
-        if (!gateway.existsById(id)) {
-            throw new TamanhoNaoEncontradoException("Tamanho não encontrado");
+        if (id == null) {
+            throw new IllegalArgumentException("ID não pode ser nulo");
         }
+        
+        if (!gateway.existsById(id)) {
+            throw new school.sptech.projetoMima.core.application.exception.Item.auxiliares.TamanhoNaoEncontradoException("Tamanho não encontrado");
+        }
+        
         gateway.deleteById(id);
     }
 }

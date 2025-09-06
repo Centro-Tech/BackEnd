@@ -20,4 +20,6 @@ public interface FornecedorRepository extends JpaRepository<FornecedorEntity, In
     Fornecedor save(Fornecedor fornecedor);
 
     boolean existsById(Integer id);
+
+    void delete(Fornecedor fornecedor);
 }

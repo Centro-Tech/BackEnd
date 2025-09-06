@@ -2,44 +2,60 @@ package school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.aux
 
 import school.sptech.projetoMima.core.adapter.Item.auxiliares.MaterialGateway;
 import school.sptech.projetoMima.core.domain.item.Material;
+import school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares.Material.Entity.MaterialEntity;
+import school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares.Material.Entity.MaterialEntityMapper;
+import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class MaterialJpaAdapter implements MaterialGateway {
 
-    private final MaterialRepository materialRepository;
+    private final MaterialJpaRepository materialJpaRepository;
 
-    public MaterialJpaAdapter(MaterialRepository materialRepository) {
-        this.materialRepository = materialRepository;
+    public MaterialJpaAdapter(MaterialJpaRepository materialJpaRepository) {
+        this.materialJpaRepository = materialJpaRepository;
     }
 
     @Override
     public Material save(Material material) {
-        return materialRepository.save(material);
-    }
-
-    @Override
-    public boolean existsByNomeIgnoreCase(String nome) {
-        return materialRepository.existsByNomeIgnoreCase(nome);
+        MaterialEntity entity = MaterialEntityMapper.toEntity(material);
+        MaterialEntity savedEntity = materialJpaRepository.save(entity);
+        return MaterialEntityMapper.toDomain(savedEntity);
     }
 
     @Override
     public boolean existsById(Integer id) {
-        return materialRepository.existsById(id);
+        return materialJpaRepository.existsById(id);
+    }
+
+    @Override
+    public boolean existsByNome(String nome) {
+        return materialJpaRepository.existsByNome(nome);
     }
 
     @Override
     public void deleteById(Integer id) {
-        materialRepository.deleteById(id);
+        materialJpaRepository.deleteById(id);
     }
 
     @Override
     public List<Material> findAll() {
-        return materialRepository.findAll();
+        List<MaterialEntity> entities = materialJpaRepository.findAll();
+        List<Material> materiais = new ArrayList<>();
+        for (MaterialEntity entity : entities) {
+            materiais.add(MaterialEntityMapper.toDomain(entity));
+        }
+        return materiais;
     }
 
     @Override
     public Material findById(Integer id) {
-        return materialRepository.findById(id).orElse(null);
+        MaterialEntity entity = materialJpaRepository.findById(id).orElse(null);
+        if (entity == null) {
+            return null;
+        }
+        return MaterialEntityMapper.toDomain(entity);
     }
 }

@@ -3,7 +3,6 @@ package school.sptech.projetoMima.core.adapter.Item;
 import school.sptech.projetoMima.core.domain.item.Item;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ItemGateway {
     Item save(Item item);
@@ -18,9 +17,9 @@ public interface ItemGateway {
 
     List<Item> findAll();
 
-    Optional<Item> findById(Integer id);
+    Item findById(Integer id);
 
-    Optional<Item> findByCodigo(String codigo);
+    Item findByCodigo(String codigo);
 
     List<Item> findByCategoriaNomeContainsIgnoreCase(String nomeCategoria);
 
@@ -28,7 +27,5 @@ public interface ItemGateway {
 
     List<Item> findByNomeContainsIgnoreCase(String nome);
 
-    Optional<List<Item>> findByCodigoContainsIgnoreCase(String codigo);
-
-    void delete(Item item);
+    List<Item> findByCodigoContainsIgnoreCase(String codigo);
 }

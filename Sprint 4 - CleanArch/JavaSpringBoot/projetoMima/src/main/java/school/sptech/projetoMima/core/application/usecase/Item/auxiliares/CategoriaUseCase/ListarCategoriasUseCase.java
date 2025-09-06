@@ -2,7 +2,7 @@ package school.sptech.projetoMima.core.application.usecase.Item.auxiliares.Categ
 
 import school.sptech.projetoMima.core.adapter.Item.auxiliares.CategoriaGateway;
 import school.sptech.projetoMima.core.domain.item.Categoria;
-import school.sptech.projetoMima.core.application.exception.Item.Auxiliares.CategoriaNaoEncontradoException;
+import school.sptech.projetoMima.core.application.exception.Item.Auxiliares.CategoriaListaVaziaException;
 import java.util.List;
 
 public class ListarCategoriasUseCase {
@@ -14,7 +14,11 @@ public class ListarCategoriasUseCase {
 
     public List<Categoria> execute() {
         List<Categoria> categorias = gateway.findAll();
-        if(categorias.isEmpty()) throw new CategoriaNaoEncontradoException("Nenhuma categoria encontrada.");
+
+        if (categorias.isEmpty()) {
+            throw new CategoriaListaVaziaException("Nenhuma categoria encontrada");
+        }
+
         return categorias;
     }
 }

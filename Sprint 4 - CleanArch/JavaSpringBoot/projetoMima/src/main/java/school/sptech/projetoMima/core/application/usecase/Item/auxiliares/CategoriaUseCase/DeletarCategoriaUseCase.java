@@ -1,7 +1,7 @@
 package school.sptech.projetoMima.core.application.usecase.Item.auxiliares.CategoriaUseCase;
 
 import school.sptech.projetoMima.core.adapter.Item.auxiliares.CategoriaGateway;
-import school.sptech.projetoMima.core.application.exception.Item.Auxiliares.CategoriaNaoEncontradoException;
+import school.sptech.projetoMima.core.application.exception.Item.Auxiliares.CategoriaNaoEncontradaException;
 
 public class DeletarCategoriaUseCase {
     private final CategoriaGateway gateway;
@@ -11,8 +11,14 @@ public class DeletarCategoriaUseCase {
     }
 
     public void execute(Integer id) {
-        if(!gateway.existsById(id)) throw new CategoriaNaoEncontradoException("Categoria não encontrada para exclusão.");
+        if (id == null) {
+            throw new IllegalArgumentException("ID não pode ser nulo");
+        }
+
+        if (!gateway.existsById(id)) {
+            throw new CategoriaNaoEncontradaException("Categoria não encontrada");
+        }
+
         gateway.deleteById(id);
     }
 }
-

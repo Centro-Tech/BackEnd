@@ -2,9 +2,8 @@ package school.sptech.projetoMima.core.application.usecase.Item;
 
 import school.sptech.projetoMima.core.application.exception.Item.ItemNaoEncontradoException;
 import school.sptech.projetoMima.core.adapter.Item.ItemGateway;
+import school.sptech.projetoMima.core.application.command.Item.BuscarItemPorIdCommand;
 import school.sptech.projetoMima.core.domain.item.Item;
-
-import java.util.Optional;
 
 public class BuscarItemPorIdUseCase {
 
@@ -14,11 +13,10 @@ public class BuscarItemPorIdUseCase {
         this.itemGateway = itemGateway;
     }
 
-    public Optional<Item> execute(int id) {
-        try {
-            return itemGateway.findById(id);
-        } catch (Exception e) {
-            throw new ItemNaoEncontradoException("Item com o id " + id + " não encontrado.");
+    public Item execute(BuscarItemPorIdCommand command) {
+        if (!itemGateway.existsById(command.id())) {
+            throw new ItemNaoEncontradoException("Item não encontrado");
         }
+        return itemGateway.findById(command.id());
     }
 }

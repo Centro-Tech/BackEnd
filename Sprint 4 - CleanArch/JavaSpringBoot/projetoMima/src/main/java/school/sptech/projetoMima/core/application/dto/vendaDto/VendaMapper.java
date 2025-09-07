@@ -1,34 +1,28 @@
 package school.sptech.projetoMima.core.application.dto.vendaDto;
 
-import school.sptech.projetoMima.core.application.dto.itemVendaDto.ItemVendaMapper;
-import school.sptech.projetoMima.core.application.dto.itemVendaDto.ItemVendaResponseDto;
-import school.sptech.projetoMima.core.domain.ItemVenda;
 import school.sptech.projetoMima.core.domain.Venda;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class VendaMapper {
 
-    // Converte VendaRequestDto + lista de ItemVenda em Venda (entidade)
-    public static Venda toEntity(VendaRequestDto request, List<ItemVenda> itensVenda) {
+    public static Venda toEntity(VendaRequestDto request) {
         Venda venda = new Venda();
+
         venda.setValorTotal(request.getValorTotal());
-        venda.setItensVenda(itensVenda);
         return venda;
     }
 
-    // Converte Venda (entidade) em VendaResponseDto
-    public static VendaResponseDto toResponse(Venda venda) {
+    public static VendaResponseDto toResponseDto(Venda venda) {
         VendaResponseDto response = new VendaResponseDto();
+        response.setId(venda.getId());
         response.setValorTotal(venda.getValorTotal());
+        response.setData(venda.getData());
 
-        // Converte cada ItemVenda em ItemVendaResponseDto
-        List<ItemVendaResponseDto> itensDto = venda.getItensVenda().stream()
-                .map(ItemVendaMapper::toResponse)
-                .collect(Collectors.toList());
-
-        response.setItensVenda(itensDto);
+        if (venda.getCliente() != null && venda.getCliente().getId() != null) {
+            response.setClienteId(venda.getCliente().getId());
+        }
+        if (venda.getItensVenda() != null) {
+            response.setItensVenda(venda.getItensVenda());
+        }
         return response;
     }
 }

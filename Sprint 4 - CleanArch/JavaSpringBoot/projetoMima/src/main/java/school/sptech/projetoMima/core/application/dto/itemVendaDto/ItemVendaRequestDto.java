@@ -1,29 +1,31 @@
 package school.sptech.projetoMima.core.application.dto.itemVendaDto;
 
-import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 public class ItemVendaRequestDto {
 
+    @Schema(description = "ID da venda", example = "1", required = true)
     @NotNull
-    @Valid
     private Integer vendaId;
 
+    @Schema(description = "ID do item a ser adicionado", example = "1", required = true)
     @NotNull
-    @Valid
     private Integer itemId;
 
-    @NotNull
-    @Valid
-    private Integer qtdParaVender;
-
-    @Valid
+    @Schema(description = "ID do cliente que está adicionando o item", example = "1", required = true)
     @NotNull
     private Integer clienteId;
 
-    @Valid
+    @Schema(description = "ID do funcionário responsável", example = "1", required = true)
     @NotNull
     private Integer funcionarioId;
+
+    @Schema(description = "Quantidade do item para vender", example = "2", required = true)
+    @NotNull
+    @Positive
+    private Integer qtdParaVender;
 
     public Integer getVendaId() {
         return vendaId;

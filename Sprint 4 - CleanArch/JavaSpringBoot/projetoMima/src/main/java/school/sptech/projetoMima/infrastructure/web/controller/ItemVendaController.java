@@ -1,46 +1,95 @@
 package school.sptech.projetoMima.infrastructure.web.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import school.sptech.projetoMima.core.application.dto.itemVendaDto.ItemVendaMapper;
 import school.sptech.projetoMima.core.application.dto.itemVendaDto.ItemVendaRequestDto;
 import school.sptech.projetoMima.core.application.dto.itemVendaDto.ItemVendaResponseDto;
-import school.sptech.projetoMima.core.application.usecase.ItemVendaService;
+import school.sptech.projetoMima.core.application.dto.itemVendaDto.ItemVendaMapper;
+import school.sptech.projetoMima.core.application.command.ItemVenda.AdicionarItemAoCarrinhoCommand;
+import school.sptech.projetoMima.core.application.command.ItemVenda.ListarCarrinhoCommand;
+import school.sptech.projetoMima.core.application.command.ItemVenda.FinalizarCarrinhoCommand;
+import school.sptech.projetoMima.core.application.usecase.ItemVenda.*;
 import school.sptech.projetoMima.core.domain.ItemVenda;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/item-venda")
 public class ItemVendaController {
 
-    @Autowired
-    private ItemVendaService itemVendaService;
+    private final AdicionarItemAoCarrinhoUseCase adicionarItemAoCarrinhoUseCase;
+    private final ListarCarrinhoUseCase listarCarrinhoUseCase;
+    private final FinalizarCarrinhoUseCase finalizarCarrinhoUseCase;
 
-    @PostMapping("/carrinho")
-    public ResponseEntity<ItemVendaResponseDto> adicionar(@RequestBody @Valid ItemVendaRequestDto dto) {
-        ItemVenda item = itemVendaService.adicionarAoCarrinho(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ItemVendaMapper.toResponse(item));
+    @Autowired
+    public ItemVendaController(AdicionarItemAoCarrinhoUseCase adicionarItemAoCarrinhoUseCase,
+                              ListarCarrinhoUseCase listarCarrinhoUseCase,
+                              FinalizarCarrinhoUseCase finalizarCarrinhoUseCase) {
+        this.adicionarItemAoCarrinhoUseCase = adicionarItemAoCarrinhoUseCase;
+        this.listarCarrinhoUseCase = listarCarrinhoUseCase;
+        this.finalizarCarrinhoUseCase = finalizarCarrinhoUseCase;
     }
 
+    @Operation(summary = "Adicionar item ao carrinho")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Item adicionado ao carrinho com sucesso",
+                    content = @Content(schema = @Schema(implementation = ItemVendaResponseDto.class))),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+        @ApiResponse(responseCode = "404", description = "Item, cliente ou funcionário não encontrado")
+    })
+    @PostMapping("/carrinho")
+    public ResponseEntity<ItemVendaResponseDto> adicionarAoCarrinho(@RequestBody @Valid ItemVendaRequestDto dto) {
+        AdicionarItemAoCarrinhoCommand command = new AdicionarItemAoCarrinhoCommand(
+            dto.getItemId(),
+            dto.getClienteId(),
+            dto.getFuncionarioId(),
+            dto.getQtdParaVender()
+        );
+
+        ItemVenda itemVenda = adicionarItemAoCarrinhoUseCase.execute(command);
+        ItemVendaResponseDto response = ItemVendaMapper.toResponseDto(itemVenda);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "Listar itens do carrinho por cliente")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Carrinho listado com sucesso"),
+        @ApiResponse(responseCode = "204", description = "Carrinho vazio")
+    })
     @GetMapping("/carrinho/{clienteId}")
-    public ResponseEntity<List<ItemVendaResponseDto>> listar(@PathVariable Integer clienteId) {
-        List<ItemVenda> itens = itemVendaService.listarCarrinho(clienteId);
-        List<ItemVendaResponseDto> response = itens.stream()
-                .map(ItemVendaMapper::toResponse)
-                .toList();
+    public ResponseEntity<List<ItemVendaResponseDto>> listarCarrinho(@PathVariable Integer clienteId) {
+
+        ListarCarrinhoCommand command = new ListarCarrinhoCommand(clienteId);
+
+        List<ItemVenda> carrinho = listarCarrinhoUseCase.execute(command);
+        List<ItemVendaResponseDto> response = carrinho.stream()
+                .map(ItemVendaMapper::toResponseDto)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Finalizar carrinho associando os itens a uma venda")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Carrinho finalizado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Carrinho vazio"),
+        @ApiResponse(responseCode = "404", description = "Venda não encontrada")
+    })
     @PostMapping("/carrinho/finalizar/{clienteId}/{vendaId}")
     public ResponseEntity<String> finalizarCarrinho(@PathVariable Integer clienteId,
-                                                    @PathVariable Integer vendaId) {
-        itemVendaService.finalizarCarrinho(clienteId, vendaId);
+                                                   @PathVariable Integer vendaId) {
+
+        FinalizarCarrinhoCommand command = new FinalizarCarrinhoCommand(clienteId, vendaId);
+
+        finalizarCarrinhoUseCase.execute(command);
         return ResponseEntity.ok("Carrinho finalizado com sucesso!");
     }
-
 }
-

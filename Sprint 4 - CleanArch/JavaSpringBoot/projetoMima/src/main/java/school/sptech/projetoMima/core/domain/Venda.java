@@ -1,7 +1,5 @@
 package school.sptech.projetoMima.core.domain;
 
-import school.sptech.projetoMima.infrastructure.persistance.UsuarioPersistance.UsuarioEntity;
-
 import java.time.LocalDate;
 import java.util.List;
 public class Venda {
@@ -16,7 +14,9 @@ public class Venda {
 
     private Usuario usuario;
 
-    private List<ItemVenda> itensVenda;  // <- corrigido de 'itemVenda' para 'itensVenda'
+    private Integer usuarioId;
+
+    private List<ItemVenda> itensVenda;
 
     public Integer getId() {
         return id;
@@ -66,7 +66,14 @@ public class Venda {
         this.itensVenda = itensVenda;
     }
 
-    // Métodos auxiliares para manter compatibilidade
+    public Integer getUsuarioId() {
+        return usuarioId;
+    }
+
+    public void setUsuarioId(Integer usuarioId) {
+        this.usuarioId = usuarioId;
+    }
+
     public Usuario getFuncionario() {
         return usuario;
     }
@@ -74,6 +81,4 @@ public class Venda {
     public void setFuncionario(Usuario usuario) {
         this.usuario = usuario;
     }
-
-  //  public Usuario orElseThrow(Object usuárioNãoEncontrado) { return null;}
 }

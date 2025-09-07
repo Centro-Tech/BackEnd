@@ -4,16 +4,16 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CurrentTimestamp;
-import school.sptech.projetoMima.core.domain.Cliente;
-import school.sptech.projetoMima.core.domain.ItemVenda;
-import school.sptech.projetoMima.core.domain.Usuario;
+import school.sptech.projetoMima.infrastructure.persistance.ClientePersistance.Enitity.ClienteEntity;
 import school.sptech.projetoMima.infrastructure.persistance.UsuarioPersistance.UsuarioEntity;
+import school.sptech.projetoMima.infrastructure.persistance.ItemVendaPersistance.ItemVendaEntity;
 
 import java.time.LocalDate;
 import java.util.List;
 
 
 @Entity
+@Table(name = "venda")
 @Schema(description = "Representa uma venda realizada, contendo informações como valor total, data, cliente, funcionário e itens vendidos.")
 public class VendaEntity {
     @Id
@@ -31,17 +31,17 @@ public class VendaEntity {
     @ManyToOne
     @JoinColumn(name = "fkCliente")
     @Schema(description = "Cliente associado à venda")
-    private Cliente cliente;
+    private ClienteEntity cliente;
 
     @ManyToOne
     @JoinColumn(name = "fkFuncionario")
     @Schema(description = "Funcionário que realizou a venda")
     private UsuarioEntity usuario;
 
-    @OneToMany
+    @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     @Schema(description = "Lista de itens incluídos na venda")
-    private List<ItemVenda> itensVenda;  // <- corrigido de 'itemVenda' para 'itensVenda'
+    private List<ItemVendaEntity> itensVenda;  // <- corrigido de 'itemVenda' para 'itensVenda'
 
     public Integer getId() {
         return id;
@@ -67,11 +67,11 @@ public class VendaEntity {
         this.data = data;
     }
 
-    public Cliente getCliente() {
+    public ClienteEntity getCliente() {
         return cliente;
     }
 
-    public void setCliente(Cliente cliente) {
+    public void setCliente(ClienteEntity cliente) {
         this.cliente = cliente;
     }
 
@@ -83,20 +83,12 @@ public class VendaEntity {
         this.usuario = usuario;
     }
 
-    public List<ItemVenda> getItensVenda() {
+    public List<ItemVendaEntity> getItensVenda() {
         return itensVenda;
     }
 
-    public void setItensVenda(List<ItemVenda> itensVenda) {
+    public void setItensVenda(List<ItemVendaEntity> itensVenda) {
         this.itensVenda = itensVenda;
     }
 
-    // Métodos auxiliares para manter compatibilidade
-    public Usuario getFuncionario() {
-        return usuario;
-    }
-
-    public void setFuncionario(UsuarioEntity usuario) {
-        this.usuario = usuario;
-    }
 }

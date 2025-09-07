@@ -5,137 +5,163 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import school.sptech.projetoMima.core.application.dto.itemVendaDto.ItemVendaRequestDto;
-import school.sptech.projetoMima.core.application.dto.vendaDto.VendaMapper;
 import school.sptech.projetoMima.core.application.dto.vendaDto.VendaRequestDto;
 import school.sptech.projetoMima.core.application.dto.vendaDto.VendaResponseDto;
-import school.sptech.projetoMima.core.application.usecase.VendaService;
-import school.sptech.projetoMima.core.domain.Cliente;
-import school.sptech.projetoMima.core.domain.ItemVenda;
+import school.sptech.projetoMima.core.application.dto.vendaDto.VendaMapper;
+import school.sptech.projetoMima.core.application.command.Venda.*;
+import school.sptech.projetoMima.core.application.usecase.Venda.*;
 import school.sptech.projetoMima.core.domain.Venda;
-import school.sptech.projetoMima.core.domain.item.Item;
-import school.sptech.projetoMima.infrastructure.persistance.ItemVendaRepository;
-import school.sptech.projetoMima.infrastructure.persistance.VendaRepository;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
-
 @RequestMapping("/vendas")
 public class VendaController {
 
-    @Autowired
-    private VendaService vendaService;
+    // Injeção dos Use Cases
+    private final CriarVendaUseCase criarVendaUseCase;
+    private final FiltrarVendasPorDataUseCase filtrarVendasPorDataUseCase;
+    private final FiltrarVendasPorClienteUseCase filtrarVendasPorClienteUseCase;
+    private final FiltrarVendasPorValorUseCase filtrarVendasPorValorUseCase;
+    private final RemoverItemDaVendaUseCase removerItemDaVendaUseCase;
+    private final RemoverItemDaVendaComDtoUseCase removerItemDaVendaComDtoUseCase;
 
-    @Operation(summary = "Registrar uma nova venda")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Venda registrada com sucesso", content = @Content(schema = @Schema(implementation = VendaResponseDto.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos")})
-    @PutMapping("/vender")
-    public ResponseEntity<VendaResponseDto> vender(@Valid @RequestBody VendaRequestDto request) {
-        VendaResponseDto response = vendaService.vender(request);
-        return ResponseEntity.ok(response);
+    @Autowired
+    public VendaController(CriarVendaUseCase criarVendaUseCase,
+                          FiltrarVendasPorDataUseCase filtrarVendasPorDataUseCase,
+                          FiltrarVendasPorClienteUseCase filtrarVendasPorClienteUseCase,
+                          FiltrarVendasPorValorUseCase filtrarVendasPorValorUseCase,
+                          RemoverItemDaVendaUseCase removerItemDaVendaUseCase,
+                          RemoverItemDaVendaComDtoUseCase removerItemDaVendaComDtoUseCase) {
+        this.criarVendaUseCase = criarVendaUseCase;
+        this.filtrarVendasPorDataUseCase = filtrarVendasPorDataUseCase;
+        this.filtrarVendasPorClienteUseCase = filtrarVendasPorClienteUseCase;
+        this.filtrarVendasPorValorUseCase = filtrarVendasPorValorUseCase;
+        this.removerItemDaVendaUseCase = removerItemDaVendaUseCase;
+        this.removerItemDaVendaComDtoUseCase = removerItemDaVendaComDtoUseCase;
     }
 
- /*   @Operation(summary = "Adicionar item a uma venda existente")
-    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Item adicionado com sucesso", content = @Content(schema = @Schema(implementation = VendaResponseDto.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos") })
-    @PutMapping("/adicionar-item")
-    public ResponseEntity<VendaResponseDto> adicionarItens(@Valid @RequestBody ItemVendaRequestDto request) {
-        Venda venda = vendaService.adicionarItem(request);
-        return ResponseEntity.status(200).body(VendaMapper.toResponse(venda));
-    }*/
+    @Operation(summary = "Registrar uma nova venda")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Venda registrada com sucesso",
+                    content = @Content(schema = @Schema(implementation = VendaResponseDto.class))),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    })
+    @PostMapping("/vender")
+    public ResponseEntity<VendaResponseDto> criarVenda(@Valid @RequestBody VendaRequestDto request) {
+        // Converter DTO para Command
+        CriarVendaCommand command = new CriarVendaCommand(
+            request.getValorTotal(),
+            request.getClienteId(),
+            request.getItensVenda()
+        );
 
+        // Executar Use Case
+        Venda venda = criarVendaUseCase.execute(command);
 
-    @Operation(summary = "Remover item de uma venda")
-    @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "Item removido com sucesso"), @ApiResponse(responseCode = "400", description = "Dados inválidos")})
-    @DeleteMapping
-    public ResponseEntity<Void> removerItemDaVenda(@Valid @RequestBody ItemVendaRequestDto request) {
-        Integer venda = request.getItemId();
-        Integer itemVenda = request.getVendaId();
-
-        vendaService.deletarItemDaVenda(itemVenda, venda);
-
-        return ResponseEntity.noContent().build();
+        // Converter para DTO de resposta
+        VendaResponseDto response = VendaMapper.toResponseDto(venda);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Operation(summary = "Filtrar vendas por intervalo de datas")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Vendas encontradas", content = @Content(schema = @Schema(implementation = Venda.class))), @ApiResponse(responseCode = "204", description = "Nenhuma venda encontrada no intervalo")})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Vendas encontradas"),
+        @ApiResponse(responseCode = "204", description = "Nenhuma venda encontrada no intervalo")
+    })
     @GetMapping("/filtrar-por-data")
-    public ResponseEntity<List<Venda>> filtrarPorData(@RequestParam LocalDate inicio, @RequestParam LocalDate fim) {
-        List<Venda> vendasEncontradas = vendaService.filtrarPorDatas(inicio, fim);
-        if (vendasEncontradas.isEmpty()) return ResponseEntity.status(204).build();
-        return ResponseEntity.status(200).body(vendasEncontradas);
+    public ResponseEntity<List<VendaResponseDto>> filtrarPorData(@RequestParam LocalDate inicio,
+                                                               @RequestParam LocalDate fim) {
+        // Converter parâmetros para Command
+        FiltrarVendasPorDataCommand command = new FiltrarVendasPorDataCommand(inicio, fim);
+
+        // Executar Use Case
+        List<Venda> vendas = filtrarVendasPorDataUseCase.execute(command);
+
+        if (vendas.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        // Converter para DTOs de resposta
+        List<VendaResponseDto> response = vendas.stream()
+                .map(VendaMapper::toResponseDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Filtrar vendas por cliente")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Vendas encontradas", content = @Content(schema = @Schema(implementation = Venda.class))), @ApiResponse(responseCode = "204", description = "Nenhuma venda encontrada para o cliente")})
-    @GetMapping("/filtrar-por-cliente")
-    public ResponseEntity<List<Venda>> filtrarPorCliente(@RequestParam Cliente cliente) {
-        List<Venda> vendasEncontradas = vendaService.filtrarPorCliente(cliente);
-        if (vendasEncontradas.isEmpty()) return ResponseEntity.status(204).build();
-        return ResponseEntity.status(200).body(vendasEncontradas);
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Vendas encontradas"),
+        @ApiResponse(responseCode = "204", description = "Nenhuma venda encontrada para o cliente")
+    })
+    @GetMapping("/filtrar-por-cliente/{clienteId}")
+    public ResponseEntity<List<VendaResponseDto>> filtrarPorCliente(@PathVariable Integer clienteId) {
+        // Converter parâmetro para Command
+        FiltrarVendasPorClienteCommand command = new FiltrarVendasPorClienteCommand(clienteId);
+
+        // Executar Use Case
+        List<Venda> vendas = filtrarVendasPorClienteUseCase.execute(command);
+
+        if (vendas.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        // Converter para DTOs de resposta
+        List<VendaResponseDto> response = vendas.stream()
+                .map(VendaMapper::toResponseDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Filtrar vendas por faixa de valor")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Vendas encontradas", content = @Content(schema = @Schema(implementation = Venda.class))), @ApiResponse(responseCode = "204", description = "Nenhuma venda encontrada na faixa de valor")})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Vendas encontradas"),
+        @ApiResponse(responseCode = "204", description = "Nenhuma venda encontrada na faixa de valor")
+    })
     @GetMapping("/filtrar-por-valor")
-    public ResponseEntity<List<Venda>> filtrarPorValor(@RequestParam Double valorMinimo, @RequestParam Double valorMax) {
-        List<Venda> vendasEncontradas = vendaService.filtrarPorValor(valorMinimo, valorMax);
-        if (vendasEncontradas.isEmpty()) return ResponseEntity.status(204).build();
-        return ResponseEntity.status(200).body(vendasEncontradas);
+    public ResponseEntity<List<VendaResponseDto>> filtrarPorValor(@RequestParam Double valorMinimo,
+                                                                @RequestParam Double valorMax) {
+        // Converter parâmetros para Command
+        FiltrarVendasPorValorCommand command = new FiltrarVendasPorValorCommand(valorMinimo, valorMax);
+
+        // Executar Use Case
+        List<Venda> vendas = filtrarVendasPorValorUseCase.execute(command);
+
+        if (vendas.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        // Converter para DTOs de resposta
+        List<VendaResponseDto> response = vendas.stream()
+                .map(VendaMapper::toResponseDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
     }
 
-    @Autowired
-    private VendaRepository vendaRepository;
-
-    @Autowired
-    private ItemVendaRepository itemVendaRepository;
-
-    @Autowired
-    private ItemRepository itemRepository;
-
-    @Transactional
+    @Operation(summary = "Remover item específico de uma venda")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Item removido com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+        @ApiResponse(responseCode = "404", description = "Venda ou item não encontrado")
+    })
     @DeleteMapping("/{idVenda}/itens/{idItemVenda}")
-    public ResponseEntity<?> removerItemDaVendaComDto(
-            @PathVariable Integer idVenda,
-            @PathVariable Integer idItemVenda) {
+    public ResponseEntity<VendaResponseDto> removerItemDaVendaComDto(@PathVariable Integer idVenda,
+                                                                   @PathVariable Integer idItemVenda) {
+        // Converter parâmetros para Command
+        RemoverItemDaVendaComDtoCommand command = new RemoverItemDaVendaComDtoCommand(idVenda, idItemVenda);
 
-        System.out.println("Tentando buscar ItemVenda com id = " + idItemVenda + " e venda id = " + idVenda);
+        // Executar Use Case
+        Venda venda = removerItemDaVendaComDtoUseCase.execute(command);
 
-        Optional<ItemVenda> itemVendaOpt = itemVendaRepository.buscarPorIdEVenda(idItemVenda, idVenda);
-
-        System.out.println("ItemVenda encontrado: " + (itemVendaOpt.isPresent() ? "SIM" : "NÃO"));
-
-        Optional<Venda> vendaOpt = vendaRepository.findById(idVenda);
-        if (vendaOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Venda não encontrada.");
-        }
-
-        if (itemVendaOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Este item não pertence à venda informada.");
-        }
-
-        Venda venda = vendaOpt.get();
-        ItemVenda itemVenda = itemVendaOpt.get();
-        Item item = itemVenda.getItem();
-
-        Double valorItem = item.getPreco() * itemVenda.getQtdParaVender();
-        venda.setValorTotal(venda.getValorTotal() - valorItem);
-        item.setQtdEstoque(item.getQtdEstoque() + itemVenda.getQtdParaVender());
-        venda.getItensVenda().removeIf(i -> i.getId().equals(itemVenda.getId()));
-
-        itemRepository.save(item);
-        vendaRepository.save(venda);
-        itemVendaRepository.delete(itemVenda);
-
-        VendaResponseDto dto = VendaMapper.toResponse(venda);
-        return ResponseEntity.ok(dto);
+        // Converter para DTO de resposta
+        VendaResponseDto response = VendaMapper.toResponseDto(venda);
+        return ResponseEntity.ok(response);
     }
-
 }

@@ -82,4 +82,8 @@ public class Cliente {
     public Cliente get() {
         return this;
     }
+
+    public Cliente orElseThrow(Object clienteNãoEncontrado) {
+        return null;
+    }
 }

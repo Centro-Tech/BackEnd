@@ -38,7 +38,7 @@ public class    VendaService {
     private ItemRepository itemRepository;
 
     public VendaResponseDto vender(VendaRequestDto dto) {
-        Cliente cliente = clienteRepository.findById(d  to.getClienteId())
+        Cliente cliente = clienteRepository.findById(dto.getClienteId())
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Cliente não encontrado"));
 
         List<ItemVenda> itensCarrinho = itemVendaRepository.findByClienteIdAndVendaIsNull(cliente.getId());

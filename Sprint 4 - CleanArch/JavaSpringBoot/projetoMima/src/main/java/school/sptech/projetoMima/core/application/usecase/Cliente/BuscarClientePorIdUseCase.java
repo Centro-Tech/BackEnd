@@ -18,6 +18,6 @@ public class BuscarClientePorIdUseCase {
         if (!clienteGateway.existsById(id)) {
             throw new ClienteNaoEncontradoException("Cliente não encontrado");
         }
-        return clienteGateway.findById(id).get();
+        return clienteGateway.findById(id);
     }
 }

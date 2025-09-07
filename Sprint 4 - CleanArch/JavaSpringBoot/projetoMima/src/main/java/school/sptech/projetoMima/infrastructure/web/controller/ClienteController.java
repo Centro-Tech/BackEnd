@@ -1,5 +1,10 @@
 package school.sptech.projetoMima.infrastructure.web.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import school.sptech.projetoMima.core.application.command.Cliente.AtualizarClienteCommand;
@@ -16,6 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/clientes")
+@Tag(name = "Cliente", description = "Operações relacionadas aos clientes")
 public class ClienteController {
 
     private final CadastrarClienteUseCase cadastrarClienteUseCase;
@@ -36,14 +42,22 @@ public class ClienteController {
         this.listarClientesUseCase = listarClientesUseCase;
     }
 
+    @Operation(summary = "Buscar cliente por ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Cliente encontrado com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<ClienteResumidoDto> buscarPorId(@PathVariable Integer id) {
         Cliente cliente = buscarClientePorIdUseCase.execute(new BuscarClientePorIdCommand(id));
         return ResponseEntity.ok(ClienteMapper.toResumidoDto(cliente));
     }
 
-    //pegar a dto e converter em command depois
-
+    @Operation(summary = "Listar todos os clientes")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Clientes listados com sucesso"),
+        @ApiResponse(responseCode = "204", description = "Nenhum cliente encontrado")
+    })
     @GetMapping
     public ResponseEntity<List<ClienteListagemDto>> listar() {
         List<Cliente> clientes = listarClientesUseCase.execute();
@@ -53,14 +67,27 @@ public class ClienteController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Cadastrar novo cliente")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Cliente cadastrado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos para cadastro"),
+        @ApiResponse(responseCode = "409", description = "Cliente já existente")
+    })
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ClienteResumidoDto> cadastrar(@RequestBody CadastrarClienteCommand command) {
         Cliente novoCliente = cadastrarClienteUseCase.execute(command);
         return ResponseEntity.status(201).body(ClienteMapper.toResumidoDto(novoCliente));
     }
 
+    @Operation(summary = "Atualizar cliente")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Cliente atualizado com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Cliente não encontrado"),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos para atualização")
+    })
     @PutMapping("/{id}")
-    public ResponseEntity<ClienteResumidoDto> atualizar(@RequestBody AtualizarClienteCommand command, @PathVariable Integer id) {
+    public ResponseEntity<ClienteResumidoDto> atualizar(@PathVariable Integer id, @RequestBody AtualizarClienteCommand command) {
         AtualizarClienteCommand commandComId = new AtualizarClienteCommand(
                 id,
                 command.nome(),
@@ -73,8 +100,14 @@ public class ClienteController {
         return ResponseEntity.ok(ClienteMapper.toResumidoDto(clienteAtualizado));
     }
 
+    @Operation(summary = "Excluir cliente por ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Cliente excluído com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Cliente não encontrado para exclusão")
+    })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ResponseEntity<Void> excluir(@PathVariable Integer id) {
         excluirClienteUseCase.execute(new ExcluirClienteCommand(id));
         return ResponseEntity.noContent().build();
     }

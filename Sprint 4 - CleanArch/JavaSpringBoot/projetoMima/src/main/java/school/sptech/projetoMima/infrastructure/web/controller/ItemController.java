@@ -1,154 +1,182 @@
 package school.sptech.projetoMima.infrastructure.web.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import school.sptech.projetoMima.core.application.dto.itemDto.ItemListDto;
-import school.sptech.projetoMima.core.application.dto.itemDto.ItemMapper;
-import school.sptech.projetoMima.core.application.dto.itemDto.ItemRequestDto;
-import school.sptech.projetoMima.core.application.dto.itemDto.ItemResponseDto;
-import school.sptech.projetoMima.core.application.exception.Item.ItemNaoEncontradoException;
-import school.sptech.projetoMima.core.application.usecase.FornecedorService;
-import school.sptech.projetoMima.core.application.usecase.ItemService;
-import school.sptech.projetoMima.core.domain.Fornecedor;
+import school.sptech.projetoMima.core.application.command.Item.*;
+import school.sptech.projetoMima.core.application.usecase.Item.*;
+import school.sptech.projetoMima.core.application.dto.itemDto.*;
 import school.sptech.projetoMima.core.domain.item.Item;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
-
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/itens")
+@Tag(name = "Item", description = "Operações relacionadas aos itens")
 public class ItemController {
 
-    @Autowired
-    private ItemService itemService;
+    private final CadastrarItemUseCase cadastrarItemUseCase;
+    private final AtualizarItemUseCase atualizarItemUseCase;
+    private final ExcluirItemUseCase excluirItemUseCase;
+    private final BuscarItemPorIdUseCase buscarItemPorIdUseCase;
+    private final BuscarItemPorCodigoUseCase buscarItemPorCodigoUseCase;
+    private final DeletarItemPorCodigoUseCase deletarItemPorCodigoUseCase;
+    private final ListarItensUseCase listarItensUseCase;
+    private final ListarEstoqueUseCase listarEstoqueUseCase;
+    private final FiltrarItemPorCategoriaUseCase filtrarItemPorCategoriaUseCase;
+    private final FiltrarItemPorFornecedorUseCase filtrarItemPorFornecedorUseCase;
+    private final FiltrarItemPorNomeUseCase filtrarItemPorNomeUseCase;
 
-    @Autowired
-    private FornecedorService fornecedorService;
+    public ItemController(CadastrarItemUseCase cadastrarItemUseCase,
+                         AtualizarItemUseCase atualizarItemUseCase,
+                         ExcluirItemUseCase excluirItemUseCase,
+                         BuscarItemPorIdUseCase buscarItemPorIdUseCase,
+                         BuscarItemPorCodigoUseCase buscarItemPorCodigoUseCase,
+                         DeletarItemPorCodigoUseCase deletarItemPorCodigoUseCase,
+                         ListarItensUseCase listarItensUseCase,
+                         ListarEstoqueUseCase listarEstoqueUseCase,
+                         FiltrarItemPorCategoriaUseCase filtrarItemPorCategoriaUseCase,
+                         FiltrarItemPorFornecedorUseCase filtrarItemPorFornecedorUseCase,
+                         FiltrarItemPorNomeUseCase filtrarItemPorNomeUseCase) {
+        this.cadastrarItemUseCase = cadastrarItemUseCase;
+        this.atualizarItemUseCase = atualizarItemUseCase;
+        this.excluirItemUseCase = excluirItemUseCase;
+        this.buscarItemPorIdUseCase = buscarItemPorIdUseCase;
+        this.buscarItemPorCodigoUseCase = buscarItemPorCodigoUseCase;
+        this.deletarItemPorCodigoUseCase = deletarItemPorCodigoUseCase;
+        this.listarItensUseCase = listarItensUseCase;
+        this.listarEstoqueUseCase = listarEstoqueUseCase;
+        this.filtrarItemPorCategoriaUseCase = filtrarItemPorCategoriaUseCase;
+        this.filtrarItemPorFornecedorUseCase = filtrarItemPorFornecedorUseCase;
+        this.filtrarItemPorNomeUseCase = filtrarItemPorNomeUseCase;
+    }
 
-    @Operation(summary = "Buscar item por ID")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Item encontrado", content = @Content(schema = @Schema(implementation = ItemResponseDto.class))), @ApiResponse(responseCode = "404", description = "Item não encontrado")})
     @GetMapping("/{id}")
+    @Operation(summary = "Buscar item por ID")
     public ResponseEntity<ItemResponseDto> buscarPorId(@PathVariable Integer id) {
-        Item itemEncontrado = itemService.buscarPorId(id);
-        ItemResponseDto itemResponse = ItemMapper.toResponse(itemEncontrado);
-        return ResponseEntity.status(200).body(itemResponse);
+        BuscarItemPorIdCommand command = new BuscarItemPorIdCommand(id);
+        Item item = buscarItemPorIdUseCase.execute(command);
+        return ResponseEntity.ok(ItemMapper.toResponseDto(item));
     }
 
-    @Operation(summary = "Buscar todos os itens em estoque")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Lista retornada com sucesso", content = @Content(schema = @Schema(implementation = Item.class))), @ApiResponse(responseCode = "204", description = "Nenhum item em estoque")})
+    @GetMapping("/codigo/{codigo}")
+    @Operation(summary = "Buscar item por código")
+    public ResponseEntity<ItemResponseDto> buscarPorCodigo(@PathVariable String codigo) {
+        BuscarItemPorCodigoCommand command = new BuscarItemPorCodigoCommand(codigo);
+        Item item = buscarItemPorCodigoUseCase.execute(command);
+        return ResponseEntity.ok(ItemMapper.toResponseDto(item));
+    }
+
+    @GetMapping
+    @Operation(summary = "Listar todos os itens")
+    public ResponseEntity<List<ItemListDto>> listar() {
+        List<Item> itens = listarItensUseCase.execute();
+        List<ItemListDto> response = new ArrayList<>();
+        for (Item item : itens) {
+            response.add(ItemMapper.toListDto(item));
+        }
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/estoque")
+    @Operation(summary = "Listar estoque de itens")
     public ResponseEntity<List<ItemListDto>> listarEstoque() {
-        List<Item> itens = itemService.listarEstoque();
-        if (itens.isEmpty()) {
-            return ResponseEntity.status(204).build();
+        List<Item> itens = listarEstoqueUseCase.execute();
+        List<ItemListDto> response = new ArrayList<>();
+        for (Item item : itens) {
+            response.add(ItemMapper.toListDto(item));
         }
-        List<ItemListDto> response = itens.stream().map(ItemMapper::toList).toList();
-        return ResponseEntity.status(200).body(response);
+        return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Cadastrar novo item")
-    @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "Item cadastrado com sucesso", content = @Content(schema = @Schema(implementation = Item.class))), @ApiResponse(responseCode = "400", description = "Dados inválidos ou código duplicado"), @ApiResponse(responseCode = "404", description = "Fornecedor não encontrado")})
-    @PostMapping
-    public ResponseEntity<ItemResponseDto> cadastrarItem(@Valid @RequestBody ItemRequestDto request) {
-        System.out.println("Entrou no cadastrarItem");
-
-        Item item = ItemMapper.toEntity(request);
-
-        if (itemService.existsByCodigo(item.getCodigo())) {
-            return ResponseEntity.status(400).body(null);
-        }
-
-        if (item.getFornecedor() == null || item.getFornecedor().getId() == null) {
-            return ResponseEntity.status(400).body(null);
-        }
-
-        Optional<Fornecedor> fornecedorOpt = fornecedorService.findById(item.getFornecedor().getId());
-        if (fornecedorOpt.isEmpty()) {
-            return ResponseEntity.status(404).body(null);
-        }
-
-        String nome = item.getNome().toUpperCase();
-        if (!itemService.isCategoriaValida(nome)) {
-            return ResponseEntity.status(400).body(null);
-        }
-
-        Item novoItem = itemService.cadastrarItem(item, fornecedorOpt.get(), request);
-
-        return ResponseEntity.status(201).body(ItemMapper.toResponse(novoItem));
-    }
-
-    @Operation(summary = "Deletar Item")
-    @ApiResponses(value = {@ApiResponse(responseCode = "205", description = "Item deletado com sucesso"), @ApiResponse(responseCode = "404", description = "Item não encontrado")})
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarVestuario(@PathVariable Integer id) {
-        try {
-            Item itemParaDeletar = itemService.buscarPorId(id);
-            itemService.deletar(itemParaDeletar);
-            return ResponseEntity.status(205).build();
-        } catch (Exception e) {
-            return ResponseEntity.status(404).build();
-        }
-    }
-
-    @Operation(summary = "Deletar vestuário por código")
-    @ApiResponses(value = {@ApiResponse(responseCode = "205", description = "Item deletado com sucesso"), @ApiResponse(responseCode = "404", description = "Item não encontrado")})
-    @DeleteMapping("/item/{codigo}")
-    public ResponseEntity<Void> deletarPorCodigo(@PathVariable String codigo) {
-        try {
-            itemService.deletarPorCodigo(codigo);
-            return ResponseEntity.status(205).build();
-        } catch (ItemNaoEncontradoException e) {
-            return ResponseEntity.status(404).build();
-        }
-    }
-
-    @Operation(summary = "Filtrar itens por nome")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Itens encontrados", content = @Content(schema = @Schema(implementation = ItemListDto.class))), @ApiResponse(responseCode = "204", description = "Nenhum item encontrado")})
-    @GetMapping("/filtro-por-nome/{nome}")
-    public ResponseEntity<List<ItemListDto>> filtrarPorNome(@PathVariable String nome) {
-        List<Item> itens = itemService.filtrarPorNome(nome);
-
-        if (itens.isEmpty()) {
-            return ResponseEntity.status(204).build();
-        }
-
-        List<ItemListDto> response = itens.stream().map(ItemMapper::toList).toList();
-        return ResponseEntity.status(200).body(response);
-    }
-
-    @Operation(summary = "Filtrar itens por fornecedor")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Itens encontrados", content = @Content(schema = @Schema(implementation = ItemListDto.class))), @ApiResponse(responseCode = "204", description = "Nenhum item encontrado")})
-    @GetMapping("/filtro-por-fornecedor/{fornecedor}")
-    public ResponseEntity<List<ItemListDto>> filtrarPorFornecedor(@PathVariable String fornecedor) {
-        List<Item> itens = itemService.filtrarPorFornecedor(fornecedor);
-
-        if (itens.isEmpty()) {
-            return ResponseEntity.status(204).build();
-        }
-
-        List<ItemListDto> response = itens.stream().map(ItemMapper::toList).toList();
-        return ResponseEntity.status(200).body(response);
-    }
-
+    @GetMapping("/categoria")
     @Operation(summary = "Filtrar itens por categoria")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Itens encontrados", content = @Content(schema = @Schema(implementation = ItemListDto.class))), @ApiResponse(responseCode = "204", description = "Nenhum item encontrado")})
-    @GetMapping("/filtro-por-categoria/{categoria}")
-    public ResponseEntity<List<ItemListDto>> filtrarPorCategoria(@PathVariable String categoria) {
-        List<Item> itens = itemService.filtrarPorCategoria(categoria);
-
-        if (itens.isEmpty()) {
-            return ResponseEntity.status(204).build();
+    public ResponseEntity<List<ItemListDto>> filtrarPorCategoria(@RequestParam String nomeCategoria) {
+        FiltrarItemPorCategoriaCommand command = new FiltrarItemPorCategoriaCommand(nomeCategoria);
+        List<Item> itens = filtrarItemPorCategoriaUseCase.execute(command);
+        List<ItemListDto> response = new ArrayList<>();
+        for (Item item : itens) {
+            response.add(ItemMapper.toListDto(item));
         }
+        return ResponseEntity.ok(response);
+    }
 
-        List<ItemListDto> response = itens.stream().map(ItemMapper::toList).toList();
-        return ResponseEntity.status(200).body(response);
+    @GetMapping("/fornecedor")
+    @Operation(summary = "Filtrar itens por fornecedor")
+    public ResponseEntity<List<ItemListDto>> filtrarPorFornecedor(@RequestParam String nomeFornecedor) {
+        FiltrarItemPorFornecedorCommand command = new FiltrarItemPorFornecedorCommand(nomeFornecedor);
+        List<Item> itens = filtrarItemPorFornecedorUseCase.execute(command);
+        List<ItemListDto> response = new ArrayList<>();
+        for (Item item : itens) {
+            response.add(ItemMapper.toListDto(item));
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/nome")
+    @Operation(summary = "Filtrar itens por nome")
+    public ResponseEntity<List<ItemListDto>> filtrarPorNome(@RequestParam String nome) {
+        FiltrarItemPorNomeCommand command = new FiltrarItemPorNomeCommand(nome);
+        List<Item> itens = filtrarItemPorNomeUseCase.execute(command);
+        List<ItemListDto> response = new ArrayList<>();
+        for (Item item : itens) {
+            response.add(ItemMapper.toListDto(item));
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping
+    @Operation(summary = "Cadastrar novo item")
+    public ResponseEntity<ItemResponseDto> cadastrar(@RequestBody ItemRequestDto requestDto) {
+        CadastrarItemCommand command = new CadastrarItemCommand(
+                requestDto.getNome(),
+                requestDto.getQtdEstoque(),
+                requestDto.getPreco(),
+                requestDto.getIdCategoria(),
+                requestDto.getIdTamanho(),
+                requestDto.getIdCor(),
+                requestDto.getIdMaterial(),
+                requestDto.getIdFornecedor()
+        );
+
+        Item item = cadastrarItemUseCase.execute(command);
+        return ResponseEntity.status(201).body(ItemMapper.toResponseDto(item));
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Atualizar item")
+    public ResponseEntity<ItemResponseDto> atualizar(@PathVariable Integer id, @RequestBody ItemRequestDto requestDto) {
+        AtualizarItemCommand command = new AtualizarItemCommand(
+                id,
+                requestDto.getNome(),
+                requestDto.getQtdEstoque(),
+                requestDto.getPreco(),
+                requestDto.getIdCategoria(),
+                requestDto.getIdTamanho(),
+                requestDto.getIdCor(),
+                requestDto.getIdMaterial(),
+                requestDto.getIdFornecedor()
+        );
+
+        Item item = atualizarItemUseCase.execute(command);
+        return ResponseEntity.ok(ItemMapper.toResponseDto(item));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Excluir item por ID")
+    public ResponseEntity<Void> excluir(@PathVariable Integer id) {
+        ExcluirItemCommand command = new ExcluirItemCommand(id);
+        excluirItemUseCase.execute(command);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/codigo/{codigo}")
+    @Operation(summary = "Excluir item por código")
+    public ResponseEntity<Void> excluirPorCodigo(@PathVariable String codigo) {
+        DeletarItemPorCodigoCommand command = new DeletarItemPorCodigoCommand(codigo);
+        deletarItemPorCodigoUseCase.execute(command);
+        return ResponseEntity.noContent().build();
     }
 }

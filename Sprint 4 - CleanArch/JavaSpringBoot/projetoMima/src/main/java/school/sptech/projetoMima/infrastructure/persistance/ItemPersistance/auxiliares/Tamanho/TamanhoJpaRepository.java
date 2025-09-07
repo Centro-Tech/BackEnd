@@ -1,45 +1,12 @@
 package school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares.Tamanho;
 
-import school.sptech.projetoMima.core.adapter.Item.auxiliares.TamanhoGateway;
-import school.sptech.projetoMima.core.domain.item.Tamanho;
+import school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares.Tamanho.Entity.TamanhoEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
+@Repository
+public interface TamanhoJpaRepository extends JpaRepository<TamanhoEntity, Integer> {
+    boolean existsByNome(String nome);
 
-public class TamanhoJpaRepository implements TamanhoGateway {
-
-    private final TamanhoRepository tamanhoRepository;
-
-    public TamanhoJpaRepository(TamanhoRepository tamanhoRepository) {
-        this.tamanhoRepository = tamanhoRepository;
-    }
-
-    @Override
-    public Tamanho save(Tamanho tamanho) {
-        return tamanhoRepository.save(tamanho);
-    }
-
-    @Override
-    public boolean existsByNomeIgnoreCase(String nome) {
-        return tamanhoRepository.existsByNomeIgnoreCase(nome);
-    }
-
-    @Override
-    public boolean existsById(Integer id) {
-        return tamanhoRepository.existsById(id);
-    }
-
-    @Override
-    public void deleteById(Integer id) {
-        tamanhoRepository.deleteById(id);
-    }
-
-    @Override
-    public List<Tamanho> findAll() {
-        return tamanhoRepository.findAll();
-    }
-
-    @Override
-    public Tamanho findById(Integer id) {
-        return tamanhoRepository.findById(id).orElse(null);
-    }
+    boolean existsByNomeIgnoreCase(String nome);
 }

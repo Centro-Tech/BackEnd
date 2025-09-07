@@ -3,22 +3,26 @@ package school.sptech.projetoMima.infrastructure.persistance.ItemPersistance;
 import org.springframework.stereotype.Component;
 import school.sptech.projetoMima.core.adapter.Item.ItemGateway;
 import school.sptech.projetoMima.core.domain.item.Item;
+import school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.Entity.ItemEntity;
+import school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.Entity.ItemEntityMapper;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 public class ItemJpaAdapter implements ItemGateway {
 
-    private final ItemRepository repository;
+    private final ItemJpaRepository repository;
 
-    public ItemJpaAdapter(ItemRepository repository) {
+    public ItemJpaAdapter(ItemJpaRepository repository) {
         this.repository = repository;
     }
 
     @Override
     public Item save(Item item) {
-        return repository.save(item);
+        ItemEntity entity = ItemEntityMapper.toEntity(item);
+        ItemEntity savedEntity = repository.save(entity);
+        return ItemEntityMapper.toDomain(savedEntity);
     }
 
     @Override
@@ -43,31 +47,69 @@ public class ItemJpaAdapter implements ItemGateway {
 
     @Override
     public List<Item> findAll() {
-        return repository.findAll();
+        List<ItemEntity> entities = repository.findAll();
+        List<Item> itens = new ArrayList<>();
+        for (ItemEntity entity : entities) {
+            itens.add(ItemEntityMapper.toDomain(entity));
+        }
+        return itens;
     }
 
     @Override
-    public Optional<Item> findById(Integer id) {
-        return repository.findById(id);
+    public Item findById(Integer id) {
+        ItemEntity entity = repository.findById(id).orElse(null);
+        if (entity == null) {
+            return null;
+        }
+        return ItemEntityMapper.toDomain(entity);
     }
 
     @Override
-    public Optional<Item> findByCodigo(String codigo) {
-        return repository.findByCodigo(codigo);
+    public Item findByCodigo(String codigo) {
+        ItemEntity entity = repository.findByCodigo(codigo).orElse(null);
+        if (entity == null) {
+            return null;
+        }
+        return ItemEntityMapper.toDomain(entity);
     }
 
     @Override
     public List<Item> findByCategoriaNomeContainsIgnoreCase(String nomeCategoria) {
-        return repository.findByCategoriaNomeContainsIgnoreCase(nomeCategoria);
+        List<ItemEntity> entities = repository.findByCategoriaNomeContainsIgnoreCase(nomeCategoria);
+        List<Item> itens = new ArrayList<>();
+        for (ItemEntity entity : entities) {
+            itens.add(ItemEntityMapper.toDomain(entity));
+        }
+        return itens;
     }
 
     @Override
     public List<Item> findByFornecedorNomeContainsIgnoreCase(String nome) {
-        return repository.findByFornecedorNomeContainsIgnoreCase(nome);
+        List<ItemEntity> entities = repository.findByFornecedorNomeContainsIgnoreCase(nome);
+        List<Item> itens = new ArrayList<>();
+        for (ItemEntity entity : entities) {
+            itens.add(ItemEntityMapper.toDomain(entity));
+        }
+        return itens;
     }
 
     @Override
     public List<Item> findByNomeContainsIgnoreCase(String nome) {
-        return repository.findByNomeContainsIgnoreCase(nome);
+        List<ItemEntity> entities = repository.findByNomeContainsIgnoreCase(nome);
+        List<Item> itens = new ArrayList<>();
+        for (ItemEntity entity : entities) {
+            itens.add(ItemEntityMapper.toDomain(entity));
+        }
+        return itens;
+    }
+
+    @Override
+    public List<Item> findByCodigoContainsIgnoreCase(String codigo) {
+        List<ItemEntity> entities = repository.findByCodigoContainsIgnoreCase(codigo);
+        List<Item> itens = new ArrayList<>();
+        for (ItemEntity entity : entities) {
+            itens.add(ItemEntityMapper.toDomain(entity));
+        }
+        return itens;
     }
 }

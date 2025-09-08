@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface ItemVendaJpaRepository extends JpaRepository<ItemVendaEntity, Integer> {
 
-    List<ItemVendaEntity> findByClienteIdAndVendaIsNull(Integer clienteId);
+    List<ItemVendaEntity> findByCliente_IdClienteAndVendaIsNull(Integer clienteId);
 
     @Query("SELECT iv FROM ItemVendaEntity iv WHERE iv.id = :idItemVenda AND iv.venda.id = :idVenda")
     Optional<ItemVendaEntity> buscarPorIdEVenda(@Param("idItemVenda") Integer idItemVenda, @Param("idVenda") Integer idVenda);

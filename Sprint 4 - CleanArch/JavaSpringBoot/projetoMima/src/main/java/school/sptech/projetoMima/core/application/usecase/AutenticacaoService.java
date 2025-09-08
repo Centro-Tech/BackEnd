@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import school.sptech.projetoMima.core.application.dto.usuarioDto.UsuarioDetalhesDto;
 import school.sptech.projetoMima.core.domain.Usuario;
-import school.sptech.projetoMima.infrastructure.persistance.UsuarioPersistance.UsuarioRepository;
+import school.sptech.projetoMima.core.adapter.Usuario.UsuarioGateway;
 
 import java.util.Optional;
 
@@ -15,15 +15,16 @@ import java.util.Optional;
 public class AutenticacaoService implements UserDetailsService {
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UsuarioGateway usuarioGateway;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(username);
+        Optional<Usuario> usuarioOpt = usuarioGateway.findByEmail(username);
         if (usuarioOpt.isEmpty()) {
 
             throw new UsernameNotFoundException(String.format("usuario: %s nao encontrado", username));
         }
-        return new UsuarioDetalhesDto(usuarioOpt.get());
+        Usuario usuario = usuarioOpt.get();
+        return new UsuarioDetalhesDto(usuario);
     }
 }

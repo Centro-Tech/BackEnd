@@ -60,7 +60,8 @@ public class VendaController {
         CriarVendaCommand command = new CriarVendaCommand(
             request.getValorTotal(),
             request.getClienteId(),
-            request.getItensVenda()
+            request.getItensVenda(),
+            request.getFuncionarioId()
         );
 
         // Executar Use Case

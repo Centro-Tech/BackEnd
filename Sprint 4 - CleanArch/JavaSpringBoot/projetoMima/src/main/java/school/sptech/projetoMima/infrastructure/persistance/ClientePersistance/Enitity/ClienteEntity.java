@@ -1,11 +1,9 @@
 package school.sptech.projetoMima.infrastructure.persistance.ClientePersistance.Enitity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
+@Table(name = "Cliente")
 public class ClienteEntity {
 
     @Id
@@ -13,6 +11,7 @@ public class ClienteEntity {
     private Integer idCliente;
     private String nome;
     private String telefone;
+    @Column(name = "cpf")
     private String CPF;
     private String email;
     private String endereco;

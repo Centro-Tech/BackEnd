@@ -1,10 +1,8 @@
 package school.sptech.projetoMima.core.domain.item;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
 import school.sptech.projetoMima.core.domain.Fornecedor;
 
-@Entity
 @Schema(description = "Entidade que representa os vestuários disponíveis na loja.")
 public class Item {
 
@@ -24,8 +22,6 @@ public class Item {
     public Item() {
     }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Schema(description = "Identificador único do item", example = "1")
     private Integer id;
 
@@ -38,31 +34,21 @@ public class Item {
     @Schema(description = "Nome do item", example = "Camiseta Polo Azul")
     private String nome;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn (name = "fkTamanho")
     @Schema(description = "Tamanho do item", example = "M")
     private Tamanho tamanho;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn (name = "fkCor")
     @Schema(description = "Cor do item", example = "Azul")
     private Cor cor;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn (name = "fkMaterial")
     @Schema(description = "Material do item", example = "Poliamida")
     private Material material;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "fkCategoria")
     @Schema(description = "Tipo do item", example = "Camiseta")
     private Categoria categoria;
 
     @Schema(description = "Preço do item", example = "59.99")
     private Double preco;
 
-    @ManyToOne
-    @JoinColumn (name = "fkFornecedor")
     @Schema(description = "Fornecedor responsável por este item")
     private Fornecedor fornecedor;
 

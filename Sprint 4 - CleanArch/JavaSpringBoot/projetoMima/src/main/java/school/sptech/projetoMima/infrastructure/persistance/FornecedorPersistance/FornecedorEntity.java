@@ -1,14 +1,12 @@
 package school.sptech.projetoMima.infrastructure.persistance.FornecedorPersistance;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
+@Table(name = "Fornecedor")
 public class FornecedorEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

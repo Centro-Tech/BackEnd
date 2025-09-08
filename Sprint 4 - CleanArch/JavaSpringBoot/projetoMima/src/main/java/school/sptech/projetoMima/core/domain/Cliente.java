@@ -1,17 +1,10 @@
 package school.sptech.projetoMima.core.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 
-@Entity
 @Schema(description = "Entidade que representa um cliente da loja.")
 public class Cliente {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Schema(description = "Identificador único do cliente", example = "1")
     private Integer idCliente;
 

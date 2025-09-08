@@ -21,6 +21,10 @@ public class VendaRequestDto {
     @NotEmpty
     private List<Integer> itensVenda;
 
+    @Schema(description = "ID do funcionário responsável pela venda", required = true)
+    @NotNull
+    private Integer funcionarioId;
+
     public Double getValorTotal() {
         return valorTotal;
     }
@@ -43,5 +47,13 @@ public class VendaRequestDto {
 
     public void setItensVenda(List<Integer> itensVenda) {
         this.itensVenda = itensVenda;
+    }
+
+    public Integer getFuncionarioId() {
+        return funcionarioId;
+    }
+
+    public void setFuncionarioId(Integer funcionarioId) {
+        this.funcionarioId = funcionarioId;
     }
 }

@@ -5,6 +5,7 @@ public record AtualizarClienteCommand(
         String nome,
         String email,
         String cpf,
-        String telefone
+        String telefone,
+        String endereco
 ) {
 }

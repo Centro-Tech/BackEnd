@@ -28,4 +28,6 @@ public interface ItemGateway {
     List<Item> findByNomeContainsIgnoreCase(String nome);
 
     List<Item> findByCodigoContainsIgnoreCase(String codigo);
+    
+    boolean existsByMaterialId(Integer materialId);
 }

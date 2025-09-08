@@ -5,7 +5,10 @@ import school.sptech.projetoMima.core.domain.Fornecedor;
 public class FornecedorEntityMapper {
     public static FornecedorEntity toEntity(Fornecedor fornecedor) {
         FornecedorEntity entity = new FornecedorEntity();
-        entity.setId(fornecedor.getId());
+        // Não definir o ID para permitir que o banco gere automaticamente
+        if (fornecedor.getId() != null) {
+            entity.setId(fornecedor.getId());
+        }
         entity.setNome(fornecedor.getNome());
         entity.setTelefone(fornecedor.getTelefone());
         entity.setEmail(fornecedor.getEmail());

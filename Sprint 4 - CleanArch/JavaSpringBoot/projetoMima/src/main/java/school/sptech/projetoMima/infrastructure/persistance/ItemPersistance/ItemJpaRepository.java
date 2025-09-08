@@ -22,4 +22,6 @@ public interface ItemJpaRepository extends JpaRepository<ItemEntity, Integer> {
     List<ItemEntity> findByCodigoContainsIgnoreCase(String codigo);
 
     void deleteByCodigo(String codigo);
+    
+    boolean existsByMaterialId(Integer materialId);
 }

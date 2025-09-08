@@ -33,11 +33,11 @@ public class ClienteMapper {
 
     public static Cliente toEntity(CadastrarClienteCommand dto) {
         Cliente cliente = new Cliente();
-        cliente.setNome(dto.getNome());
-        cliente.setTelefone(dto.getTelefone());
-        cliente.setCPF(dto.getCPF());
-        cliente.setEmail(dto.getEmail());
-        cliente.setEndereco(dto.getEndereco());
+        cliente.setNome(dto.nome());
+        cliente.setTelefone(dto.telefone());
+        cliente.setCPF(dto.CPF());
+        cliente.setEmail(dto.email());
+        cliente.setEndereco(dto.endereco());
         return cliente;
     }
 }

@@ -48,7 +48,7 @@ public class ItemVendaJpaAdapter implements ItemVendaGateway {
 
     @Override
     public List<ItemVenda> findByClienteIdAndVendaIsNull(Integer clienteId) {
-        return itemVendaJpaRepository.findByClienteIdAndVendaIsNull(clienteId)
+        return itemVendaJpaRepository.findByCliente_IdClienteAndVendaIsNull(clienteId)
                 .stream()
                 .map(ItemVendaEntityMapper::toDomain)
                 .toList();

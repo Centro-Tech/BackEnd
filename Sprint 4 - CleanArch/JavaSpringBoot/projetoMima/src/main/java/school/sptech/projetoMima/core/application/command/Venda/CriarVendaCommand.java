@@ -5,6 +5,7 @@ import java.util.List;
 public record CriarVendaCommand(
         Double valorTotal,
         Integer clienteId,
-        List<Integer> itensVenda
+        List<Integer> itensVenda,
+        Integer funcionarioId
 ) {
 }

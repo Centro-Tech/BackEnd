@@ -112,4 +112,9 @@ public class ItemJpaAdapter implements ItemGateway {
         }
         return itens;
     }
+    
+    @Override
+    public boolean existsByMaterialId(Integer materialId) {
+        return repository.existsByMaterialId(materialId);
+    }
 }

@@ -1,15 +1,10 @@
 package school.sptech.projetoMima.core.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 public class Usuario {
 
+    private Integer id;
     private String nome;
 
     private String email;
@@ -23,6 +18,19 @@ public class Usuario {
 
     private String cargo;
 
+    public Usuario() {
+    }
+
+    public Usuario(Integer id, String nome, String email, String telefone, String endereco, String senha, String cargo) {
+        this.id = id;
+        this.nome = nome;
+        this.email = email;
+        this.telefone = telefone;
+        this.endereco = endereco;
+        this.senha = senha;
+        this.cargo = cargo;
+    }
+
     public Usuario(String nome, String email, String telefone, String endereco, String senha, String cargo) {
         this.nome = nome;
         this.email = email;
@@ -30,6 +38,14 @@ public class Usuario {
         this.endereco = endereco;
         this.senha = senha;
         this.cargo = cargo;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getNome() {

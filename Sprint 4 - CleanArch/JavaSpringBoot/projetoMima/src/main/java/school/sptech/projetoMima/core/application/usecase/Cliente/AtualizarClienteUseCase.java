@@ -25,6 +25,7 @@ public class AtualizarClienteUseCase {
         clienteAtualizado.setEmail(command.email());
         clienteAtualizado.setCPF(command.cpf());
         clienteAtualizado.setTelefone(command.telefone());
+        clienteAtualizado.setEndereco(command.endereco());
 
         return clienteGateway.save(clienteAtualizado);
     }

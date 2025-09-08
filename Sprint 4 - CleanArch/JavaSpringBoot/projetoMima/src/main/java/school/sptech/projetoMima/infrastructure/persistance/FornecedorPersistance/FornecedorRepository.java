@@ -10,16 +10,4 @@ import java.util.Optional;
 @Repository
 public interface FornecedorRepository extends JpaRepository<FornecedorEntity, Integer> {
     boolean existsByNome(String nome);
-
-    List<FornecedorEntity> findAll();
-
-    Optional<FornecedorEntity> findById(Integer id);
-
-    void deleteById(Integer id);
-
-    Fornecedor save(Fornecedor fornecedor);
-
-    boolean existsById(Integer id);
-
-    void delete(Fornecedor fornecedor);
 }

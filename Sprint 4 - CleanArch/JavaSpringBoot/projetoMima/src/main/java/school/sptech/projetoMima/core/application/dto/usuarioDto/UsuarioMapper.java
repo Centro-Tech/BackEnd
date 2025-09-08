@@ -6,6 +6,7 @@ public class UsuarioMapper {
 
     public static Usuario fromCadastroDto(UsuarioCadastroDto dto) {
         return new Usuario(
+                dto.getId(),
                 dto.getNome(),
                 dto.getEmail(),
                 dto.getTelefone(),
@@ -17,6 +18,7 @@ public class UsuarioMapper {
 
     public static Usuario fromCriacaoDto(UsuarioCriacaoDto dto) {
         return new Usuario(
+                dto.getId(),
                 dto.getNome(),
                 dto.getEmail(),
                 null, // telefone opcional
@@ -28,6 +30,7 @@ public class UsuarioMapper {
 
     public static Usuario fromLoginDto(UsuarioLoginDto dto) {
         return new Usuario(
+                dto.getId(),
                 null,
                 dto.getEmail(),
                 null,
@@ -39,6 +42,7 @@ public class UsuarioMapper {
 
     public static Usuario fromDetalhesDto(UsuarioDetalhesDto dto) {
         return new Usuario(
+                dto.getId(),
                 dto.getNome(),
                 dto.getUsername(),
                 null,
@@ -50,6 +54,7 @@ public class UsuarioMapper {
 
     public static UsuarioResumidoDto toResumidoDto(Usuario usuario) {
         UsuarioResumidoDto dto = new UsuarioResumidoDto();
+        dto.setId(usuario.getId());
         dto.setNome(usuario.getNome());
         dto.setCargo(usuario.getCargo());
         return dto;
@@ -57,6 +62,7 @@ public class UsuarioMapper {
 
     public static UsuarioListagemDto toListagemDto(Usuario usuario) {
         UsuarioListagemDto dto = new UsuarioListagemDto();
+        dto.setId(usuario.getId());
         dto.setNome(usuario.getNome());
         dto.setEmail(usuario.getEmail());
         dto.setCargo(usuario.getCargo());
@@ -65,6 +71,7 @@ public class UsuarioMapper {
 
     public static UsuarioListarDto toListarDto(Usuario usuario) {
         UsuarioListarDto dto = new UsuarioListarDto();
+        dto.setId(usuario.getId());
         dto.setNome(usuario.getNome());
         dto.setEmail(usuario.getEmail());
         dto.setSenha(usuario.getSenha());
@@ -73,6 +80,7 @@ public class UsuarioMapper {
 
     public static UsuarioTokenDto toTokenDto(Usuario usuario, String token) {
         UsuarioTokenDto dto = new UsuarioTokenDto();
+        dto.setId(usuario.getId());
         dto.setNome(usuario.getNome());
         dto.setEmail(usuario.getEmail());
         dto.setToken(token);

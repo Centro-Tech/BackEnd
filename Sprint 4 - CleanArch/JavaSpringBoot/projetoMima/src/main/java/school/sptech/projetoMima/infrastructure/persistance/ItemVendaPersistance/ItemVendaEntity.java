@@ -3,13 +3,14 @@ package school.sptech.projetoMima.infrastructure.persistance.ItemVendaPersistanc
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
-import school.sptech.projetoMima.core.domain.item.Item;
+import school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.Entity.ItemEntity;
 import school.sptech.projetoMima.infrastructure.persistance.ClientePersistance.Enitity.ClienteEntity;
 import school.sptech.projetoMima.infrastructure.persistance.FornecedorPersistance.FornecedorEntity;
 import school.sptech.projetoMima.infrastructure.persistance.UsuarioPersistance.UsuarioEntity;
 import school.sptech.projetoMima.infrastructure.persistance.VendaPersistance.VendaEntity;
 
 @Entity
+@Table(name = "ItemVenda")
 @Schema(description = "Representa um item incluído em uma venda")
 public class ItemVendaEntity {
 
@@ -21,7 +22,7 @@ public class ItemVendaEntity {
     @ManyToOne
     @JoinColumn(name = "fkItem")
     @Schema(description = "Item que está sendo vendido")
-    private Item item;
+    private ItemEntity item;
 
     @ManyToOne
     @JoinColumn(name = "fkItemFornecedor")
@@ -55,11 +56,11 @@ public class ItemVendaEntity {
         this.qtdParaVender = qtdParaVender;
     }
 
-    public Item getItem() {
+    public ItemEntity getItem() {
         return item;
     }
 
-    public void setItem(Item item) {
+    public void setItem(ItemEntity item) {
         this.item = item;
     }
 

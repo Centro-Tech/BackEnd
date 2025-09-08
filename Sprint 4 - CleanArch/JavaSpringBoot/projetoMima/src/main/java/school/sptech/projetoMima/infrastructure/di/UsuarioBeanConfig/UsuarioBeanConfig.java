@@ -2,14 +2,24 @@ package school.sptech.projetoMima.infrastructure.di.UsuarioBeanConfig;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import school.sptech.projetoMima.core.adapter.Usuario.AuthGateway;
 import school.sptech.projetoMima.core.adapter.Usuario.CryptoGateway;
 import school.sptech.projetoMima.core.adapter.Usuario.TokenGateway;
 import school.sptech.projetoMima.core.adapter.Usuario.UsuarioGateway;
 import school.sptech.projetoMima.core.application.usecase.Usuario.*;
+import school.sptech.projetoMima.infrastructure.config.GerenciadorTokenJwt;
+import school.sptech.projetoMima.infrastructure.persistance.UsuarioPersistance.JwtTokenAdapter;
+import school.sptech.projetoMima.infrastructure.persistance.UsuarioPersistance.SpringAuthAdapter;
+import school.sptech.projetoMima.infrastructure.persistance.UsuarioPersistance.SpringCryptoAdapter;
+import school.sptech.projetoMima.infrastructure.persistance.UsuarioPersistance.UsuarioJpaAdapter;
+import school.sptech.projetoMima.infrastructure.persistance.UsuarioPersistance.UsuarioRepository;
 
 @Configuration
 public class UsuarioBeanConfig {
+
+    // Os gateways são definidos via @Component nos adapters, não precisam de @Bean aqui
 
     @Bean
     public CriarUsuarioUseCase criarUsuarioUseCase(UsuarioGateway gateway, CryptoGateway crypto) {

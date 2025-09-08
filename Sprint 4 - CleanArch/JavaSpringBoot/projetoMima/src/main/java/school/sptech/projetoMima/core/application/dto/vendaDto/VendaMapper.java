@@ -20,6 +20,9 @@ public class VendaMapper {
         if (venda.getCliente() != null && venda.getCliente().getId() != null) {
             response.setClienteId(venda.getCliente().getId());
         }
+        if (venda.getUsuario() != null && venda.getUsuario().getId() != null) {
+            response.setUsuarioId(venda.getUsuario().getId());
+        }
         if (venda.getItensVenda() != null) {
             response.setItensVenda(venda.getItensVenda());
         }

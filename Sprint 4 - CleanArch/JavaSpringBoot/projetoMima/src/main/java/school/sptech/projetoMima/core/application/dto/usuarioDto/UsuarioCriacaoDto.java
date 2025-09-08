@@ -6,9 +6,19 @@ import jakarta.validation.constraints.Size;
 
 public class UsuarioCriacaoDto {
 
+    private Integer id;
+
     @Size(min = 3, max = 100)
     @Schema(description = "Nome de usuário", example = "Rózin")
     private String nome;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     @Email
     @Schema(description = "Email de Usuário", example = "rozin@gmail.com")

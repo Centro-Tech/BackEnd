@@ -28,7 +28,6 @@ public class CadastrarFornecedorUseCase {
         fornecedor.setTelefone(command.telefone());
         fornecedor.setEmail(command.email());
 
-        gateway.save(fornecedor);
-        return fornecedor;
+        return gateway.save(fornecedor);
     }
 }

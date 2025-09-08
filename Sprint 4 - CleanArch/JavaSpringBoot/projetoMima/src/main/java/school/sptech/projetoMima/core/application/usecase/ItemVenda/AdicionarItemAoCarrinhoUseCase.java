@@ -31,8 +31,10 @@ public class AdicionarItemAoCarrinhoUseCase {
     }
 
     public ItemVenda execute(AdicionarItemAoCarrinhoCommand command) {
-        Item item = itemGateway.findById(command.itemId())
-                .orElseThrow(() -> new ItemNaoEncontradoException("Item não encontrado"));
+        Item item = itemGateway.findById(command.itemId());
+        if (item == null) {
+            throw new ItemNaoEncontradoException("Item não encontrado");
+        }
 
         Cliente cliente = clienteGateway.findById(command.clienteId());
         if (cliente == null) {

@@ -7,6 +7,8 @@ import jakarta.validation.constraints.Size;
 
 public class UsuarioListagemDto {
 
+    private Integer id;
+
     @NotBlank @NotNull @Size(max = 100, min = 1)
     private String nome;
 
@@ -15,6 +17,14 @@ public class UsuarioListagemDto {
 
     @NotBlank @NotNull @Size(max = 50, min = 2)
     private String cargo;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public @NotBlank @NotNull @Size(max = 100, min = 1) String getNome() {
         return nome;

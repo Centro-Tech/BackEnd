@@ -8,6 +8,8 @@ import java.util.Collection;
 
 public class UsuarioDetalhesDto implements UserDetails {
 
+    private final Integer id;
+
     private final String nome;
 
     private final String email;
@@ -15,9 +17,14 @@ public class UsuarioDetalhesDto implements UserDetails {
     private final String senha;
 
     public UsuarioDetalhesDto(Usuario usuario) {
+        this.id = usuario.getId();
         this.nome = usuario.getNome();
         this.email = usuario.getEmail();
         this.senha = usuario.getSenha();
+    }
+
+    public Integer getId() {
+        return id;
     }
 
     public String getNome() {

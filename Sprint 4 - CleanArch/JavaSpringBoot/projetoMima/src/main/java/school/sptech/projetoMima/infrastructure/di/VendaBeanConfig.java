@@ -6,6 +6,7 @@ import school.sptech.projetoMima.core.adapter.Venda.VendaGateway;
 import school.sptech.projetoMima.core.adapter.Cliente.ClienteGateway;
 import school.sptech.projetoMima.core.adapter.Item.ItemGateway;
 import school.sptech.projetoMima.core.adapter.ItemVenda.ItemVendaGateway;
+import school.sptech.projetoMima.core.adapter.Usuario.UsuarioGateway;
 import school.sptech.projetoMima.core.application.usecase.Venda.*;
 import school.sptech.projetoMima.infrastructure.persistance.VendaPersistance.VendaJpaAdapter;
 import school.sptech.projetoMima.infrastructure.persistance.VendaPersistance.VendaJpaRepository;
@@ -25,8 +26,8 @@ public class VendaBeanConfig {
     }
 
     @Bean
-    public CriarVendaUseCase criarVendaUseCase(VendaGateway vendaGateway, ClienteGateway clienteGateway, ItemGateway itemGateway) {
-        return new CriarVendaUseCase(vendaGateway, clienteGateway, itemGateway);
+    public CriarVendaUseCase criarVendaUseCase(VendaGateway vendaGateway, ClienteGateway clienteGateway, ItemGateway itemGateway, UsuarioGateway usuarioGateway) {
+        return new CriarVendaUseCase(vendaGateway, clienteGateway, itemGateway, usuarioGateway);
     }
 
     @Bean

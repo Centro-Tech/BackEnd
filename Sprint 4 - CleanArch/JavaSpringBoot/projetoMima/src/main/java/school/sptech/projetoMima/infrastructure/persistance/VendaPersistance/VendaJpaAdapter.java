@@ -51,7 +51,7 @@ public class VendaJpaAdapter implements VendaGateway {
 
     @Override
     public List<Venda> findByClienteId(Integer clienteId) {
-        return vendaJpaRepository.findByClienteId(clienteId)
+        return vendaJpaRepository.findByCliente_IdCliente(clienteId)
                 .stream()
                 .map(vendaEntityMapper::toDomain)
                 .collect(Collectors.toList());
@@ -59,7 +59,7 @@ public class VendaJpaAdapter implements VendaGateway {
 
     @Override
     public List<Venda> findByUsuarioId(Integer usuarioId) {
-        return vendaJpaRepository.findByUsuarioId(usuarioId)
+        return vendaJpaRepository.findByUsuario_Id(usuarioId)
                 .stream()
                 .map(vendaEntityMapper::toDomain)
                 .collect(Collectors.toList());

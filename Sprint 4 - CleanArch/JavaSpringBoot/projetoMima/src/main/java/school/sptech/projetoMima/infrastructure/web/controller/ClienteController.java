@@ -93,7 +93,8 @@ public class ClienteController {
                 command.nome(),
                 command.email(),
                 command.cpf(),
-                command.telefone()
+                command.telefone(),
+                command.endereco()
         );
 
         Cliente clienteAtualizado = atualizarClienteUseCase.execute(commandComId);

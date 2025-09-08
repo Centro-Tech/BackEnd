@@ -7,8 +7,18 @@ import jakarta.validation.constraints.Size;
 
 public class UsuarioCadastroDto {
 
+    private Integer id;
+
     @NotBlank @NotNull @Size(min = 3, max = 100)
     private String nome;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     @NotBlank @NotNull @Size(min = 8, max = 20)
     private String telefone;

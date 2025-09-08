@@ -1,6 +1,11 @@
 package school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.Entity;
 
 import school.sptech.projetoMima.core.domain.item.Item;
+import school.sptech.projetoMima.infrastructure.persistance.FornecedorPersistance.FornecedorEntityMapper;
+import school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares.Tamanho.Entity.TamanhoEntityMapper;
+import school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares.Cor.Entity.CorEntityMapper;
+import school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares.Material.Entity.MaterialEntityMapper;
+import school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares.Categoria.Entity.CategoriaEntityMapper;
 
 public class ItemEntityMapper {
 
@@ -13,7 +18,9 @@ public class ItemEntityMapper {
         item.setQtdEstoque(entity.getQtdEstoque());
         item.setNome(entity.getNome());
         item.setPreco(entity.getPreco());
-        item.setFornecedor(entity.getFornecedor());
+        if (entity.getFornecedor() != null) {
+            item.setFornecedor(FornecedorEntityMapper.toDomain(entity.getFornecedor()));
+        }
 
         if (entity.getTamanho() != null) {
             item.setTamanho(TamanhoEntityMapper.toDomain(entity.getTamanho()));
@@ -40,7 +47,9 @@ public class ItemEntityMapper {
         entity.setQtdEstoque(domain.getQtdEstoque());
         entity.setNome(domain.getNome());
         entity.setPreco(domain.getPreco());
-        entity.setFornecedor(domain.getFornecedor()); // Fornecedor já é entidade JPA
+        if (domain.getFornecedor() != null) {
+            entity.setFornecedor(FornecedorEntityMapper.toEntity(domain.getFornecedor()));
+        }
 
         if (domain.getTamanho() != null) {
             entity.setTamanho(TamanhoEntityMapper.toEntity(domain.getTamanho()));

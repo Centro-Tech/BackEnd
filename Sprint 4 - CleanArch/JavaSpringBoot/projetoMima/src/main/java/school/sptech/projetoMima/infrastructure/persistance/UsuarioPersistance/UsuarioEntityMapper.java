@@ -13,6 +13,7 @@ public class UsuarioEntityMapper {
         e.setEndereco(u.getEndereco());
         e.setSenha(u.getSenha());
         e.setCargo(u.getCargo());
+        e.setImagem(u.getImagem());
         return e;
     }
 
@@ -24,7 +25,8 @@ public class UsuarioEntityMapper {
                 e.getTelefone(),
                 e.getEndereco(),
                 e.getSenha(),
-                e.getCargo()
+                e.getCargo(),
+                e.getImagem()
         );
     }
 }

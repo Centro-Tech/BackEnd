@@ -6,5 +6,6 @@ public record CriarUsuarioCommand(
         String senha,
         String telefone,
         String cargo,
-        String endereco
+        String endereco,
+        String imagem
 ) {}

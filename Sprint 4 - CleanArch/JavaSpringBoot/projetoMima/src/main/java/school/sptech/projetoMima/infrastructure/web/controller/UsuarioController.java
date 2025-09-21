@@ -8,15 +8,18 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import school.sptech.projetoMima.core.application.command.Usuario.*;
 import school.sptech.projetoMima.core.application.dto.usuarioDto.*;
 import school.sptech.projetoMima.core.application.usecase.Usuario.*;
 import school.sptech.projetoMima.core.domain.Usuario;
+import school.sptech.projetoMima.infrastructure.service.S3UploadService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +35,7 @@ public class UsuarioController {
     private final ExcluirUsuarioUseCase excluirUsuarioUseCase;
     private final AutenticarUsuarioUseCase autenticarUsuarioUseCase;
     private final TrocarSenhaUseCase trocarSenhaUseCase;
+    private final S3UploadService s3UploadService;
 
     public UsuarioController(CriarUsuarioUseCase criarUsuarioUseCase,
                              AtualizarUsuarioUseCase atualizarUsuarioUseCase,
@@ -39,7 +43,8 @@ public class UsuarioController {
                              BuscarUsuarioPorIdUseCase buscarUsuarioPorIdUseCase,
                              ExcluirUsuarioUseCase excluirUsuarioUseCase,
                              AutenticarUsuarioUseCase autenticarUsuarioUseCase,
-                             TrocarSenhaUseCase trocarSenhaUseCase) {
+                             TrocarSenhaUseCase trocarSenhaUseCase,
+                             S3UploadService s3UploadService) {
         this.criarUsuarioUseCase = criarUsuarioUseCase;
         this.atualizarUsuarioUseCase = atualizarUsuarioUseCase;
         this.listarUsuariosUseCase = listarUsuariosUseCase;
@@ -47,6 +52,7 @@ public class UsuarioController {
         this.excluirUsuarioUseCase = excluirUsuarioUseCase;
         this.autenticarUsuarioUseCase = autenticarUsuarioUseCase;
         this.trocarSenhaUseCase = trocarSenhaUseCase;
+        this.s3UploadService = s3UploadService;
     }
 
     @Operation(summary = "Buscar usuário por ID")
@@ -82,7 +88,43 @@ public class UsuarioController {
                 null, // senha padrão
                 usuarioDomain.getTelefone(),
                 usuarioDomain.getCargo(),
-                usuarioDomain.getEndereco()
+                usuarioDomain.getEndereco(),
+                usuarioDomain.getImagem()
+        );
+
+        Usuario novo = criarUsuarioUseCase.executar(cmd, true);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(UsuarioMapper.toResumidoDto(novo));
+    }
+
+    @Operation(summary = "Cadastrar funcionário com imagem")
+    @PostMapping(value = "/funcionarios/com-imagem", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UsuarioResumidoDto> cadastrarFuncionarioComImagem(@RequestParam("nome") String nome,
+                                                                            @RequestParam("email") String email,
+                                                                            @RequestParam("telefone") String telefone,
+                                                                            @RequestParam("cargo") String cargo,
+                                                                            @RequestParam("endereco") String endereco,
+                                                                            @RequestParam(value = "imagem", required = false) MultipartFile imagemFile) {
+        String imagemUrl = null;
+        
+        // Se uma imagem foi enviada, fazer upload para S3
+        if (imagemFile != null && !imagemFile.isEmpty()) {
+            try {
+                String nomeArquivo = "funcionario_" + System.currentTimeMillis() + "_" + imagemFile.getOriginalFilename();
+                imagemUrl = s3UploadService.uploadFile(nomeArquivo, imagemFile.getBytes());
+            } catch (Exception e) {
+                throw new RuntimeException("Erro ao fazer upload da imagem: " + e.getMessage());
+            }
+        }
+
+        CriarUsuarioCommand cmd = new CriarUsuarioCommand(
+                nome,
+                email,
+                null, // senha padrão
+                telefone,
+                cargo,
+                endereco,
+                imagemUrl
         );
 
         Usuario novo = criarUsuarioUseCase.executar(cmd, true);
@@ -102,7 +144,8 @@ public class UsuarioController {
                 usuarioDomain.getSenha(),
                 usuarioDomain.getTelefone(),
                 usuarioDomain.getCargo(),
-                usuarioDomain.getEndereco()
+                usuarioDomain.getEndereco(),
+                usuarioDomain.getImagem()
         );
 
         criarUsuarioUseCase.executar(cmd, false);
@@ -110,18 +153,34 @@ public class UsuarioController {
     }
 
     @Operation(summary = "Atualizar usuário")
-    @PutMapping("/{id}")
-    public ResponseEntity<UsuarioResumidoDto> atualizar(@RequestBody UsuarioCadastroDto dto,
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UsuarioResumidoDto> atualizar(@RequestParam("nome") String nome,
+                                                        @RequestParam("email") String email,
+                                                        @RequestParam("telefone") String telefone,
+                                                        @RequestParam("cargo") String cargo,
+                                                        @RequestParam("endereco") String endereco,
+                                                        @RequestParam(value = "imagem", required = false) MultipartFile imagemFile,
                                                         @PathVariable Integer id) {
-        Usuario usuarioDomain = UsuarioMapper.fromCadastroDto(dto);
+        String imagemUrl = null;
+        
+        // Se uma imagem foi enviada, fazer upload para S3
+        if (imagemFile != null && !imagemFile.isEmpty()) {
+            try {
+                String nomeArquivo = "usuario_" + id + "_" + System.currentTimeMillis() + "_" + imagemFile.getOriginalFilename();
+                imagemUrl = s3UploadService.uploadFile(nomeArquivo, imagemFile.getBytes());
+            } catch (Exception e) {
+                throw new RuntimeException("Erro ao fazer upload da imagem: " + e.getMessage());
+            }
+        }
 
         AtualizarUsuarioCommand cmd = new AtualizarUsuarioCommand(
                 id,
-                usuarioDomain.getNome(),
-                usuarioDomain.getEmail(),
-                usuarioDomain.getTelefone(),
-                usuarioDomain.getCargo(),
-                usuarioDomain.getEndereco()
+                nome,
+                email,
+                telefone,
+                cargo,
+                endereco,
+                imagemUrl
         );
 
         Usuario atualizado = atualizarUsuarioUseCase.executar(cmd);

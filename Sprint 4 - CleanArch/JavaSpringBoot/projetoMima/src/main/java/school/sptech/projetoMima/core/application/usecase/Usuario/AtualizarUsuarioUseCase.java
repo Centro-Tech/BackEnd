@@ -21,6 +21,7 @@ public class AtualizarUsuarioUseCase {
         existente.setEmail(cmd.email());
         existente.setCargo(cmd.cargo());
         existente.setEndereco(cmd.endereco());
+        existente.setImagem(cmd.imagem());
 
         return gateway.save(existente);
     }

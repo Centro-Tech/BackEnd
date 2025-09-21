@@ -6,5 +6,6 @@ public record AtualizarUsuarioCommand(
         String email,
         String telefone,
         String cargo,
-        String endereco
+        String endereco,
+        String imagem
 ) {}

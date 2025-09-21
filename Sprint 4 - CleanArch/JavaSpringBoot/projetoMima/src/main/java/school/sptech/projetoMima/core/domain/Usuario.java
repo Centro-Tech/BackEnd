@@ -15,8 +15,9 @@ public class Usuario {
 
     private String senha;
 
-
     private String cargo;
+
+    private String imagem;
 
     public Usuario() {
     }
@@ -29,6 +30,17 @@ public class Usuario {
         this.endereco = endereco;
         this.senha = senha;
         this.cargo = cargo;
+    }
+
+    public Usuario(Integer id, String nome, String email, String telefone, String endereco, String senha, String cargo, String imagem) {
+        this.id = id;
+        this.nome = nome;
+        this.email = email;
+        this.telefone = telefone;
+        this.endereco = endereco;
+        this.senha = senha;
+        this.cargo = cargo;
+        this.imagem = imagem;
     }
 
     public Usuario(String nome, String email, String telefone, String endereco, String senha, String cargo) {
@@ -96,5 +108,12 @@ public class Usuario {
         this.cargo = cargo;
     }
 
+    public String getImagem() {
+        return imagem;
+    }
+
+    public void setImagem(String imagem) {
+        this.imagem = imagem;
+    }
 
 }

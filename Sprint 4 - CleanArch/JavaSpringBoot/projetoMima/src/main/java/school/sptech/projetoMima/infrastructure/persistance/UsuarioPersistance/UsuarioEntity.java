@@ -45,6 +45,10 @@ public class UsuarioEntity {
     @Schema(description = "Cargo do funcionário dentro da empresa, como por exemplo 'Atendente', 'Gerente de vendas' ou 'Estoquista'", example = "Gerente de vendas", type = "string", minLength = 2, maxLength = 50, required = true)
     private String cargo;
 
+    @Size(max = 500)
+    @Schema(description = "URL ou caminho da imagem de perfil do usuário", example = "https://exemplo.com/imagem.jpg", maxLength = 500)
+    private String imagem;
+
     public UsuarioEntity() {
 
     }
@@ -112,6 +116,14 @@ public class UsuarioEntity {
 
     public void setCargo(String cargo) {
         this.cargo = cargo;
+    }
+
+    public String getImagem() {
+        return imagem;
+    }
+
+    public void setImagem(String imagem) {
+        this.imagem = imagem;
     }
 }
 

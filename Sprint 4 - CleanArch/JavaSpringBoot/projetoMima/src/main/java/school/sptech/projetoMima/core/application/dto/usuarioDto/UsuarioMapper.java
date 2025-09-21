@@ -12,7 +12,8 @@ public class UsuarioMapper {
                 dto.getTelefone(),
                 dto.getEndereco(),
                 dto.getSenha(),
-                dto.getCargo()
+                dto.getCargo(),
+                dto.getImagem()
         );
     }
 
@@ -21,10 +22,11 @@ public class UsuarioMapper {
                 dto.getId(),
                 dto.getNome(),
                 dto.getEmail(),
-                null, // telefone opcional
-                null, // endereco opcional
+                dto.getTelefone(),
+                dto.getEndereco(),
                 dto.getSenha(),
-                null  // cargo opcional
+                dto.getCargo(),
+                dto.getImagem()
         );
     }
 
@@ -57,6 +59,7 @@ public class UsuarioMapper {
         dto.setId(usuario.getId());
         dto.setNome(usuario.getNome());
         dto.setCargo(usuario.getCargo());
+        dto.setImagem(usuario.getImagem());
         return dto;
     }
 
@@ -66,6 +69,7 @@ public class UsuarioMapper {
         dto.setNome(usuario.getNome());
         dto.setEmail(usuario.getEmail());
         dto.setCargo(usuario.getCargo());
+        dto.setImagem(usuario.getImagem());
         return dto;
     }
 

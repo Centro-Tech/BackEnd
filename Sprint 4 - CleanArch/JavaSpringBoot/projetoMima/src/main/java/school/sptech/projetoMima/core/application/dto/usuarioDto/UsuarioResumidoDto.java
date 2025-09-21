@@ -5,6 +5,7 @@ public class UsuarioResumidoDto {
     private Integer id;
     private String nome;
     private String cargo;
+    private String imagem;
 
     public Integer getId() {
         return id;
@@ -28,5 +29,13 @@ public class UsuarioResumidoDto {
 
     public void setCargo(String cargo) {
         this.cargo = cargo;
+    }
+
+    public String getImagem() {
+        return imagem;
+    }
+
+    public void setImagem(String imagem) {
+        this.imagem = imagem;
     }
 }

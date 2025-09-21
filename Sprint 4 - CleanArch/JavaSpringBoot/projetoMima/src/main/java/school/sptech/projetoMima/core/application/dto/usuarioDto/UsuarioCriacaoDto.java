@@ -40,6 +40,15 @@ public class UsuarioCriacaoDto {
     @Schema(description = "Senha do usuário", example = "******")
     private String endereco;
 
+    private String imagem;
+
+    public String getImagem() {
+        return imagem;
+    }
+
+    public void setImagem(String imagem) {
+        this.imagem = imagem;
+    }
 
     public String getNome() {
         return nome;

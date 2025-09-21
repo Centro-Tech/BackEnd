@@ -18,6 +18,9 @@ public class UsuarioListagemDto {
     @NotBlank @NotNull @Size(max = 50, min = 2)
     private String cargo;
 
+    @Size(max = 500)
+    private String imagem;
+
     public Integer getId() {
         return id;
     }
@@ -48,5 +51,13 @@ public class UsuarioListagemDto {
 
     public void setCargo(@NotBlank @NotNull @Size(max = 50, min = 2) String cargo) {
         this.cargo = cargo;
+    }
+
+    public String getImagem() {
+        return imagem;
+    }
+
+    public void setImagem(String imagem) {
+        this.imagem = imagem;
     }
 }

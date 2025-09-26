@@ -15,4 +15,5 @@ public interface UsuarioGateway {
     boolean existsByEmail(String email);
     boolean existsByTelefone(String telefone);
     Optional<Usuario> findByEmail(String email);
+    Optional<Usuario> findByRecoveryToken(String token);
 }

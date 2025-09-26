@@ -46,6 +46,8 @@ public class SecurityConfiguracao {
             "/configuration/security",
             "/api/public/**",
             "/usuarios/login", // rota de login
+            "/usuarios/recuperar-senha", // nova rota pública
+            "/usuarios/redefinir-senha", // nova rota pública
             "/h2-console/**",
             "/v3/api-docs/**",
             "/error/**"

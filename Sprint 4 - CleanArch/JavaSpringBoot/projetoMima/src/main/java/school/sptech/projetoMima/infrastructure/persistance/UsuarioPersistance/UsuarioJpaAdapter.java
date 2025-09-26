@@ -58,4 +58,9 @@ public class UsuarioJpaAdapter implements UsuarioGateway {
     public Optional<Usuario> findByEmail(String email) {
         return repository.findByEmail(email).map(UsuarioEntityMapper::toDomain);
     }
+
+    @Override
+    public Optional<Usuario> findByRecoveryToken(String token) {
+        return repository.findByRecoveryToken(token).map(UsuarioEntityMapper::toDomain);
+    }
 }

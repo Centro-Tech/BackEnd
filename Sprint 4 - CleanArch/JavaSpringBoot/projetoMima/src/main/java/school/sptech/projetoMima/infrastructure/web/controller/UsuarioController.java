@@ -36,6 +36,8 @@ public class UsuarioController {
     private final AutenticarUsuarioUseCase autenticarUsuarioUseCase;
     private final TrocarSenhaUseCase trocarSenhaUseCase;
     private final S3UploadService s3UploadService;
+    private final SolicitarRecuperacaoSenhaUseCase solicitarRecuperacaoSenhaUseCase;
+    private final RedefinirSenhaUseCase redefinirSenhaUseCase;
 
     public UsuarioController(CriarUsuarioUseCase criarUsuarioUseCase,
                              AtualizarUsuarioUseCase atualizarUsuarioUseCase,
@@ -44,7 +46,9 @@ public class UsuarioController {
                              ExcluirUsuarioUseCase excluirUsuarioUseCase,
                              AutenticarUsuarioUseCase autenticarUsuarioUseCase,
                              TrocarSenhaUseCase trocarSenhaUseCase,
-                             S3UploadService s3UploadService) {
+                             S3UploadService s3UploadService,
+                             SolicitarRecuperacaoSenhaUseCase solicitarRecuperacaoSenhaUseCase,
+                             RedefinirSenhaUseCase redefinirSenhaUseCase) {
         this.criarUsuarioUseCase = criarUsuarioUseCase;
         this.atualizarUsuarioUseCase = atualizarUsuarioUseCase;
         this.listarUsuariosUseCase = listarUsuariosUseCase;
@@ -53,6 +57,8 @@ public class UsuarioController {
         this.autenticarUsuarioUseCase = autenticarUsuarioUseCase;
         this.trocarSenhaUseCase = trocarSenhaUseCase;
         this.s3UploadService = s3UploadService;
+        this.solicitarRecuperacaoSenhaUseCase = solicitarRecuperacaoSenhaUseCase;
+        this.redefinirSenhaUseCase = redefinirSenhaUseCase;
     }
 
     @Operation(summary = "Buscar usuário por ID")
@@ -222,5 +228,19 @@ public class UsuarioController {
         );
         trocarSenhaUseCase.executar(cmd);
         return ResponseEntity.ok("Senha alterada com sucesso");
+    }
+
+    @Operation(summary = "Solicitar recuperação de senha (gera token e envia instruções por fila)")
+    @PostMapping("/recuperar-senha")
+    public ResponseEntity<String> solicitarRecuperacaoSenha(@RequestBody SolicitarRecuperacaoSenhaDto dto) {
+        solicitarRecuperacaoSenhaUseCase.executar(dto.getEmail());
+        return ResponseEntity.ok("Se o email existir, as instruções foram enviadas");
+    }
+
+    @Operation(summary = "Redefinir senha usando token válido")
+    @PostMapping("/redefinir-senha")
+    public ResponseEntity<String> redefinirSenha(@RequestBody RedefinirSenhaDto dto) {
+        redefinirSenhaUseCase.executar(dto.getToken(), dto.getNovaSenha());
+        return ResponseEntity.ok("Senha redefinida com sucesso");
     }
 }

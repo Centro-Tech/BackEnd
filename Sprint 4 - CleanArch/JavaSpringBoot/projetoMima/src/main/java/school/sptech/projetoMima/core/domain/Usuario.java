@@ -1,6 +1,7 @@
 package school.sptech.projetoMima.core.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDateTime;
 
 public class Usuario {
 
@@ -18,6 +19,10 @@ public class Usuario {
     private String cargo;
 
     private String imagem;
+
+    private String recoveryToken;
+
+    private LocalDateTime recoveryTokenExpiry;
 
     public Usuario() {
     }
@@ -114,6 +119,22 @@ public class Usuario {
 
     public void setImagem(String imagem) {
         this.imagem = imagem;
+    }
+
+    public String getRecoveryToken() {
+        return recoveryToken;
+    }
+
+    public void setRecoveryToken(String recoveryToken) {
+        this.recoveryToken = recoveryToken;
+    }
+
+    public LocalDateTime getRecoveryTokenExpiry() {
+        return recoveryTokenExpiry;
+    }
+
+    public void setRecoveryTokenExpiry(LocalDateTime recoveryTokenExpiry) {
+        this.recoveryTokenExpiry = recoveryTokenExpiry;
     }
 
 }

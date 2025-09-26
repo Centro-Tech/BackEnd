@@ -14,11 +14,13 @@ public class UsuarioEntityMapper {
         e.setSenha(u.getSenha());
         e.setCargo(u.getCargo());
         e.setImagem(u.getImagem());
+        e.setRecoveryToken(u.getRecoveryToken());
+        e.setRecoveryTokenExpiry(u.getRecoveryTokenExpiry());
         return e;
     }
 
     public static Usuario toDomain(UsuarioEntity e) {
-        return new Usuario(
+        Usuario u = new Usuario(
                 e.getId(),
                 e.getNome(),
                 e.getEmail(),
@@ -28,5 +30,8 @@ public class UsuarioEntityMapper {
                 e.getCargo(),
                 e.getImagem()
         );
+        u.setRecoveryToken(e.getRecoveryToken());
+        u.setRecoveryTokenExpiry(e.getRecoveryTokenExpiry());
+        return u;
     }
 }

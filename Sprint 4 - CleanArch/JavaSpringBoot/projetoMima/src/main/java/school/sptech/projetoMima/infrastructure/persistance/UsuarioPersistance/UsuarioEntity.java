@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Usuario")
@@ -48,6 +49,12 @@ public class UsuarioEntity {
     @Size(max = 500)
     @Schema(description = "URL ou caminho da imagem de perfil do usuário", example = "https://exemplo.com/imagem.jpg", maxLength = 500)
     private String imagem;
+
+    @Column(name = "recovery_token")
+    private String recoveryToken;
+
+    @Column(name = "recovery_token_expiry")
+    private LocalDateTime recoveryTokenExpiry;
 
     public UsuarioEntity() {
 
@@ -125,6 +132,20 @@ public class UsuarioEntity {
     public void setImagem(String imagem) {
         this.imagem = imagem;
     }
+
+    public String getRecoveryToken() {
+        return recoveryToken;
+    }
+
+    public void setRecoveryToken(String recoveryToken) {
+        this.recoveryToken = recoveryToken;
+    }
+
+    public LocalDateTime getRecoveryTokenExpiry() {
+        return recoveryTokenExpiry;
+    }
+
+    public void setRecoveryTokenExpiry(LocalDateTime recoveryTokenExpiry) {
+        this.recoveryTokenExpiry = recoveryTokenExpiry;
+    }
 }
-
-

@@ -89,6 +89,12 @@
 			<version>2.20.26</version>
 		</dependency>
 
+		<!-- Spring AMQP (RabbitMQ) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
+		</dependency>
+
 		<!-- Dependências de Teste -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

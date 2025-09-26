@@ -1,25 +1,19 @@
 package school.sptech.projetoMima.infrastructure.di.UsuarioBeanConfig;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import school.sptech.projetoMima.core.adapter.Usuario.AuthGateway;
 import school.sptech.projetoMima.core.adapter.Usuario.CryptoGateway;
 import school.sptech.projetoMima.core.adapter.Usuario.TokenGateway;
 import school.sptech.projetoMima.core.adapter.Usuario.UsuarioGateway;
+import school.sptech.projetoMima.core.adapter.Usuario.PasswordRecoveryPublisherGateway;
 import school.sptech.projetoMima.core.application.usecase.Usuario.*;
-import school.sptech.projetoMima.infrastructure.config.GerenciadorTokenJwt;
-import school.sptech.projetoMima.infrastructure.persistance.UsuarioPersistance.JwtTokenAdapter;
-import school.sptech.projetoMima.infrastructure.persistance.UsuarioPersistance.SpringAuthAdapter;
-import school.sptech.projetoMima.infrastructure.persistance.UsuarioPersistance.SpringCryptoAdapter;
-import school.sptech.projetoMima.infrastructure.persistance.UsuarioPersistance.UsuarioJpaAdapter;
-import school.sptech.projetoMima.infrastructure.persistance.UsuarioPersistance.UsuarioRepository;
+
+import java.time.Duration;
 
 @Configuration
 public class UsuarioBeanConfig {
-
-    // Os gateways são definidos via @Component nos adapters, não precisam de @Bean aqui
 
     @Bean
     public CriarUsuarioUseCase criarUsuarioUseCase(UsuarioGateway gateway, CryptoGateway crypto) {
@@ -54,5 +48,17 @@ public class UsuarioBeanConfig {
     @Bean
     public TrocarSenhaUseCase trocarSenhaUseCase(UsuarioGateway gateway, CryptoGateway crypto) {
         return new TrocarSenhaUseCase(gateway, crypto);
+    }
+
+    @Bean
+    public SolicitarRecuperacaoSenhaUseCase solicitarRecuperacaoSenhaUseCase(UsuarioGateway gateway,
+                                                                             PasswordRecoveryPublisherGateway publisherGateway,
+                                                                             @Value("${app.password-recovery.token-validity-minutes:30}") long minutes) {
+        return new SolicitarRecuperacaoSenhaUseCase(gateway, publisherGateway, Duration.ofMinutes(minutes));
+    }
+
+    @Bean
+    public RedefinirSenhaUseCase redefinirSenhaUseCase(UsuarioGateway gateway, CryptoGateway crypto) {
+        return new RedefinirSenhaUseCase(gateway, crypto);
     }
 }

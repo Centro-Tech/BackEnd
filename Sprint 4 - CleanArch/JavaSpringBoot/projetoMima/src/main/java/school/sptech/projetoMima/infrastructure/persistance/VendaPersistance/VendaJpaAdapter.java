@@ -2,12 +2,16 @@ package school.sptech.projetoMima.infrastructure.persistance.VendaPersistance;
 
 import school.sptech.projetoMima.core.adapter.Venda.VendaGateway;
 import school.sptech.projetoMima.core.domain.Venda;
+import school.sptech.projetoMima.infrastructure.persistance.VendaPersistance.VendaEntityMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Component
 public class VendaJpaAdapter implements VendaGateway {
 
     private final VendaJpaRepository vendaJpaRepository;
@@ -44,9 +48,18 @@ public class VendaJpaAdapter implements VendaGateway {
     }
 
     @Override
+    public Page<Venda> findAll(Pageable pageable) {
+        return vendaJpaRepository.findAll(pageable)
+                .map(vendaEntityMapper::toDomain);
+    }
+
+    @Override
     public Venda findById(Integer id) {
-        Optional<VendaEntity> vendaEntity = vendaJpaRepository.findById(id);
-        return vendaEntity.map(vendaEntityMapper::toDomain).orElse(null);
+        VendaEntity vendaEntity = vendaJpaRepository.findById(id).orElse(null);
+        if (vendaEntity == null) {
+            return null;
+        }
+        return vendaEntityMapper.toDomain(vendaEntity);
     }
 
     @Override

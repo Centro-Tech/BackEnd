@@ -7,15 +7,22 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import school.sptech.projetoMima.core.application.command.Venda.CriarVendaCommand;
+import school.sptech.projetoMima.core.application.command.Venda.FiltrarVendasPorClienteCommand;
+import school.sptech.projetoMima.core.application.command.Venda.FiltrarVendasPorDataCommand;
+import school.sptech.projetoMima.core.application.command.Venda.FiltrarVendasPorValorCommand;
+import school.sptech.projetoMima.core.application.command.Venda.RemoverItemDaVendaComDtoCommand;
+import school.sptech.projetoMima.core.application.usecase.Venda.*;
+import school.sptech.projetoMima.core.domain.Venda;
 import school.sptech.projetoMima.core.application.dto.vendaDto.VendaRequestDto;
 import school.sptech.projetoMima.core.application.dto.vendaDto.VendaResponseDto;
 import school.sptech.projetoMima.core.application.dto.vendaDto.VendaMapper;
-import school.sptech.projetoMima.core.application.command.Venda.*;
-import school.sptech.projetoMima.core.application.usecase.Venda.*;
-import school.sptech.projetoMima.core.domain.Venda;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -27,6 +34,7 @@ public class VendaController {
 
     // Injeção dos Use Cases
     private final CriarVendaUseCase criarVendaUseCase;
+    private final ListarVendasUseCase listarVendasUseCase;
     private final FiltrarVendasPorDataUseCase filtrarVendasPorDataUseCase;
     private final FiltrarVendasPorClienteUseCase filtrarVendasPorClienteUseCase;
     private final FiltrarVendasPorValorUseCase filtrarVendasPorValorUseCase;
@@ -35,17 +43,34 @@ public class VendaController {
 
     @Autowired
     public VendaController(CriarVendaUseCase criarVendaUseCase,
+                          ListarVendasUseCase listarVendasUseCase,
                           FiltrarVendasPorDataUseCase filtrarVendasPorDataUseCase,
                           FiltrarVendasPorClienteUseCase filtrarVendasPorClienteUseCase,
                           FiltrarVendasPorValorUseCase filtrarVendasPorValorUseCase,
                           RemoverItemDaVendaUseCase removerItemDaVendaUseCase,
                           RemoverItemDaVendaComDtoUseCase removerItemDaVendaComDtoUseCase) {
         this.criarVendaUseCase = criarVendaUseCase;
+        this.listarVendasUseCase = listarVendasUseCase;
         this.filtrarVendasPorDataUseCase = filtrarVendasPorDataUseCase;
         this.filtrarVendasPorClienteUseCase = filtrarVendasPorClienteUseCase;
         this.filtrarVendasPorValorUseCase = filtrarVendasPorValorUseCase;
         this.removerItemDaVendaUseCase = removerItemDaVendaUseCase;
         this.removerItemDaVendaComDtoUseCase = removerItemDaVendaComDtoUseCase;
+    }
+
+    @Operation(summary = "Listar todas as vendas")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Vendas listadas com sucesso"),
+        @ApiResponse(responseCode = "204", description = "Nenhuma venda encontrada")
+    })
+    @GetMapping
+    public ResponseEntity<Page<VendaResponseDto>> listar(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Venda> vendas = listarVendasUseCase.execute(pageable);
+        Page<VendaResponseDto> response = vendas.map(VendaMapper::toResponseDto);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Registrar uma nova venda")

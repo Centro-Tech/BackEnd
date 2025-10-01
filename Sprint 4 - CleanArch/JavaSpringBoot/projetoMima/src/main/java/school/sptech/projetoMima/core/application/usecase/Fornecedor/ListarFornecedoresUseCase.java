@@ -5,6 +5,8 @@ import school.sptech.projetoMima.core.application.exception.Cliente.ClienteLista
 import school.sptech.projetoMima.core.application.exception.Fornecedor.SemFornecedorCadastradoException;
 import school.sptech.projetoMima.core.domain.Cliente;
 import school.sptech.projetoMima.core.domain.Fornecedor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -23,5 +25,9 @@ public class ListarFornecedoresUseCase {
             throw new SemFornecedorCadastradoException("Lista de fornecedores está vazia");
         }
         return fornecedores;
+    }
+
+    public Page<Fornecedor> execute(Pageable pageable) {
+        return gateway.findAll(pageable);
     }
 }

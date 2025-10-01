@@ -5,6 +5,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,13 +48,13 @@ public class FornecedorController {
         @ApiResponse(responseCode = "204", description = "Nenhum fornecedor encontrado")
     })
     @GetMapping
-    public ResponseEntity<List<FornecedorResponseDto>> listar() {
-        List<Fornecedor> fornecedoresEncontrados = listarFornecedoresUseCase.execute();
-        if (fornecedoresEncontrados.isEmpty()) {
-            return ResponseEntity.status(204).body(null);
-        }
-        List<FornecedorResponseDto> response = fornecedoresEncontrados.stream().map(FornecedorMapper::toResponse).toList();
-        return ResponseEntity.status(200).body(response);
+    public ResponseEntity<Page<FornecedorResponseDto>> listar(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Fornecedor> fornecedoresEncontrados = listarFornecedoresUseCase.execute(pageable);
+        Page<FornecedorResponseDto> response = fornecedoresEncontrados.map(FornecedorMapper::toResponse);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Buscar fornecedor por ID")

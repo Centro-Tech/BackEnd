@@ -1,5 +1,7 @@
 package school.sptech.projetoMima.infrastructure.persistance.FornecedorPersistance;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.sptech.projetoMima.core.adapter.Fornecedor.FornecedorGateway;
 import school.sptech.projetoMima.core.domain.Fornecedor;
@@ -50,6 +52,12 @@ public class FornecedorJpaAdapter implements FornecedorGateway {
         }
 
         return fornecedores;
+    }
+
+    @Override
+    public Page<Fornecedor> findAll(Pageable pageable) {
+        return fornecedorRepository.findAll(pageable)
+                .map(FornecedorEntityMapper::toDomain);
     }
 
     @Override

@@ -1,5 +1,8 @@
 package school.sptech.projetoMima.infrastructure.web.controller;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import school.sptech.projetoMima.core.application.command.Item.*;
@@ -73,12 +76,12 @@ public class ItemController {
 
     @GetMapping
     @Operation(summary = "Listar todos os itens")
-    public ResponseEntity<List<ItemListDto>> listar() {
-        List<Item> itens = listarItensUseCase.execute();
-        List<ItemListDto> response = new ArrayList<>();
-        for (Item item : itens) {
-            response.add(ItemMapper.toListDto(item));
-        }
+    public ResponseEntity<Page<ItemListDto>> listar(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Item> itens = listarItensUseCase.execute(pageable);
+        Page<ItemListDto> response = itens.map(ItemMapper::toListDto);
         return ResponseEntity.ok(response);
     }
 

@@ -1,6 +1,8 @@
 package school.sptech.projetoMima.core.adapter.Item;
 
 import school.sptech.projetoMima.core.domain.item.Item;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -16,6 +18,8 @@ public interface ItemGateway {
     void deleteByCodigo(String codigo);
 
     List<Item> findAll();
+    
+    Page<Item> findAll(Pageable pageable);
 
     Item findById(Integer id);
 

@@ -1,5 +1,7 @@
 package school.sptech.projetoMima.infrastructure.persistance.ClientePersistance;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import school.sptech.projetoMima.core.adapter.Cliente.ClienteGateway;
 import school.sptech.projetoMima.core.domain.Cliente;
@@ -46,6 +48,12 @@ public class ClienteJpaAdapter implements ClienteGateway {
         return repository.findAll().stream()
                 .map(ClienteEntityMapper::toDomain)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<Cliente> findAll(Pageable pageable) {
+        return repository.findAll(pageable)
+                .map(ClienteEntityMapper::toDomain);
     }
 
     @Override

@@ -31,6 +31,11 @@ public class VendaBeanConfig {
     }
 
     @Bean
+    public ListarVendasUseCase listarVendasUseCase(VendaGateway vendaGateway) {
+        return new ListarVendasUseCase(vendaGateway);
+    }
+
+    @Bean
     public FiltrarVendasPorDataUseCase filtrarVendasPorDataUseCase(VendaGateway vendaGateway) {
         return new FiltrarVendasPorDataUseCase(vendaGateway);
     }

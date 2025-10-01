@@ -1,5 +1,7 @@
 package school.sptech.projetoMima.infrastructure.persistance.ItemPersistance;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import school.sptech.projetoMima.core.adapter.Item.ItemGateway;
 import school.sptech.projetoMima.core.domain.item.Item;
@@ -53,6 +55,12 @@ public class ItemJpaAdapter implements ItemGateway {
             itens.add(ItemEntityMapper.toDomain(entity));
         }
         return itens;
+    }
+
+    @Override
+    public Page<Item> findAll(Pageable pageable) {
+        return repository.findAll(pageable)
+                .map(ItemEntityMapper::toDomain);
     }
 
     @Override

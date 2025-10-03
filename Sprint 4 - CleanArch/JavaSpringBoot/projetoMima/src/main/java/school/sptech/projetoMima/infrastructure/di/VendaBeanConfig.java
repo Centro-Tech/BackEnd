@@ -3,6 +3,7 @@ package school.sptech.projetoMima.infrastructure.di;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import school.sptech.projetoMima.core.adapter.Venda.VendaGateway;
+import school.sptech.projetoMima.core.adapter.Venda.ComprovanteVendaPublisherGateway;
 import school.sptech.projetoMima.core.adapter.Cliente.ClienteGateway;
 import school.sptech.projetoMima.core.adapter.Item.ItemGateway;
 import school.sptech.projetoMima.core.adapter.ItemVenda.ItemVendaGateway;
@@ -60,5 +61,10 @@ public class VendaBeanConfig {
                                                                          ItemVendaGateway itemVendaGateway,
                                                                          ItemGateway itemGateway) {
         return new RemoverItemDaVendaComDtoUseCase(vendaGateway, itemVendaGateway, itemGateway);
+    }
+
+    @Bean
+    public EnviarComprovanteVendaUseCase enviarComprovanteVendaUseCase(ComprovanteVendaPublisherGateway comprovantePublisherGateway) {
+        return new EnviarComprovanteVendaUseCase(comprovantePublisherGateway);
     }
 }

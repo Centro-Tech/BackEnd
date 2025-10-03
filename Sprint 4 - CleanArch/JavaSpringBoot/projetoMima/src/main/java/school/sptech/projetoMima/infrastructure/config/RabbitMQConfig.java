@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
+    // Password Recovery
     @Value("${app.rabbitmq.password-recovery.queue}")
     private String passwordRecoveryQueue;
 
@@ -24,6 +25,17 @@ public class RabbitMQConfig {
     @Value("${app.rabbitmq.password-recovery.routing-key}")
     private String passwordRecoveryRoutingKey;
 
+    // Comprovante Venda
+    @Value("${app.rabbitmq.comprovante-venda.queue}")
+    private String comprovanteVendaQueue;
+
+    @Value("${app.rabbitmq.comprovante-venda.exchange}")
+    private String comprovanteVendaExchange;
+
+    @Value("${app.rabbitmq.comprovante-venda.routing-key}")
+    private String comprovanteVendaRoutingKey;
+
+    // Password Recovery Beans
     @Bean
     public Queue passwordRecoveryQueue() {
         return new Queue(passwordRecoveryQueue, true);
@@ -42,6 +54,26 @@ public class RabbitMQConfig {
                 .with(passwordRecoveryRoutingKey);
     }
 
+    // Comprovante Venda Beans
+    @Bean
+    public Queue comprovanteVendaQueue() {
+        return new Queue(comprovanteVendaQueue, true);
+    }
+
+    @Bean
+    public DirectExchange comprovanteVendaExchange() {
+        return new DirectExchange(comprovanteVendaExchange, true, false);
+    }
+
+    @Bean
+    public Binding comprovanteVendaBinding() {
+        return BindingBuilder
+                .bind(comprovanteVendaQueue())
+                .to(comprovanteVendaExchange())
+                .with(comprovanteVendaRoutingKey);
+    }
+
+    // Common Beans
     @Bean
     public MessageConverter messageConverter() {
         return new Jackson2JsonMessageConverter();

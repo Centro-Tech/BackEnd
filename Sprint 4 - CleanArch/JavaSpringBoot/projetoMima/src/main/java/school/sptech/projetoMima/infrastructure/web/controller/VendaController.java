@@ -40,6 +40,7 @@ public class VendaController {
     private final FiltrarVendasPorValorUseCase filtrarVendasPorValorUseCase;
     private final RemoverItemDaVendaUseCase removerItemDaVendaUseCase;
     private final RemoverItemDaVendaComDtoUseCase removerItemDaVendaComDtoUseCase;
+    private final EnviarComprovanteVendaUseCase enviarComprovanteVendaUseCase;
 
     @Autowired
     public VendaController(CriarVendaUseCase criarVendaUseCase,
@@ -48,7 +49,8 @@ public class VendaController {
                           FiltrarVendasPorClienteUseCase filtrarVendasPorClienteUseCase,
                           FiltrarVendasPorValorUseCase filtrarVendasPorValorUseCase,
                           RemoverItemDaVendaUseCase removerItemDaVendaUseCase,
-                          RemoverItemDaVendaComDtoUseCase removerItemDaVendaComDtoUseCase) {
+                          RemoverItemDaVendaComDtoUseCase removerItemDaVendaComDtoUseCase,
+                          EnviarComprovanteVendaUseCase enviarComprovanteVendaUseCase) {
         this.criarVendaUseCase = criarVendaUseCase;
         this.listarVendasUseCase = listarVendasUseCase;
         this.filtrarVendasPorDataUseCase = filtrarVendasPorDataUseCase;
@@ -56,6 +58,7 @@ public class VendaController {
         this.filtrarVendasPorValorUseCase = filtrarVendasPorValorUseCase;
         this.removerItemDaVendaUseCase = removerItemDaVendaUseCase;
         this.removerItemDaVendaComDtoUseCase = removerItemDaVendaComDtoUseCase;
+        this.enviarComprovanteVendaUseCase = enviarComprovanteVendaUseCase;
     }
 
     @Operation(summary = "Listar todas as vendas")
@@ -91,6 +94,14 @@ public class VendaController {
 
         // Executar Use Case
         Venda venda = criarVendaUseCase.execute(command);
+
+        // Enviar comprovante por email automaticamente
+        try {
+            enviarComprovanteVendaUseCase.executar(venda);
+        } catch (Exception e) {
+            // Log do erro mas não falha a operação de venda
+            System.err.println("[COMPROVANTE][ERRO] Falha ao enviar comprovante para venda ID " + venda.getId() + ": " + e.getMessage());
+        }
 
         // Converter para DTO de resposta
         VendaResponseDto response = VendaMapper.toResponseDto(venda);

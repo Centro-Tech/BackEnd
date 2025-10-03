@@ -52,7 +52,7 @@ public class GerenciadorTokenJwt {
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
-    private boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token) {
         Date expirationDate = getExpirationDateFromToken(token);
         return expirationDate.before(new Date(System.currentTimeMillis()));
     }

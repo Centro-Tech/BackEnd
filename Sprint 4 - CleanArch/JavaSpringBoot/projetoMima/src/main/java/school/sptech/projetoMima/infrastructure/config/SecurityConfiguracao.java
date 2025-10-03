@@ -46,8 +46,9 @@ public class SecurityConfiguracao {
             "/configuration/security",
             "/api/public/**",
             "/usuarios/login", // rota de login
-            "/usuarios/recuperar-senha", // nova rota pública
-            "/usuarios/redefinir-senha", // nova rota pública
+            "/usuarios/recuperar-senha", // rota pública
+            "/usuarios/recuperar-senha/autenticar", // nova rota pública para trocar token por JWT
+            "/usuarios/redefinir-senha", // rota pública
             "/h2-console/**",
             "/v3/api-docs/**",
             "/error/**"

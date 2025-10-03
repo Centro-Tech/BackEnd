@@ -20,6 +20,7 @@ import school.sptech.projetoMima.core.application.dto.usuarioDto.*;
 import school.sptech.projetoMima.core.application.usecase.Usuario.*;
 import school.sptech.projetoMima.core.domain.Usuario;
 import school.sptech.projetoMima.infrastructure.service.S3UploadService;
+import school.sptech.projetoMima.infrastructure.config.GerenciadorTokenJwt;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,6 +39,9 @@ public class UsuarioController {
     private final S3UploadService s3UploadService;
     private final SolicitarRecuperacaoSenhaUseCase solicitarRecuperacaoSenhaUseCase;
     private final RedefinirSenhaUseCase redefinirSenhaUseCase;
+    private final AutenticarPorTokenRecuperacaoUseCase autenticarPorTokenRecuperacaoUseCase;
+    private final RedefinirSenhaAutenticadoUseCase redefinirSenhaAutenticadoUseCase;
+    private final GerenciadorTokenJwt jwtTokenManager;
 
     public UsuarioController(CriarUsuarioUseCase criarUsuarioUseCase,
                              AtualizarUsuarioUseCase atualizarUsuarioUseCase,
@@ -48,7 +52,10 @@ public class UsuarioController {
                              TrocarSenhaUseCase trocarSenhaUseCase,
                              S3UploadService s3UploadService,
                              SolicitarRecuperacaoSenhaUseCase solicitarRecuperacaoSenhaUseCase,
-                             RedefinirSenhaUseCase redefinirSenhaUseCase) {
+                             RedefinirSenhaUseCase redefinirSenhaUseCase,
+                             AutenticarPorTokenRecuperacaoUseCase autenticarPorTokenRecuperacaoUseCase,
+                             RedefinirSenhaAutenticadoUseCase redefinirSenhaAutenticadoUseCase,
+                             GerenciadorTokenJwt jwtTokenManager) {
         this.criarUsuarioUseCase = criarUsuarioUseCase;
         this.atualizarUsuarioUseCase = atualizarUsuarioUseCase;
         this.listarUsuariosUseCase = listarUsuariosUseCase;
@@ -59,6 +66,9 @@ public class UsuarioController {
         this.s3UploadService = s3UploadService;
         this.solicitarRecuperacaoSenhaUseCase = solicitarRecuperacaoSenhaUseCase;
         this.redefinirSenhaUseCase = redefinirSenhaUseCase;
+        this.autenticarPorTokenRecuperacaoUseCase = autenticarPorTokenRecuperacaoUseCase;
+        this.redefinirSenhaAutenticadoUseCase = redefinirSenhaAutenticadoUseCase;
+        this.jwtTokenManager = jwtTokenManager;
     }
 
     @Operation(summary = "Buscar usuário por ID")
@@ -237,10 +247,54 @@ public class UsuarioController {
         return ResponseEntity.ok("Se o email existir, as instruções foram enviadas");
     }
 
-    @Operation(summary = "Redefinir senha usando token válido")
+    @Operation(summary = "Redefinir senha: se enviar token (JWT ou recuperação) identifica usuário automaticamente e não precisa estar logado")
     @PostMapping("/redefinir-senha")
     public ResponseEntity<String> redefinirSenha(@RequestBody RedefinirSenhaDto dto) {
-        redefinirSenhaUseCase.executar(dto.getToken(), dto.getNovaSenha());
+        String novaSenha = dto.getNovaSenha();
+        if (novaSenha == null || novaSenha.isBlank()) {
+            return ResponseEntity.badRequest().body("Nova senha obrigatória");
+        }
+
+        String token = dto.getToken();
+        if (token != null && !token.isBlank()) {
+            // Detecta se é JWT (começa com eyJ) ou token de recuperação UUID
+            if (token.startsWith("eyJ")) {
+                // É um JWT - precisa extrair o email diretamente do JWT sem usar AutenticarPorTokenRecuperacaoUseCase
+                try {
+                    // Usa o GerenciadorTokenJwt para extrair o email do JWT
+                    String email = jwtTokenManager.getUsernameFromToken(token);
+                    if (email == null || email.isBlank()) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("JWT não contém email válido");
+                    }
+                    // Verifica se o JWT não expirou
+                    if (jwtTokenManager.isTokenExpired(token)) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("JWT expirado");
+                    }
+                    redefinirSenhaAutenticadoUseCase.executar(email, novaSenha);
+                    return ResponseEntity.ok("Senha redefinida com sucesso");
+                } catch (Exception e) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("JWT inválido ou expirado");
+                }
+            } else {
+                // É token de recuperação UUID - fluxo público
+                redefinirSenhaUseCase.executar(token, novaSenha);
+                return ResponseEntity.ok("Senha redefinida com sucesso");
+            }
+        }
+
+        // Caminho sem token -> exige usuário autenticado
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário não autenticado e nenhum token informado");
+        }
+        redefinirSenhaAutenticadoUseCase.executar(authentication.getName(), novaSenha);
         return ResponseEntity.ok("Senha redefinida com sucesso");
+    }
+
+    @Operation(summary = "Autenticar usuário a partir do token de recuperação e obter JWT temporário")
+    @GetMapping("/recuperar-senha/autenticar")
+    public ResponseEntity<UsuarioTokenDto> autenticarPorToken(@RequestParam("token") String token) {
+        AutenticarPorTokenRecuperacaoUseCase.Resultado resultado = autenticarPorTokenRecuperacaoUseCase.executar(token);
+        return ResponseEntity.ok(UsuarioMapper.toTokenDto(resultado.usuario(), resultado.token()));
     }
 }

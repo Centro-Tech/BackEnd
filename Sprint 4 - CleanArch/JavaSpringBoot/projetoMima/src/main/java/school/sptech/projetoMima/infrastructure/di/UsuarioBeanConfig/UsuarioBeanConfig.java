@@ -61,4 +61,14 @@ public class UsuarioBeanConfig {
     public RedefinirSenhaUseCase redefinirSenhaUseCase(UsuarioGateway gateway, CryptoGateway crypto) {
         return new RedefinirSenhaUseCase(gateway, crypto);
     }
+
+    @Bean
+    public AutenticarPorTokenRecuperacaoUseCase autenticarPorTokenRecuperacaoUseCase(UsuarioGateway gateway, TokenGateway tokenGateway) {
+        return new AutenticarPorTokenRecuperacaoUseCase(gateway, tokenGateway);
+    }
+
+    @Bean
+    public RedefinirSenhaAutenticadoUseCase redefinirSenhaAutenticadoUseCase(UsuarioGateway gateway, CryptoGateway crypto) {
+        return new RedefinirSenhaAutenticadoUseCase(gateway, crypto);
+    }
 }

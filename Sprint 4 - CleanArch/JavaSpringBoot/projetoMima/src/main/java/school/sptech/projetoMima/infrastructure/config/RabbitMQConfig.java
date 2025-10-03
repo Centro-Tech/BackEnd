@@ -3,7 +3,7 @@ package school.sptech.projetoMima.infrastructure.config;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -30,8 +30,8 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public TopicExchange passwordRecoveryExchange() {
-        return new TopicExchange(passwordRecoveryExchange, true, false);
+    public DirectExchange passwordRecoveryExchange() {
+        return new DirectExchange(passwordRecoveryExchange, true, false);
     }
 
     @Bean
@@ -54,4 +54,3 @@ public class RabbitMQConfig {
         return template;
     }
 }
-

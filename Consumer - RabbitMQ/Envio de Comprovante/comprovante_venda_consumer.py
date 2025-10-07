@@ -11,10 +11,21 @@ from email.mime.multipart import MIMEMultipart
 
 try:
     from dotenv import load_dotenv  # type: ignore
-    # Tenta carregar primeiro um .env local; se existir variavel BASE_ENV_PATH carrega também
-    load_dotenv()
+    
+    # procura arquivos .env
+    env_files = [
+        '.env',
+        '.env.comprovante',
+        os.path.join(os.path.dirname(__file__), '.env'),
+        os.path.join(os.path.dirname(__file__), '.env.comprovante'),
+    ]
+    
+    for env_file in env_files:
+        if os.path.isfile(env_file):
+            load_dotenv(env_file, override=True)
+            print(f"[DEBUG] Arquivo .env carregado: {env_file}")
+    
     base_env_path = os.getenv('BASE_ENV_PATH')
-    # Permite apontar para o .env central (ex: Sprint 5 - Consumer Python para enviar E-mails/.env)
     possible_external = [
         base_env_path,
         os.path.join('..', 'Sprint 5 - Consumer Python para enviar E-mails', '.env'),
@@ -23,7 +34,10 @@ try:
     for p in possible_external:
         if p and os.path.isfile(p):
             load_dotenv(p, override=False)
-except Exception:
+            print(f"[DEBUG] Arquivo .env externo carregado: {p}")
+    
+except Exception as e:
+    print(f"[ERROR] Erro ao carregar .env: {e}")
     pass
 
 EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
@@ -34,9 +48,8 @@ def env_bool(name: str, default: str = "0") -> bool:
 
 
 class ComprovanteVendaConsumer:
-    # Junta configs e faz o trabalho
     def __init__(self):
-    # RabbitMQ
+        # configs do RabbitMQ
         self.rabbitmq_host = os.getenv('RABBITMQ_HOST', 'localhost')
         self.rabbitmq_port = int(os.getenv('RABBITMQ_PORT', '5672'))
         self.rabbitmq_user = os.getenv('RABBITMQ_USER', 'guest')
@@ -47,7 +60,7 @@ class ComprovanteVendaConsumer:
         self.reconnect_delay = int(os.getenv('RABBITMQ_RECONNECT_DELAY', '5'))
         print(f"[RABBITMQ][DEBUG] host={self.rabbitmq_host} port={self.rabbitmq_port} user={self.rabbitmq_user} vhost={self.rabbitmq_vhost} queue={self.queue_name}")
 
-    # SMTP
+        # configs do email
         self.smtp_server = os.getenv('SMTP_SERVER', 'localhost')
         self.smtp_port = int(os.getenv('SMTP_PORT', '587'))
         self.use_starttls = env_bool('SMTP_USE_TLS', '1')
@@ -61,13 +74,13 @@ class ComprovanteVendaConsumer:
         self.smtp_retry_attempts = int(os.getenv('SMTP_RETRY_ATTEMPTS', '3'))
         self.smtp_retry_delay = float(os.getenv('SMTP_RETRY_DELAY', '2'))
 
-    # Dados pra mostrar no rodapé
+        # dados da loja
         self.loja_nome = os.getenv('LOJA_NOME', 'Mima Store')
         self.loja_endereco = os.getenv('LOJA_ENDERECO', 'R. das Pitangueiras, 470 - Jardim, Santo André - SP, 09090-150')
         self.loja_telefone = os.getenv('LOJA_TELEFONE', '(11) 93906-0902')
         self.loja_cnpj = os.getenv('LOJA_CNPJ', '00.000.000/0000-00')
 
-    # Se manda texto / html
+        # tipos de email que vai enviar
         self.include_plain = True
         self.include_html = True
 
@@ -75,7 +88,7 @@ class ComprovanteVendaConsumer:
             print("[SMTP][WARN] SSL e TLS ativados juntos, usando só SSL")
             self.use_starttls = False
 
-    # Texto simples
+    # faz o email simples (texto)
     def _build_plain(self, data: dict) -> str:
         venda_id = data.get('vendaId', 0)
         valor_total = data.get('valorTotal', 0.0)
@@ -109,11 +122,11 @@ class ComprovanteVendaConsumer:
             self.loja_nome,
             self.loja_endereco,
             f"Tel: {self.loja_telefone}",
-            f"CNPJ: {self.loja_cnpj}"
         ]
         return "\n".join(lines)
 
-    def _build_html(self, data: dict) -> str:  # HTML do email
+    # faz o email bonito (HTML)
+    def _build_html(self, data: dict) -> str:
         venda_id = data.get('vendaId', 0)
         valor_total = data.get('valorTotal', 0.0)
         data_venda = data.get('dataVenda', 'N/A')
@@ -146,54 +159,146 @@ class ComprovanteVendaConsumer:
         return f"""
 <!DOCTYPE html>
 <html lang='pt-BR'>
-<head><meta charset='utf-8'><title>Comprovante #{venda_id:06d}</title></head>
-<body style='font-family:Arial,sans-serif;background:#f5f5f5;margin:0;padding:24px;'>
-  <div style='max-width:640px;margin:0 auto;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #e0e0e0;'>
-    <div style='background:#863e76;color:#fff;padding:24px;'>
-      <h1 style='margin:0;font-size:22px;'>{self.loja_nome}</h1>
-      <p style='margin:4px 0 0 0;font-size:14px;'>Comprovante de Compra</p>
+<head>
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <title>Comprovante #{venda_id:06d}</title>
+  <style>
+    body {{
+      font-family: Arial, sans-serif;
+      background: #F8C8DC;
+      margin: 0;
+      padding: 24px;
+    }}
+    .container {{
+      max-width: 640px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #e0e0e0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }}
+    .header {{
+      background: #863e76;
+      color: #fff;
+      padding: 24px;
+      text-align: center;
+    }}
+    .header h1 {{
+      margin: 0;
+      font-size: 22px;
+    }}
+    .header p {{
+      margin: 4px 0 0;
+      font-size: 14px;
+    }}
+    .content {{
+      padding: 24px;
+    }}
+    .content h2 {{
+      margin: 0 0 12px;
+      font-size: 18px;
+      color: #222;
+    }}
+    .content table {{
+      width: 100%;
+      font-size: 14px;
+      margin-bottom: 16px;
+      border-collapse: collapse;
+    }}
+    .content table th, .content table td {{
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+    }}
+    .content table th {{
+      background: #f1f5f9;
+      text-align: left;
+    }}
+    .total {{
+      margin: 24px 0 0;
+      text-align: right;
+      background: #f7e9f3;
+      padding: 16px;
+      border-radius: 6px;
+    }}
+    .total span {{
+      font-size: 14px;
+      color: #863e76;
+    }}
+    .total div {{
+      font-size: 24px;
+      color: #863e76;
+      font-weight: bold;
+    }}
+    .footer {{
+      margin: 28px 0 0;
+      text-align: center;
+      font-size: 13px;
+      color: #444;
+      background: #f8f9fa;
+      padding: 16px;
+      border-radius: 6px;
+    }}
+    .footer div {{
+      margin: 4px 0;
+    }}
+    @media print {{
+      body {{
+        background: #fff;
+        color: #000;
+      }}
+      .container {{
+        box-shadow: none;
+        border: none;
+      }}
+    }}
+  </style>
+</head>
+<body>
+  <div class='container'>
+    <div class='header'>
+      <h1>{self.loja_nome}</h1>
+      <p>Comprovante de Compra</p>
     </div>
-    <div style='padding:24px;'>
-      <h2 style='margin:0 0 12px 0;font-size:18px;color:#222;'>Dados da Venda</h2>
-      <table style='width:100%;font-size:14px;margin:0 0 16px 0;'>
-        <tr><td style='padding:4px 0;'>Número:</td><td style='text-align:right;'>#{venda_id:06d}</td></tr>
-        <tr><td style='padding:4px 0;'>Data/Hora:</td><td style='text-align:right;'>{data_venda} - {datetime.now().strftime('%H:%M')}</td></tr>
-        <tr><td style='padding:4px 0;'>Cliente:</td><td style='text-align:right;'>{cliente.get('nome','Cliente')}</td></tr>
-        <tr><td style='padding:4px 0;'>CPF:</td><td style='text-align:right;'>{cliente.get('cpf','N/A')}</td></tr>
-        <tr><td style='padding:4px 0;'>Atendente:</td><td style='text-align:right;'>{funcionario.get('nome','N/A')} ({funcionario.get('cargo','N/A')})</td></tr>
+    <div class='content'>
+      <h2>Dados da Venda</h2>
+      <table>
+        <tr><td>Número:</td><td style='text-align:right;'>#{venda_id:06d}</td></tr>
+        <tr><td>Data/Hora:</td><td style='text-align:right;'>{data_venda} - {datetime.now().strftime('%H:%M')}</td></tr>
+        <tr><td>Cliente:</td><td style='text-align:right;'>{cliente.get('nome','Cliente')}</td></tr>
+        <tr><td>CPF:</td><td style='text-align:right;'>{cliente.get('cpf','N/A')}</td></tr>
+        <tr><td>Atendente:</td><td style='text-align:right;'>{funcionario.get('nome','N/A')} ({funcionario.get('cargo','N/A')})</td></tr>
       </table>
-      <h3 style='margin:16px 0 8px 0;font-size:16px;color:#222;'>Itens</h3>
-      <table style='width:100%;border-collapse:collapse;font-size:13px;'>
+      <h3>Itens</h3>
+      <table>
         <thead>
-          <tr style='background:#f1f5f9;'>
-            <th style='text-align:left;padding:8px;border-bottom:2px solid #e2e8f0;'>Produto</th>
-            <th style='text-align:center;padding:8px;border-bottom:2px solid #e2e8f0;'>Qtd</th>
-            <th style='text-align:right;padding:8px;border-bottom:2px solid #e2e8f0;'>Unit.</th>
-            <th style='text-align:right;padding:8px;border-bottom:2px solid #e2e8f0;'>Total</th>
+          <tr>
+            <th>Produto</th>
+            <th>Qtd</th>
+            <th>Unit.</th>
+            <th>Total</th>
           </tr>
         </thead>
         <tbody>{itens_html}</tbody>
       </table>
-            <div style='margin:24px 0 0 0;text-align:right;background:#f7e9f3;padding:16px;border-radius:6px;'>
-                <span style='font-size:14px;color:#863e76;'>Total</span>
-                <div style='font-size:24px;color:#863e76;font-weight:bold;'>R$ {valor_total:.2f}</div>
-      </div>
-      <div style='margin:28px 0 0 0;text-align:center;font-size:13px;color:#444;background:#f8f9fa;padding:16px;border-radius:6px;'>
-        Obrigado pela sua compra! Volte sempre.
+      <div class='total'>
+        <span>Total</span>
+        <div>R$ {valor_total:.2f}</div>
       </div>
     </div>
-    <div style='background:#222;color:#ddd;text-align:center;padding:16px;font-size:12px;'>
+    <div class='footer'>
+      <div>Obrigado pela sua compra! Volte sempre.</div>
       <div><strong>{self.loja_nome}</strong></div>
       <div>{self.loja_endereco}</div>
       <div>Telefone: {self.loja_telefone}</div>
-      <div>CNPJ: {self.loja_cnpj}</div>
     </div>
   </div>
 </body>
 </html>
 """
 
-    # Tenta enviar (com várias tentativas)
+    # tenta mandar o email algumas vezes
     def _smtp_connect_and_send(self, email: str, msg: MIMEMultipart) -> bool:
         last_error = None
         for attempt in range(1, self.smtp_retry_attempts + 1):
@@ -235,7 +340,7 @@ class ComprovanteVendaConsumer:
         print(f"[SMTP][FATAL] Falha após {self.smtp_retry_attempts} tentativas. Último erro: {last_error}")
         return False
 
-    # Monta e envia
+    # prepara e manda o email
     def send_comprovante_email(self, data: dict) -> bool:
         cliente = data.get('cliente', {})
         email = cliente.get('email')
@@ -259,7 +364,7 @@ class ComprovanteVendaConsumer:
         print(f"[EMAIL][ENVIANDO] Comprovante venda #{venda_id:06d} -> {email}")
         return self._smtp_connect_and_send(email, msg)
 
-    # Quando chega algo da fila
+    # processa mensagem da fila
     def process_message(self, ch, method, properties, body: bytes):  # type: ignore
         try:
             payload = json.loads(body.decode('utf-8'))
@@ -273,7 +378,7 @@ class ComprovanteVendaConsumer:
                 traceback.print_exc()
             ch.basic_ack(delivery_tag=method.delivery_tag)
 
-    # Loop infinito de consumo
+    # fica rodando pra sempre escutando a fila
     def start_consuming(self):
         import pika  # type: ignore
         while True:
@@ -304,5 +409,5 @@ class ComprovanteVendaConsumer:
 
 
 if __name__ == '__main__':
-    # Inicia direto consumindo a fila
+    # começa a rodar
     ComprovanteVendaConsumer().start_consuming()

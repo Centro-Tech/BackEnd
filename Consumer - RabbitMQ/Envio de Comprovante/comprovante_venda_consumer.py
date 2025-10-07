@@ -35,6 +35,10 @@ try:
         if p and os.path.isfile(p):
             load_dotenv(p, override=False)
             print(f"[DEBUG] Arquivo .env externo carregado: {p}")
+            
+    # mostra as configs de usuario e senha
+    print(f"[DEBUG] RABBITMQ_USER do ambiente: {os.getenv('RABBITMQ_USER', 'NOT_SET')}")
+    print(f"[DEBUG] RABBITMQ_PASSWORD do ambiente: {os.getenv('RABBITMQ_PASSWORD', 'NOT_SET')}")
     
 except Exception as e:
     print(f"[ERROR] Erro ao carregar .env: {e}")

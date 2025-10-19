@@ -16,6 +16,7 @@ import school.sptech.projetoMima.core.application.dto.itemVendaDto.ItemVendaMapp
 import school.sptech.projetoMima.core.application.command.ItemVenda.AdicionarItemAoCarrinhoCommand;
 import school.sptech.projetoMima.core.application.command.ItemVenda.ListarCarrinhoCommand;
 import school.sptech.projetoMima.core.application.command.ItemVenda.FinalizarCarrinhoCommand;
+import school.sptech.projetoMima.core.application.command.ItemVenda.RemoverUltimoItemDoCarrinhoCommand;
 import school.sptech.projetoMima.core.application.usecase.ItemVenda.*;
 import school.sptech.projetoMima.core.domain.ItemVenda;
 
@@ -29,14 +30,17 @@ public class ItemVendaController {
     private final AdicionarItemAoCarrinhoUseCase adicionarItemAoCarrinhoUseCase;
     private final ListarCarrinhoUseCase listarCarrinhoUseCase;
     private final FinalizarCarrinhoUseCase finalizarCarrinhoUseCase;
+    private final RemoverUltimoItemDoCarrinhoUseCase removerUltimoItemDoCarrinhoUseCase;
 
     @Autowired
     public ItemVendaController(AdicionarItemAoCarrinhoUseCase adicionarItemAoCarrinhoUseCase,
                               ListarCarrinhoUseCase listarCarrinhoUseCase,
-                              FinalizarCarrinhoUseCase finalizarCarrinhoUseCase) {
+                              FinalizarCarrinhoUseCase finalizarCarrinhoUseCase,
+                              RemoverUltimoItemDoCarrinhoUseCase removerUltimoItemDoCarrinhoUseCase) {
         this.adicionarItemAoCarrinhoUseCase = adicionarItemAoCarrinhoUseCase;
         this.listarCarrinhoUseCase = listarCarrinhoUseCase;
         this.finalizarCarrinhoUseCase = finalizarCarrinhoUseCase;
+        this.removerUltimoItemDoCarrinhoUseCase = removerUltimoItemDoCarrinhoUseCase;
     }
 
     @Operation(summary = "Adicionar item ao carrinho")
@@ -91,5 +95,23 @@ public class ItemVendaController {
 
         finalizarCarrinhoUseCase.execute(command);
         return ResponseEntity.ok("Carrinho finalizado com sucesso!");
+    }
+
+    @Operation(summary = "Remover o último item adicionado do carrinho")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Último item removido do carrinho com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Carrinho vazio ou item não encontrado")
+    })
+    @DeleteMapping("/carrinho/remover-ultimo/{clienteId}")
+    public ResponseEntity<String> removerUltimoItem(@PathVariable Integer clienteId) {
+
+        RemoverUltimoItemDoCarrinhoCommand command = new RemoverUltimoItemDoCarrinhoCommand(clienteId);
+
+        try {
+            removerUltimoItemDoCarrinhoUseCase.execute(command);
+            return ResponseEntity.ok("Último item removido do carrinho com sucesso!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Carrinho vazio ou item não encontrado");
+        }
     }
 }

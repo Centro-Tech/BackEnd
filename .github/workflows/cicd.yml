@@ -13,36 +13,41 @@ jobs:
         host: ["host_a", "host_b"] # deploy nas duas instâncias
 
     steps:
-      # 1 Checkout do repositório
+      # 1️⃣ Checkout do repositório
       - name: Checkout do código
         uses: actions/checkout@v4
 
-      # 2️ Configurar o ambiente Java/Maven
+      # 2️⃣ Configurar ambiente Java/Maven
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: 'maven' # Adicionei o cache, é uma boa prática para acelerar builds
+          cache: 'maven'
 
-      # 3 Build do backend com Maven
+      # 3️⃣ Build do backend
       - name: BE - Compilar projeto
         run: |
-           cd "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima" && mvn clean package -DskipTests
+          cd "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima"
+          mvn clean package -DskipTests
 
-      # 4 Mapear o host literal para o secret real
+      # 4️⃣ Mapear o host literal para o secret real (corrigido com suporte a multiline)
       - name: Definir host real
         id: set_host
         run: |
           if [ "${{ matrix.host }}" = "host_a" ]; then
             echo "HOST_REAL=${{ secrets.REMOTE_HOST }}" >> $GITHUB_ENV
-            echo "SSH_KEY=${{ secrets.EC2_SSH_KEY }}" >> $GITHUB_ENV
+            echo "SSH_KEY<<EOF" >> $GITHUB_ENV
+            echo "${{ secrets.EC2_SSH_KEY }}" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
           else
             echo "HOST_REAL=${{ secrets.REMOTE_HOST_B }}" >> $GITHUB_ENV
-            echo "SSH_KEY=${{ secrets.EC2_SSH_KEY_PRIVATE }}" >> $GITHUB_ENV
+            echo "SSH_KEY<<EOF" >> $GITHUB_ENV
+            echo "${{ secrets.EC2_SSH_KEY_PRIVATE }}" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
           fi
 
-      # 4️⃣ Copiar código-fonte para a EC2
+      # 5️⃣ Copiar arquivos para EC2 via SSH
       - name: BE - Copiar arquivos via SSH (rsync)
         uses: easingthemes/ssh-deploy@main
         with:
@@ -53,7 +58,7 @@ jobs:
           SOURCE: "BackEnd/"
           ARGS: "-rltgoDzvO --delete"
 
-      # 5️⃣ Buildar e rodar o container Docker
+      # 6️⃣ Buildar e subir container Docker remotamente
       - name: BE - Buildar imagem e subir container
         uses: appleboy/ssh-action@v1.1.0
         with:
@@ -66,7 +71,13 @@ jobs:
             # Instalar Docker se necessário
             if ! command -v docker &> /dev/null; then
               echo "⚙️ Instalando Docker..."
-              sudo yum install -y docker || sudo dnf install -y docker
+              if [ -x "$(command -v yum)" ]; then
+                sudo yum install -y docker
+              elif [ -x "$(command -v dnf)" ]; then
+                sudo dnf install -y docker
+              elif [ -x "$(command -v apt-get)" ]; then
+                sudo apt-get update && sudo apt-get install -y docker.io
+              fi
               sudo systemctl enable docker
               sudo systemctl start docker
               sudo usermod -aG docker $USER

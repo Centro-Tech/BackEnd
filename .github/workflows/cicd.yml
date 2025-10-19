@@ -13,16 +13,24 @@ jobs:
         host: ["host_a", "host_b"] # deploy nas duas instâncias
 
     steps:
-      # 1️⃣ Checkout do repositório
+      # 1 Checkout do repositório
       - name: Checkout do código
         uses: actions/checkout@v4
 
-      # 2️⃣ Build do backend com Maven
+      # 2️ Configurar o ambiente Java/Maven
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven' # Adicionei o cache, é uma boa prática para acelerar builds
+
+      # 3 Build do backend com Maven
       - name: BE - Compilar projeto
         run: |
            cd "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima" && mvn clean package -DskipTests
 
-      # 3️⃣ Mapear o host literal para o secret real
+      # 4 Mapear o host literal para o secret real
       - name: Definir host real
         id: set_host
         run: |

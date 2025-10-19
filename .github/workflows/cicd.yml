@@ -20,8 +20,7 @@ jobs:
       # 2️⃣ Build do backend com Maven
       - name: BE - Compilar projeto
         run: |
-          cd BackEnd
-          mvn clean package -DskipTests
+           cd "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima" && mvn clean package -DskipTests
 
       # 3️⃣ Mapear o host literal para o secret real
       - name: Definir host real

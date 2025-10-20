@@ -56,19 +56,21 @@ jobs:
           ls -l private_key.pem
           echo "✅ Ambiente configurado para ${{ matrix.host }}"
 
+      # 5️⃣ Mostrar qual host será usado
       - name: Debug host configurado
         run: |
-            echo "🔎 Host configurado para ${{ matrix.host }}:"
-            echo "HOST_REAL = ${{ env.HOST_REAL }}"
+          echo "🔎 Host configurado para ${{ matrix.host }}:"
+          echo "HOST_REAL = ${{ env.HOST_REAL }}"
+          echo "SSH_KEY_PATH = ${{ env.SSH_KEY_PATH }}"
 
-      # 5️⃣ Testar conexão SSH antes do deploy
+      # 6️⃣ Testar conexão SSH antes do deploy
       - name: Testar conexão SSH
         run: |
           echo "🔍 Testando conexão SSH com ${{ env.HOST_REAL }}..."
           ssh -vvv -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no \
             ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }} "echo '✅ Conexão SSH bem-sucedida!'"
 
-      # 6️⃣ Copiar arquivos e fazer deploy
+      # 7️⃣ Copiar arquivos e fazer deploy
       - name: BE - Copiar arquivos e deploy
         run: |
           set -e
@@ -92,7 +94,7 @@ jobs:
 
           echo "✅ Deploy concluído com sucesso."
 
-      # 7️⃣ Buildar e rodar container Docker remotamente + logs
+      # 8️⃣ Buildar e rodar container Docker remotamente + logs
       - name: BE - Buildar imagem e rodar container
         uses: appleboy/ssh-action@v1.1.0
         with:

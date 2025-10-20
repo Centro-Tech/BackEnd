@@ -55,6 +55,11 @@ jobs:
           echo "${{ env.SSH_KEY }}" | tr -d '\r' > ~/.ssh/deploy_key
           chmod 400 ~/.ssh/deploy_key
 
+          echo "📦 Organizando arquivos..."
+          mkdir -p BackEnd
+          cp -r "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima/." BackEnd/
+
+
           echo "🚀 Iniciando cópia de arquivos para ${{ env.HOST_REAL }} ..."
           rsync -rltgoDzvO --delete -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
             BackEnd/ ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend

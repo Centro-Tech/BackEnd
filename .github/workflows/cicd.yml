@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-and-deploy-backend: # <-- Nome do job único, sem matrix
+  build-and-deploy-backend: # Nome do job único, focado no backend
     runs-on: ubuntu-latest
     
     steps:
@@ -35,7 +35,6 @@ jobs:
         run: |
           echo "🔧 Criando chave SSH para o runner..."
           mkdir -p ~/.ssh
-          # Salva a chave que dá acesso ao BASTION (Host A)
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/private_key.pem
           chmod 600 ~/.ssh/private_key.pem
           echo "✅ Chave criada."
@@ -43,12 +42,19 @@ jobs:
       # 5️⃣ Deploy do Backend no Host B (via Host A)
       - name: BE - Deploy no Host Privado (via Bastion)
         run: |
+          # --- !! MUDANÇA CRÍTICA !! ---
+          # set -e: Falha o script se qualquer comando falhar
+          # set -o pipefail: Falha o script se qualquer parte de um "pipe" (|) falhar
+          set -e
+          set -o pipefail
+          # ------------------------------
+
           mkdir -p logs
           
           # --- Define as variáveis para clareza ---
           HOST_A=${{ secrets.REMOTE_HOST }}      # IP Público (Frontend/Bastion)
           HOST_B=${{ secrets.REMOTE_HOST_B }}    # IP Privado (Backend)
-          USER=${{ secrets.REMOTE_USER }}
+          USER=${{ secrets.REMOTE_USER }}        # ec2-user
           KEY_PATH=~/.ssh/private_key.pem       # Chave no runner
 
           echo "🛰️ Iniciando deploy do BACKEND para host_b ($HOST_B) via host_a ($HOST_A)..."
@@ -63,6 +69,7 @@ jobs:
           echo "🔄 [2/3] Conectando no host_a e disparando deploy de ARQUIVOS para host_b..."
           # Este comando conecta no Host A...
           ssh -i $KEY_PATH -o StrictHostKeyChecking=no $USER@$HOST_A "\
+              set -e && \
               mkdir -p ~/logs && \
               echo '...[Host A] Copiando chave para o bastion...' && \
               echo '${{ secrets.EC2_SSH_KEY }}' > ~/private_key.pem && chmod 600 ~/private_key.pem && \
@@ -77,6 +84,7 @@ jobs:
           echo "🚀 [3/3] Conectando no host_a e disparando INSTALAÇÃO/BUILD do Docker no host_b..."
           # Este comando conecta no Host A...
           ssh -i $KEY_PATH -o StrictHostKeyChecking=no $USER@$HOST_A "\
+              set -e && \
               echo '...[Host A] Conectando no host_b ($HOST_B) para rodar o Docker...' && \
               \
               # ...que por sua vez conecta no Host B para rodar o script final
@@ -88,14 +96,26 @@ jobs:
                 { \
                   echo \"...[Host B] Iniciando deploy no host_b...\" && \
                   \
-                  # --- LÓGICA DE INSTALAÇÃO DO DOCKER --- \
+                  # --- !! LÓGICA DE INSTALAÇÃO DO DOCKER CORRIGIDA !! --- \
                   if ! command -v docker &> /dev/null; then \
                     echo \"...[Host B] ⚙️ Docker não encontrado. Instalando Docker...\" && \
-                    ( \
-                      (sudo apt-get update && sudo apt-get install -y docker.io) || \
-                      (sudo yum install -y docker) || \
-                      (sudo dnf install -y docker) \
-                    ) && \
+                    if command -v amazon-linux-extras &> /dev/null; then \
+                      echo \"...[Host B] Detectado Amazon Linux 2. Usando 'amazon-linux-extras'....\" && \
+                      sudo amazon-linux-extras install docker -y ; \
+                    elif command -v dnf &> /dev/null; then \
+                      echo \"...[Host B] Detectado RHEL/Fedora/AL2023. Usando 'dnf'....\" && \
+                      sudo dnf install -y docker ; \
+                    elif command -v apt-get &> /dev/null; then \
+                      echo \"...[Host B] Detectado Debian/Ubuntu. Usando 'apt-get'....\" && \
+                      sudo apt-get update && sudo apt-get install -y docker.io ; \
+                    elif command -v yum &> /dev/null; then \
+                      echo \"...[Host B] Detectado RHEL/CentOS. Usando 'yum'....\" && \
+                      sudo yum install -y docker ; \
+                    else \
+                      echo \"...[Host B] ERRO: Não foi possível determinar o gerenciador de pacotes.\" && exit 1 ; \
+                    fi && \
+                    \
+                    echo \"...[Host B] Iniciando e ativando o serviço Docker...\" && \
                     sudo systemctl enable docker && \
                     sudo systemctl start docker && \
                     (sudo usermod -aG docker $USER || echo \"...[Host B] Aviso: Falha ao adicionar $USER ao grupo docker. Usando sudo.\") && \
@@ -103,7 +123,7 @@ jobs:
                   else \
                     echo \"...[Host B] ✅ Docker já está instalado.\" ; \
                   fi && \
-                  # ---------------------------------------- \
+                  # -------------------------------------------------- \
                   \
                   cd /home/$USER/backend && \
                   echo \"...[Host B] 🛑 Parando containers antigos...\" && \

@@ -99,30 +99,37 @@ jobs:
 
       
 
-      # 7️⃣ Copiar arquivos e fazer deploy
+      # 7 Deploy para host_a ou host_b via host_a
       - name: BE - Copiar arquivos e deploy
         run: |
-          set -e
-          echo "🚀 Iniciando deploy para ${{ matrix.host }}..."
+          echo "🚀 Iniciando deploy..."
           HOST_A=${{ secrets.REMOTE_HOST }}
 
           if [ "${{ matrix.host }}" = "host_a" ]; then
-            echo "🔹 Deploy direto para host_a ($HOST_A)"
+            echo "✅ Deploy direto para host_a ($HOST_A)"
             rsync -rltgoDzvO --delete -e "ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no" \
               "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima/" \
-              "${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend"
+              "${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend" | tee logs/deploy_host_a.log
+
           else
-            echo "🔹 Deploy via host_a ($HOST_A) para host_b (${{ env.HOST_REAL }})"
-            ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@$HOST_A "
-              mkdir -p /home/${{ secrets.REMOTE_USER }}/backend &&
-              rsync -rltgoDzvO --delete -e 'ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no' \
+            echo "🛰️ Deploy para host_b (privada) via host_a ($HOST_A)"
+            
+            # 1️⃣ Copia o código do backend para o host público (A)
+            echo "📦 Enviando código para host_a..."
+            rsync -rltgoDzvO --delete -e "ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no" \
+              "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima/" \
+              "${{ secrets.REMOTE_USER }}@$HOST_A:/home/${{ secrets.REMOTE_USER }}/backend" | tee logs/rsync_to_a.log
+
+            # 2️⃣ Dentro do host_a, repassa o código para o host_b via IP privado
+            echo "🔄 Enviando do host_a para host_b..."
+            ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@$HOST_A "\
+              rsync -rltgoDzvO --delete -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no' \
               /home/${{ secrets.REMOTE_USER }}/backend/ \
-              ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend
-            "
+              ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend" | tee logs/rsync_to_b.log
+
+            echo "✅ Deploy finalizado para host_b"
           fi
-
-          echo "✅ Deploy concluído com sucesso."
-
+          
       # 8️⃣ Buildar e rodar container Docker remotamente + logs
       - name: BE - Buildar imagem e rodar container
         uses: appleboy/ssh-action@v1.1.0

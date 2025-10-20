@@ -117,7 +117,7 @@ jobs:
           # Dá permissão de execução para o script
           chmod +x "$PROJETO_DIR/deploy_on_b.sh"
           
-      # 6️⃣ Deploy do Backend no Host B (via Host A)
+     # 6️⃣ Deploy do Backend no Host B (via Host A)
       - name: BE - Deploy no Host Privado (via Bastion)
         run: |
           set -e
@@ -127,7 +127,7 @@ jobs:
           
           HOST_A=${{ secrets.REMOTE_HOST }}
           HOST_B=${{ secrets.REMOTE_HOST_B }}
-          USER=${{ secrets.REMOTE_USER }}
+          USER=${{ secrets.REMOTE_USER }}        # This should be 'ec2-user'
           KEY_PATH=~/.ssh/private_key.pem
 
           echo "🛰️ Iniciando deploy do BACKEND para host_b ($HOST_B) via host_a ($HOST_A)..."
@@ -153,11 +153,13 @@ jobs:
             | tee logs/rsync_to_b.log
 
           echo "🚀 [3/3] Conectando no host_a e disparando EXECUÇÃO do script no host_b..."
-          # Este comando é MUITO MAIS SIMPLES e robusto:
           ssh -i $KEY_PATH -o StrictHostKeyChecking=no $USER@$HOST_A "\
               set -e && \
               echo '...[Host A] Conectando no host_b ($HOST_B) para executar o deploy_on_b.sh...' && \
-              ssh -i ~/private_key.pem -o StrictHostKeyChecking=no $USER@$HOST_B 'bash $HOME/backend/deploy_on_b.sh' \
+              \
+              # --- !! CORREÇÃO AQUI !! ---
+              # Usamos /home/$USER/backend/ explicitly, em vez de $HOME/backend/
+              ssh -i ~/private_key.pem -o StrictHostKeyChecking=no $USER@$HOST_B 'bash /home/$USER/backend/deploy_on_b.sh' \
             " | tee logs/deploy_docker_on_b.log
 
           echo "✅ Deploy finalizado para host_b"

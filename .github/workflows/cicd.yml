@@ -33,11 +33,12 @@ jobs:
           mvn clean package -DskipTests
           echo "✅ Build concluído com sucesso."
 
-      # 4️⃣ Definir host real e reconstruir chave SSH
+      # 4️⃣ Definir host real e chave SSH
       - name: Definir host e chave SSH
         id: set_host
         run: |
           echo "🔧 Definindo host e chave SSH..."
+          mkdir -p logs
 
           if [ "${{ matrix.host }}" = "host_a" ]; then
             echo "Deploy para host público (A)"
@@ -51,11 +52,11 @@ jobs:
 
           chmod 600 private_key.pem
           echo "SSH_KEY_PATH=$PWD/private_key.pem" >> $GITHUB_ENV
-
           echo "🔑 Chave SSH criada com sucesso em: $PWD/private_key.pem"
           ls -l private_key.pem
           echo "✅ Ambiente configurado para ${{ matrix.host }}"
 
+      # 5️⃣ Debug de variáveis
       - name: 🔎 Debug de variáveis de ambiente
         run: |
           echo "Matriz selecionada: ${{ matrix.host }}"
@@ -64,22 +65,21 @@ jobs:
           echo "REMOTE_HOST_B (secret) = '${{ secrets.REMOTE_HOST_B }}'"
           echo "REMOTE_USER (secret) = '${{ secrets.REMOTE_USER }}'"
 
-
-      # 5️⃣ Mostrar qual host será usado
+      # 6️⃣ Mostrar qual host será usado
       - name: Debug host configurado
         run: |
           echo "🔎 Host configurado para ${{ matrix.host }}:"
           echo "HOST_REAL = ${{ env.HOST_REAL }}"
           echo "SSH_KEY_PATH = ${{ env.SSH_KEY_PATH }}"
 
+      # 7️⃣ Validar variáveis
       - name: 🔍 Validar variáveis obrigatórias
         run: |
           if [ -z "${{ env.HOST_REAL }}" ]; then
-            echo "❌ ERRO: HOST_REAL está vazio! Verifique se os secrets REMOTE_HOST e REMOTE_HOST_B estão configurados corretamente."
+            echo "❌ ERRO: HOST_REAL está vazio!"
             exit 1
           fi
           echo "✅ HOST_REAL definido como: ${{ env.HOST_REAL }}"
-
 
       - name: ✅ Verificar se HOST_REAL é um IP válido
         run: |
@@ -90,47 +90,51 @@ jobs:
             exit 1
           fi
 
-      # 6️⃣ Testar conexão SSH antes do deploy
+      # 8️⃣ Testar conexão SSH
       - name: Testar conexão SSH
         run: |
           echo "🔍 Testando conexão SSH com ${{ env.HOST_REAL }}..."
           ssh -vvv -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no \
             ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }} "echo '✅ Conexão SSH bem-sucedida!'"
 
-      
-
-      # 7 Deploy para host_a ou host_b via host_a
+      # 9️⃣ Copiar arquivos e deploy
       - name: BE - Copiar arquivos e deploy
         run: |
+          mkdir -p logs
           echo "🚀 Iniciando deploy..."
           HOST_A=${{ secrets.REMOTE_HOST }}
 
           if [ "${{ matrix.host }}" = "host_a" ]; then
             echo "✅ Deploy direto para host_a ($HOST_A)"
-            rsync -rltgoDzvO --delete -e "ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no" \
+            rsync -rltgoDzvO --delete \
+              -e "ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no" \
               "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima/" \
-              "${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend" | tee logs/deploy_host_a.log
+              "${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend" \
+              | tee logs/deploy_host_a.log
 
           else
             echo "🛰️ Deploy para host_b (privada) via host_a ($HOST_A)"
-            
-            # 1️⃣ Copia o código do backend para o host público (A)
             echo "📦 Enviando código para host_a..."
-            rsync -rltgoDzvO --delete -e "ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no" \
+            rsync -rltgoDzvO --delete \
+              -e "ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no" \
               "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima/" \
-              "${{ secrets.REMOTE_USER }}@$HOST_A:/home/${{ secrets.REMOTE_USER }}/backend" | tee logs/rsync_to_a.log
+              "${{ secrets.REMOTE_USER }}@$HOST_A:/home/${{ secrets.REMOTE_USER }}/backend" \
+              | tee logs/rsync_to_a.log
 
-            # 2️⃣ Dentro do host_a, repassa o código para o host_b via IP privado
             echo "🔄 Enviando do host_a para host_b..."
-            ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@$HOST_A "\
-              rsync -rltgoDzvO --delete -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no' \
-              /home/${{ secrets.REMOTE_USER }}/backend/ \
-              ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend" | tee logs/rsync_to_b.log
+            ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no \
+              ${{ secrets.REMOTE_USER }}@$HOST_A "\
+                mkdir -p ~/logs && \
+                rsync -rltgoDzvO --delete \
+                -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no' \
+                /home/${{ secrets.REMOTE_USER }}/backend/ \
+                ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend" \
+              | tee logs/rsync_to_b.log
 
             echo "✅ Deploy finalizado para host_b"
           fi
-          
-      # 8️⃣ Buildar e rodar container Docker remotamente + logs
+
+      # 🔟 Buildar e rodar container Docker remotamente
       - name: BE - Buildar imagem e rodar container
         uses: appleboy/ssh-action@v1.1.0
         with:
@@ -141,14 +145,11 @@ jobs:
             set -e
             LOG_DIR="/home/${{ secrets.REMOTE_USER }}/backend/logs"
             mkdir -p $LOG_DIR
-
-            echo "🧰 Logando em: $LOG_DIR/deploy_$(date +%Y%m%d_%H%M%S).log"
             LOG_FILE="$LOG_DIR/deploy_$(date +%Y%m%d_%H%M%S).log"
 
             {
               echo "🚀 Iniciando deploy do backend MimaStore na EC2 $HOST_REAL..."
               
-              # Instalar Docker se necessário
               if ! command -v docker &> /dev/null; then
                 echo "⚙️ Instalando Docker..."
                 if [ -x "$(command -v yum)" ]; then
@@ -164,7 +165,6 @@ jobs:
               fi
 
               cd /home/${{ secrets.REMOTE_USER }}/backend
-
               echo "🛑 Parando containers antigos..."
               docker stop mimastore-backend || true
               docker rm mimastore-backend || true

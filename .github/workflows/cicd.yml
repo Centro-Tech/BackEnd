@@ -108,26 +108,47 @@ jobs:
               ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }} "echo '✅ Conexão SSH bem-sucedida!'"
           fi
 
-     # 9️⃣ Copiar arquivos e deploy
-      - name: BE - Copiar arquivos e deploy
+     # 9️⃣ Copiar arquivos E FAZER DEPLOY
+      - name: BE - Copiar arquivos e deploy (com deploy host_b)
         run: |
-          # ... (código do host_a fica igual) ...
+          mkdir -p logs
+          echo "🚀 Iniciando deploy..."
+          HOST_A=${{ secrets.REMOTE_HOST }}
+
+          if [ "${{ matrix.host }}" = "host_a" ]; then
+            # --- Bloco do Host A (Público) ---
+            echo "✅ Deploy direto para host_a ($HOST_A)"
+            rsync -rltgoDzvO --delete \
+              -e "ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no" \
+              "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima/" \
+              "${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend" \
+              | tee logs/deploy_host_a.log
 
           else
+            # --- Bloco do Host B (Privado) via Bastion ---
             echo "🛰️ Deploy para host_b (privado) via host_a ($HOST_A)"
-            # ... (código do rsync para host_a fica igual) ...
+            
+            echo "📦 [1/2] Enviando código para host_a (bastion)..."
+            rsync -rltgoDzvO --delete \
+              -e "ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no" \
+              "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima/" \
+              "${{ secrets.REMOTE_USER }}@$HOST_A:/home/${{ secrets.REMOTE_USER }}/backend_temp_deploy" \
+              | tee logs/rsync_to_a.log
 
-            echo "🔄 Enviando do host_a para host_b E FAZENDO DEPLOY..."
+            echo "🔄 [2/2] Conectando no host_a e disparando deploy para host_b..."
             ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no \
               ${{ secrets.REMOTE_USER }}@$HOST_A "\
                 mkdir -p ~/logs && \
+                echo 'Copiando chave para o bastion...' && \
                 echo '${{ secrets.EC2_SSH_KEY }}' > ~/private_key.pem && chmod 600 ~/private_key.pem && \
-                rsync -rltgoDzvO --delete \
-                -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no' \
-                /home/${{ secrets.REMOTE_USER }}/backend/ \
-                ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend && \
                 \
-                echo '🚀 Iniciando deploy remoto no host_b...' && \
+                echo 'Copiando arquivos de bastion -> host_b...' && \
+                rsync -rltgoDzvO --delete \
+                  -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no' \
+                  /home/${{ secrets.REMOTE_USER }}/backend_temp_deploy/ \
+                  ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend && \
+                \
+                echo '🚀 Iniciando build Docker remoto no host_b...' && \
                 ssh -i ~/private_key.pem -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }} '\
                   set -e && \
                   LOG_DIR=\"/home/${{ secrets.REMOTE_USER }}/backend/logs\" && \
@@ -137,8 +158,8 @@ jobs:
                     echo \"🚀 Iniciando deploy do backend MimaStore na EC2 (host_b)...\" && \
                     cd /home/${{ secrets.REMOTE_USER }}/backend && \
                     echo \"🛑 Parando containers antigos...\" && \
-                    docker stop mimastore-backend || true && \
-                    docker rm mimastore-backend || true && \
+                    (docker stop mimastore-backend || true) && \
+                    (docker rm mimastore-backend || true) && \
                     echo \"🏗️ Buildando nova imagem Docker...\" && \
                     docker build -t mimastore-backend . 2>&1 | tee -a \"\$LOG_FILE\" && \
                     echo \"🚀 Subindo novo container...\" && \
@@ -150,7 +171,7 @@ jobs:
 
             echo "✅ Deploy finalizado para host_b"
           fi
-
+          
       # 🔟 Buildar e rodar container Docker remotamente (APENAS HOST_A)
       - name: BE - Buildar imagem e rodar container (Host A)
         if: matrix.host == 'host_a'  # ⬅️ ADICIONE ESTA LINHA

@@ -47,7 +47,7 @@ jobs:
             echo "EOF" >> $GITHUB_ENV
           fi
 
-      # 5️⃣ Copiar arquivos para EC2 via SSH (corrigido)
+     # 5️⃣ Copiar arquivos para EC2 via SSH (rsync)
       - name: BE - Copiar arquivos via SSH (rsync)
         run: |
           echo "🔧 Preparando chave SSH..."
@@ -55,15 +55,16 @@ jobs:
           echo "${{ env.SSH_KEY }}" | tr -d '\r' > ~/.ssh/deploy_key
           chmod 400 ~/.ssh/deploy_key
 
-          echo "📦 Organizando arquivos..."
-          mkdir -p BackEnd
-          cp -r "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima/." BackEnd/
-
-
           echo "🚀 Iniciando cópia de arquivos para ${{ env.HOST_REAL }} ..."
+          
+          # Comando rsync corrigido:
+          # 1. Removida a barra invertida \
+          # 2. SOURCE aponta direto para a pasta do projeto (com / no final)
+          # 3. Removidos os comandos 'mkdir BackEnd' e 'cp' desnecessários
           rsync -rltgoDzvO --delete -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
-            BackEnd/ ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend
-
+            "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima/" \
+            ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend
+            
       # 6️⃣ Buildar e subir container Docker remotamente
       - name: BE - Buildar imagem e subir container
         uses: appleboy/ssh-action@v1.1.0

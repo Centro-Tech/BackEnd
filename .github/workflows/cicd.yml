@@ -80,6 +80,16 @@ jobs:
           fi
           echo "✅ HOST_REAL definido como: ${{ env.HOST_REAL }}"
 
+
+      - name: ✅ Verificar se HOST_REAL é um IP válido
+        run: |
+          if [[ "${{ env.HOST_REAL }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "✅ HOST_REAL parece um IP válido."
+          else
+            echo "❌ HOST_REAL não é um IP válido: '${{ env.HOST_REAL }}'"
+            exit 1
+          fi
+
       # 6️⃣ Testar conexão SSH antes do deploy
       - name: Testar conexão SSH
         run: |

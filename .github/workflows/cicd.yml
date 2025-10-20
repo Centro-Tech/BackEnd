@@ -50,16 +50,17 @@ jobs:
       # 5️⃣ Deploy para host_a (pública) ou via jump host para host_b
       - name: BE - Copiar arquivos e deploy
         run: |
+          HOST_A=${{ secrets.REMOTE_HOST }}
           if [ "${{ matrix.host }}" = "host_a" ]; then
-            echo "🚀 Deploy direto para host_a (${{ env.HOST_REAL }})"
-            rsync -rltgoDzvO --delete -e "ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no" \
-              "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima/" \
-              "${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend"
+          echo "🚀 Deploy direto para host_a ($HOST_A)"
+          rsync -rltgoDzvO --delete -e "ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no" \
+          "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima/" \
+          "${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend"
           else
-            echo "🚀 Host_b é privada. Deploy via host_a (${ { secrets.REMOTE_HOST } })"
-            ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} \
-            "rsync -rltgoDzvO --delete -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no' \
-              /home/${{ secrets.REMOTE_USER }}/backend/ ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend"
+          echo "🚀 Host_b é privada. Deploy via host_a ($HOST_A)"
+          ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@$HOST_A \
+          "rsync -rltgoDzvO --delete -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no' \
+          /home/${{ secrets.REMOTE_USER }}/backend/ ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend"
           fi
 
       # 6️⃣ Buildar e subir container Docker remotamente

@@ -42,14 +42,11 @@ jobs:
       # 5️⃣ Deploy do Backend no Host B (via Host A)
       - name: BE - Deploy no Host Privado (via Bastion)
         run: |
-          # --- !! MUDANÇA CRÍTICA !! ---
           set -e
           set -o pipefail
-          # ------------------------------
 
           mkdir -p logs
           
-          # --- Define as variáveis para clareza ---
           HOST_A=${{ secrets.REMOTE_HOST }}      # IP Público (Frontend/Bastion)
           HOST_B=${{ secrets.REMOTE_HOST_B }}    # IP Privado (Backend)
           USER=${{ secrets.REMOTE_USER }}        # ec2-user
@@ -84,7 +81,7 @@ jobs:
               set -e && \
               echo '...[Host A] Conectando no host_b ($HOST_B) para rodar o Docker...' && \
               \
-              # ...que por sua vez conecta no Host B para rodar o script final
+              # ...que por sua vez conecta no Host B para rodar o script final (AGORA CORRIGIDO)
               ssh -i ~/private_key.pem -o StrictHostKeyChecking=no $USER@$HOST_B '\
                 set -e && \
                 LOG_DIR=\"/home/$USER/backend/logs\" && \
@@ -92,8 +89,6 @@ jobs:
                 LOG_FILE=\"\$LOG_DIR/deploy_\$(date +%Y%m%d_%H%M%S).log\" && \
                 { \
                   echo \"...[Host B] Iniciando deploy no host_b...\" && \
-                  \
-                  # --- LÓGICA DE INSTALAÇÃO DO DOCKER CORRIGIDA --- \
                   if ! command -v docker &> /dev/null; then \
                     echo \"...[Host B] ⚙️ Docker não encontrado. Instalando Docker...\" && \
                     if command -v amazon-linux-extras &> /dev/null; then \
@@ -111,7 +106,6 @@ jobs:
                     else \
                       echo \"...[Host B] ERRO: Não foi possível determinar o gerenciador de pacotes.\" && exit 1 ; \
                     fi && \
-                    \
                     echo \"...[Host B] Iniciando e ativando o serviço Docker...\" && \
                     sudo systemctl enable docker && \
                     sudo systemctl start docker && \
@@ -120,8 +114,6 @@ jobs:
                   else \
                     echo \"...[Host B] ✅ Docker já está instalado.\" ; \
                   fi && \
-                  # -------------------------------------------------- \
-                  \
                   cd /home/$USER/backend && \
                   echo \"...[Host B] 🛑 Parando containers antigos...\" && \
                   (sudo docker stop mimastore-backend || true) && \

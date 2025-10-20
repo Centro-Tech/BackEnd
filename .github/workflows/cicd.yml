@@ -56,6 +56,11 @@ jobs:
           ls -l private_key.pem
           echo "✅ Ambiente configurado para ${{ matrix.host }}"
 
+      - name: Debug host configurado
+        run: |
+            echo "🔎 Host configurado para ${{ matrix.host }}:"
+            echo "HOST_REAL = ${{ env.HOST_REAL }}"
+
       # 5️⃣ Testar conexão SSH antes do deploy
       - name: Testar conexão SSH
         run: |

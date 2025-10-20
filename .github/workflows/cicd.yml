@@ -39,7 +39,81 @@ jobs:
           chmod 600 ~/.ssh/private_key.pem
           echo "✅ Chave criada."
 
-      # 5️⃣ Deploy do Backend no Host B (via Host A)
+      # 5️⃣ NOVO! Criar script de deploy para Host B
+      - name: Criar script de deploy para Host B
+        run: |
+          echo "Criando script de deploy..."
+          PROJETO_DIR="Sprint 4 - CleanArch/JavaSpringBoot/projetoMima"
+          
+          # Criamos o script de deploy DENTRO da pasta do projeto que será copiada
+          cat << 'EOF' > $PROJETO_DIR/deploy_on_b.sh
+          #!/bin/bash
+          set -e
+          
+          # --- ESTE SCRIPT RODA DENTRO DO HOST B ---
+          
+          # $HOME será /home/ec2-user (ou qualquer que seja o usuário)
+          PROJETO_DIR="$HOME/backend"
+          LOG_DIR="$PROJETO_DIR/logs"
+          LOG_FILE="$LOG_DIR/deploy_$(date +%Y%m%d_%H%M%S).log"
+
+          mkdir -p $LOG_DIR
+          
+          # Redireciona toda a saída (stdout/stderr) para o log E para o console
+          exec > >(tee -a "$LOG_FILE") 2>&1
+          
+          echo "...[Host B] Iniciando deploy no host_b..."
+          echo "...[Host B] Rodando como usuário: $(whoami) em $(pwd)"
+
+          # --- LÓGICA DE INSTALAÇÃO DO DOCKER ---
+          if ! command -v docker &> /dev/null; then
+            echo "...[Host B] ⚙️ Docker não encontrado. Instalando Docker..."
+            if command -v amazon-linux-extras &> /dev/null; then
+              echo "...[Host B] Detectado Amazon Linux 2. Usando 'amazon-linux-extras'...."
+              sudo amazon-linux-extras install docker -y
+            elif command -v dnf &> /dev/null; then
+              echo "...[Host B] Detectado RHEL/Fedora/AL2023. Usando 'dnf'...."
+              sudo dnf install -y docker
+            elif command -v apt-get &> /dev/null; then
+              echo "...[Host B] Detectado Debian/Ubuntu. Usando 'apt-get'...."
+              sudo apt-get update && sudo apt-get install -y docker.io
+            elif command -v yum &> /dev/null; then
+              echo "...[Host B] Detectado RHEL/CentOS. Usando 'yum'...."
+              sudo yum install -y docker
+            else
+              echo "...[Host B] ERRO: Não foi possível determinar o gerenciador de pacotes." && exit 1
+            fi
+            
+            echo "...[Host B] Iniciando e ativando o serviço Docker..."
+            sudo systemctl enable docker
+            sudo systemctl start docker
+            (sudo usermod -aG docker $USER || echo "...[Host B] Aviso: Falha ao adicionar $USER ao grupo docker. Usando sudo.")
+            echo "...[Host B] ✅ Docker instalado."
+          else
+            echo "...[Host B] ✅ Docker já está instalado."
+          fi
+          # ----------------------------------------
+          
+          cd $PROJETO_DIR
+          echo "...[Host B] 🛑 Parando containers antigos..."
+          (sudo docker stop mimastore-backend || true)
+          (sudo docker rm mimastore-backend || true)
+          
+          echo "...[Host B] 🏗️ Buildando nova imagem Docker..."
+          sudo docker build -t mimastore-backend .
+          
+          echo "...[Host B] 🚀 Subindo novo container..."
+          sudo docker run -d -p 8080:8080 --name mimastore-backend mimastore-backend
+          
+          echo "...[Host B] ✅ Backend (host_b) atualizado e rodando!"
+          
+          EOF
+          
+          echo "Script criado em $PROJETO_DIR/deploy_on_b.sh"
+          # Dá permissão de execução para o script
+          chmod +x $PROJETO_DIR/deploy_on_b.sh
+
+      # 6️⃣ Deploy do Backend no Host B (via Host A)
       - name: BE - Deploy no Host Privado (via Bastion)
         run: |
           set -e
@@ -47,14 +121,14 @@ jobs:
 
           mkdir -p logs
           
-          HOST_A=${{ secrets.REMOTE_HOST }}      # IP Público (Frontend/Bastion)
-          HOST_B=${{ secrets.REMOTE_HOST_B }}    # IP Privado (Backend)
-          USER=${{ secrets.REMOTE_USER }}        # ec2-user
-          KEY_PATH=~/.ssh/private_key.pem       # Chave no runner
+          HOST_A=${{ secrets.REMOTE_HOST }}
+          HOST_B=${{ secrets.REMOTE_HOST_B }}
+          USER=${{ secrets.REMOTE_USER }}
+          KEY_PATH=~/.ssh/private_key.pem
 
           echo "🛰️ Iniciando deploy do BACKEND para host_b ($HOST_B) via host_a ($HOST_A)..."
           
-          echo "📦 [1/3] Enviando código para host_a (bastion)..."
+          echo "📦 [1/3] Enviando código (com script) para host_a (bastion)..."
           rsync -rltgoDzvO --delete \
             -e "ssh -i $KEY_PATH -o StrictHostKeyChecking=no" \
             "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima/" \
@@ -62,69 +136,24 @@ jobs:
             | tee logs/rsync_to_a.log
 
           echo "🔄 [2/3] Conectando no host_a e disparando deploy de ARQUIVOS para host_b..."
-          # Este comando conecta no Host A...
           ssh -i $KEY_PATH -o StrictHostKeyChecking=no $USER@$HOST_A "\
               set -e && \
               mkdir -p ~/logs && \
               echo '...[Host A] Copiando chave para o bastion...' && \
               echo '${{ secrets.EC2_SSH_KEY }}' > ~/private_key.pem && chmod 600 ~/private_key.pem && \
-              echo '...[Host A] Copiando arquivos de bastion -> host_b ($HOST_B)...' && \
+              echo '...[Host A] Copiando arquivos (com script) de bastion -> host_b ($HOST_B)...' && \
               rsync -rltgoDzvO --delete \
                 -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no' \
                 /home/$USER/backend_temp_deploy/ \
                 $USER@$HOST_B:/home/$USER/backend" \
             | tee logs/rsync_to_b.log
 
-          echo "🚀 [3/3] Conectando no host_a e disparando INSTALAÇÃO/BUILD do Docker no host_b..."
-          # Este comando conecta no Host A...
+          echo "🚀 [3/3] Conectando no host_a e disparando EXECUÇÃO do script no host_b..."
+          # Este comando é MUITO MAIS SIMPLES e robusto:
           ssh -i $KEY_PATH -o StrictHostKeyChecking=no $USER@$HOST_A "\
               set -e && \
-              echo '...[Host A] Conectando no host_b ($HOST_B) para rodar o Docker...' && \
-              \
-              # ...que por sua vez conecta no Host B para rodar o script final (AGORA CORRIGIDO)
-              ssh -i ~/private_key.pem -o StrictHostKeyChecking=no $USER@$HOST_B '\
-                set -e && \
-                LOG_DIR=\"/home/$USER/backend/logs\" && \
-                mkdir -p \$LOG_DIR && \
-                LOG_FILE=\"\$LOG_DIR/deploy_\$(date +%Y%m%d_%H%M%S).log\" && \
-                { \
-                  echo \"...[Host B] Iniciando deploy no host_b...\" && \
-                  if ! command -v docker &> /dev/null; then \
-                    echo \"...[Host B] ⚙️ Docker não encontrado. Instalando Docker...\" && \
-                    if command -v amazon-linux-extras &> /dev/null; then \
-                      echo \"...[Host B] Detectado Amazon Linux 2. Usando 'amazon-linux-extras'....\" && \
-                      sudo amazon-linux-extras install docker -y ; \
-                    elif command -v dnf &> /dev/null; then \
-                      echo \"...[Host B] Detectado RHEL/Fedora/AL2023. Usando 'dnf'....\" && \
-                      sudo dnf install -y docker ; \
-                    elif command -v apt-get &> /dev/null; then \
-                      echo \"...[Host B] Detectado Debian/Ubuntu. Usando 'apt-get'....\" && \
-                      sudo apt-get update && sudo apt-get install -y docker.io ; \
-                    elif command -v yum &> /dev/null; then \
-                      echo \"...[Host B] Detectado RHEL/CentOS. Usando 'yum'....\" && \
-                      sudo yum install -y docker ; \
-                    else \
-                      echo \"...[Host B] ERRO: Não foi possível determinar o gerenciador de pacotes.\" && exit 1 ; \
-                    fi && \
-                    echo \"...[Host B] Iniciando e ativando o serviço Docker...\" && \
-                    sudo systemctl enable docker && \
-                    sudo systemctl start docker && \
-                    (sudo usermod -aG docker $USER || echo \"...[Host B] Aviso: Falha ao adicionar $USER ao grupo docker. Usando sudo.\") && \
-                    echo \"...[Host B] ✅ Docker instalado.\" ; \
-                  else \
-                    echo \"...[Host B] ✅ Docker já está instalado.\" ; \
-                  fi && \
-                  cd /home/$USER/backend && \
-                  echo \"...[Host B] 🛑 Parando containers antigos...\" && \
-                  (sudo docker stop mimastore-backend || true) && \
-                  (sudo docker rm mimastore-backend || true) && \
-                  echo \"...[Host B] 🏗️ Buildando nova imagem Docker...\" && \
-                  sudo docker build -t mimastore-backend . 2>&1 | tee -a \"\$LOG_FILE\" && \
-                  echo \"...[Host B] 🚀 Subindo novo container...\" && \
-                  sudo docker run -d -p 8080:8080 --name mimastore-backend mimastore-backend 2>&1 | tee -a \"\$LOG_FILE\" && \
-                  echo \"...[Host B] ✅ Backend (host_b) atualizado e rodando!\" \
-                } | tee -a \"\$LOG_FILE\" \
-              ' \
+              echo '...[Host A] Conectando no host_b ($HOST_B) para executar o deploy_on_b.sh...' && \
+              ssh -i ~/private_key.pem -o StrictHostKeyChecking=no $USER@$HOST_B 'bash $HOME/backend/deploy_on_b.sh' \
             " | tee logs/deploy_docker_on_b.log
 
           echo "✅ Deploy finalizado para host_b"

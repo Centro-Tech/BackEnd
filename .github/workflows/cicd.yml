@@ -108,31 +108,16 @@ jobs:
               ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }} "echo '✅ Conexão SSH bem-sucedida!'"
           fi
 
-      # 9️⃣ Copiar arquivos e deploy
+     # 9️⃣ Copiar arquivos e deploy
       - name: BE - Copiar arquivos e deploy
         run: |
-          mkdir -p logs
-          echo "🚀 Iniciando deploy..."
-          HOST_A=${{ secrets.REMOTE_HOST }}
-
-          if [ "${{ matrix.host }}" = "host_a" ]; then
-            echo "✅ Deploy direto para host_a ($HOST_A)"
-            rsync -rltgoDzvO --delete \
-              -e "ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no" \
-              "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima/" \
-              "${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend" \
-              | tee logs/deploy_host_a.log
+          # ... (código do host_a fica igual) ...
 
           else
             echo "🛰️ Deploy para host_b (privado) via host_a ($HOST_A)"
-            echo "📦 Enviando código para host_a..."
-            rsync -rltgoDzvO --delete \
-              -e "ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no" \
-              "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima/" \
-              "${{ secrets.REMOTE_USER }}@$HOST_A:/home/${{ secrets.REMOTE_USER }}/backend" \
-              | tee logs/rsync_to_a.log
+            # ... (código do rsync para host_a fica igual) ...
 
-            echo "🔄 Enviando do host_a para host_b..."
+            echo "🔄 Enviando do host_a para host_b E FAZENDO DEPLOY..."
             ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no \
               ${{ secrets.REMOTE_USER }}@$HOST_A "\
                 mkdir -p ~/logs && \
@@ -140,14 +125,35 @@ jobs:
                 rsync -rltgoDzvO --delete \
                 -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no' \
                 /home/${{ secrets.REMOTE_USER }}/backend/ \
-                ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend" \
-              | tee logs/rsync_to_b.log
+                ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend && \
+                \
+                echo '🚀 Iniciando deploy remoto no host_b...' && \
+                ssh -i ~/private_key.pem -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }} '\
+                  set -e && \
+                  LOG_DIR=\"/home/${{ secrets.REMOTE_USER }}/backend/logs\" && \
+                  mkdir -p \$LOG_DIR && \
+                  LOG_FILE=\"\$LOG_DIR/deploy_\$(date +%Y%m%d_%H%M%S).log\" && \
+                  { \
+                    echo \"🚀 Iniciando deploy do backend MimaStore na EC2 (host_b)...\" && \
+                    cd /home/${{ secrets.REMOTE_USER }}/backend && \
+                    echo \"🛑 Parando containers antigos...\" && \
+                    docker stop mimastore-backend || true && \
+                    docker rm mimastore-backend || true && \
+                    echo \"🏗️ Buildando nova imagem Docker...\" && \
+                    docker build -t mimastore-backend . 2>&1 | tee -a \"\$LOG_FILE\" && \
+                    echo \"🚀 Subindo novo container...\" && \
+                    docker run -d -p 8080:8080 --name mimastore-backend mimastore-backend 2>&1 | tee -a \"\$LOG_FILE\" && \
+                    echo \"✅ Backend (host_b) atualizado e rodando!\" \
+                  } | tee -a \"\$LOG_FILE\" \
+                ' \
+              " | tee logs/rsync_and_deploy_to_b.log
 
             echo "✅ Deploy finalizado para host_b"
           fi
 
-      # 🔟 Buildar e rodar container Docker remotamente
-      - name: BE - Buildar imagem e rodar container
+      # 🔟 Buildar e rodar container Docker remotamente (APENAS HOST_A)
+      - name: BE - Buildar imagem e rodar container (Host A)
+        if: matrix.host == 'host_a'  # ⬅️ ADICIONE ESTA LINHA
         uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ env.HOST_REAL }}

@@ -31,47 +31,44 @@ jobs:
           cd "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima"
           mvn clean package -DskipTests
 
-      # 4️⃣ Mapear o host literal para o secret real (com suporte a multiline)
-      - name: Definir host real
+     # 4️⃣ Mapear o host e as chaves
+      - name: Definir host real e chaves
         id: set_host
         run: |
           if [ "${{ matrix.host }}" = "host_a" ]; then
             echo "HOST_REAL=${{ secrets.REMOTE_HOST }}" >> $GITHUB_ENV
-            echo "SSH_KEY<<EOF" >> $GITHUB_ENV
+            echo "SSH_KEY_RAW=${{ secrets.EC2_SSH_KEY }}" >> $GITHUB_ENV
+            echo "SSH_KEY_MULTILINE<<EOF" >> $GITHUB_ENV
             echo "${{ secrets.EC2_SSH_KEY }}" >> $GITHUB_ENV
             echo "EOF" >> $GITHUB_ENV
           else
             echo "HOST_REAL=${{ secrets.REMOTE_HOST_B }}" >> $GITHUB_ENV
-            echo "SSH_KEY<<EOF" >> $GITHUB_ENV
+            echo "SSH_KEY_RAW=${{ secrets.EC2_SSH_KEY_PRIVATE }}" >> $GITHUB_ENV
+            echo "SSH_KEY_MULTILINE<<EOF" >> $GITHUB_ENV
             echo "${{ secrets.EC2_SSH_KEY_PRIVATE }}" >> $GITHUB_ENV
             echo "EOF" >> $GITHUB_ENV
           fi
-
+          
      # 5️⃣ Copiar arquivos para EC2 via SSH (rsync)
       - name: BE - Copiar arquivos via SSH (rsync)
         run: |
           echo "🔧 Preparando chave SSH..."
           mkdir -p ~/.ssh
-          echo "${{ env.SSH_KEY }}" | tr -d '\r' > ~/.ssh/deploy_key
+          echo "${{ env.SSH_KEY_MULTILINE }}" | tr -d '\r' > ~/.ssh/deploy_key
           chmod 400 ~/.ssh/deploy_key
 
           echo "🚀 Iniciando cópia de arquivos para ${{ env.HOST_REAL }} ..."
           
-          # Comando rsync corrigido:
-          # 1. Removida a barra invertida \
-          # 2. SOURCE aponta direto para a pasta do projeto (com / no final)
-          # 3. Removidos os comandos 'mkdir BackEnd' e 'cp' desnecessários
-          rsync -rltgoDzvO --delete -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
-            "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima/" \
-            ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend
-            
+          # Comando rsync corrigido: em linha única e copiando da pasta fonte
+          rsync -rltgoDzvO --delete -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima/" ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend
+      
       # 6️⃣ Buildar e subir container Docker remotamente
       - name: BE - Buildar imagem e subir container
         uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ env.HOST_REAL }}
           username: ${{ secrets.REMOTE_USER }}
-          key: ${{ env.SSH_KEY }}
+          key: ${{ env.SSH_KEY_RAW }}
           script: |
             echo "🚀 Subindo backend MimaStore na EC2..."
 

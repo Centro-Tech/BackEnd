@@ -45,8 +45,12 @@ jobs:
           echo "Criando script de deploy..."
           PROJETO_DIR="Sprint 4 - CleanArch/JavaSpringBoot/projetoMima"
           
-          # Criamos o script de deploy DENTRO da pasta do projeto que será copiada
-          cat << 'EOF' > $PROJETO_DIR/deploy_on_b.sh
+          # Garante que o diretório existe ANTES de tentar escrever nele
+          mkdir -p "$PROJETO_DIR"
+          
+          # --- !! CORREÇÃO AQUI !! ---
+          # Colocamos "$PROJETO_DIR/deploy_on_b.sh" entre aspas
+          cat << 'EOF' > "$PROJETO_DIR/deploy_on_b.sh"
           #!/bin/bash
           set -e
           
@@ -111,8 +115,8 @@ jobs:
           
           echo "Script criado em $PROJETO_DIR/deploy_on_b.sh"
           # Dá permissão de execução para o script
-          chmod +x $PROJETO_DIR/deploy_on_b.sh
-
+          chmod +x "$PROJETO_DIR/deploy_on_b.sh"
+          
       # 6️⃣ Deploy do Backend no Host B (via Host A)
       - name: BE - Deploy no Host Privado (via Bastion)
         run: |

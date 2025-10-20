@@ -55,6 +55,12 @@ jobs:
 
       - name: Debug Host
         run: |
+          echo "Usando IP direto para teste"
+          HOST_REAL=52.90.18.136  # Coloque aqui o IP público real da sua EC2
+          ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no ec2-user@$HOST_REAL "echo Conexão OK"
+
+      - name: Debug Host
+        run: |
           echo "HOST_REAL=$HOST_REAL"
 
 

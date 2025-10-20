@@ -31,26 +31,34 @@ jobs:
           cd "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima"
           mvn clean package -DskipTests
 
-      # 4️⃣ Definir host e chave SSH (corrigido)
+            # 4️⃣ Definir host real e chave SSH (com reconstrução confiável)
       - name: Definir host real e chave SSH
         id: set_host
         run: |
           if [ "${{ matrix.host }}" = "host_a" ]; then
             echo "HOST_REAL=${{ secrets.REMOTE_HOST }}" >> $GITHUB_ENV
-            echo "${{ secrets.EC2_SSH_KEY }}" | sed 's/\\n/\n/g' > private_key.pem
+            echo "${{ secrets.EC2_SSH_KEY }}" > key_raw.txt
           else
             echo "HOST_REAL=${{ secrets.REMOTE_HOST_B }}" >> $GITHUB_ENV
-            echo "${{ secrets.EC2_SSH_KEY_PRIVATE }}" | sed 's/\\n/\n/g' > private_key.pem
+            echo "${{ secrets.EC2_SSH_KEY_PRIVATE }}" > key_raw.txt
           fi
 
+          # Substitui os "\n" literais por quebras de linha reais
+          sed -i 's/\\n/\n/g' key_raw.txt
+          cat key_raw.txt > private_key.pem
           chmod 600 private_key.pem
-          echo "SSH_KEY_PATH=$PWD/private_key.pem" >> $GITHUB_ENV
 
-          echo "✅ Chave SSH gravada e permissões aplicadas"
-          echo "Host configurado: ${{ matrix.host }}"
-          echo "----- Início da chave -----"
+          echo "SSH_KEY_PATH=$PWD/private_key.pem" >> $GITHUB_ENV
+          echo "✅ Chave SSH reconstruída e permissões aplicadas!"
           head -n 3 private_key.pem
-          echo "----- Fim da prévia -----"
+          echo "..."
+
+      - name: Teste SSH manual
+        run: |
+          echo "🔍 Testando conexão SSH manual..."
+          ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no \
+          ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }} "echo ✅ Conexão SSH OK"
+
 
       # 5️⃣ Copiar arquivos para EC2 via SSH (rsync)
       - name: BE - Copiar arquivos via SSH (rsync)

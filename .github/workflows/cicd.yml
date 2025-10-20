@@ -6,12 +6,9 @@ on:
       - main
 
 jobs:
-  build_and_deploy:
+  build-and-deploy-backend: # <-- Nome do job único, sem matrix
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        host: ["host_a", "host_b"]
-
+    
     steps:
       # 1️⃣ Checkout do código
       - name: Checkout do código
@@ -33,186 +30,92 @@ jobs:
           mvn clean package -DskipTests
           echo "✅ Build concluído com sucesso."
 
-      # 4️⃣ Definir host real e chave SSH
-      - name: Definir host e chave SSH
-        id: set_host
+      # 4️⃣ Criar chave SSH para o runner
+      - name: Criar chave SSH
         run: |
-          echo "🔧 Definindo host e chave SSH..."
-          mkdir -p logs
+          echo "🔧 Criando chave SSH para o runner..."
+          mkdir -p ~/.ssh
+          # Salva a chave que dá acesso ao BASTION (Host A)
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/private_key.pem
+          chmod 600 ~/.ssh/private_key.pem
+          echo "✅ Chave criada."
 
-          if [ "${{ matrix.host }}" = "host_a" ]; then
-            echo "Deploy para host público (A)"
-            echo "HOST_REAL=${{ secrets.REMOTE_HOST }}" >> $GITHUB_ENV
-            echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
-          else
-            echo "Deploy para host privado (B)"
-            echo "HOST_REAL=${{ secrets.REMOTE_HOST_B }}" >> $GITHUB_ENV
-            echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
-          fi
-
-          chmod 600 private_key.pem
-          echo "SSH_KEY_PATH=$PWD/private_key.pem" >> $GITHUB_ENV
-          echo "🔑 Chave SSH criada com sucesso em: $PWD/private_key.pem"
-          ls -l private_key.pem
-          echo "✅ Ambiente configurado para ${{ matrix.host }}"
-
-      # 5️⃣ Debug de variáveis
-      - name: 🔎 Debug de variáveis de ambiente
+      # 5️⃣ Deploy do Backend no Host B (via Host A)
+      - name: BE - Deploy no Host Privado (via Bastion)
         run: |
-          echo "Matriz selecionada: ${{ matrix.host }}"
-          echo "HOST_REAL = ${{ env.HOST_REAL }}"
-          echo "REMOTE_HOST (secret) = '${{ secrets.REMOTE_HOST }}'"
-          echo "REMOTE_HOST_B (secret) = '${{ secrets.REMOTE_HOST_B }}'"
-          echo "REMOTE_USER (secret) = '${{ secrets.REMOTE_USER }}'"
-
-      # 6️⃣ Mostrar qual host será usado
-      - name: Debug host configurado
-        run: |
-          echo "🔎 Host configurado para ${{ matrix.host }}:"
-          echo "HOST_REAL = ${{ env.HOST_REAL }}"
-          echo "SSH_KEY_PATH = ${{ env.SSH_KEY_PATH }}"
-
-      # 7️⃣ Validar variáveis
-      - name: 🔍 Validar variáveis obrigatórias
-        run: |
-          if [ -z "${{ env.HOST_REAL }}" ]; then
-            echo "❌ ERRO: HOST_REAL está vazio!"
-            exit 1
-          fi
-          echo "✅ HOST_REAL definido como: ${{ env.HOST_REAL }}"
-
-      - name: ✅ Verificar se HOST_REAL é um IP válido
-        run: |
-          if [[ "${{ env.HOST_REAL }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "✅ HOST_REAL parece um IP válido."
-          else
-            echo "❌ HOST_REAL não é um IP válido: '${{ env.HOST_REAL }}'"
-            exit 1
-          fi
-
-      # 8️⃣ Testar conexão SSH
-      - name: Testar conexão SSH (direta ou via bastion)
-        run: |
-          echo "🔍 Testando conexão SSH com ${{ env.HOST_REAL }}..."
           mkdir -p logs
           
-          if [ "${{ matrix.host }}" = "host_b" ]; then
-            echo "🛰️ Host B é privado — testando via bastion (host_A)..."
-            ssh -vvv -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no \
-              ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "\
-                echo '🔗 Conectado ao bastion host_A.' && \
-                ssh -i ~/private_key.pem -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }} 'echo ✅ Conexão SSH bem-sucedida via bastion!'" \
-              | tee logs/ssh_test_b_via_a.log
-          else
-            ssh -vvv -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no \
-              ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }} "echo '✅ Conexão SSH bem-sucedida!'"
-          fi
+          # --- Define as variáveis para clareza ---
+          HOST_A=${{ secrets.REMOTE_HOST }}      # IP Público (Frontend/Bastion)
+          HOST_B=${{ secrets.REMOTE_HOST_B }}    # IP Privado (Backend)
+          USER=${{ secrets.REMOTE_USER }}
+          KEY_PATH=~/.ssh/private_key.pem       # Chave no runner
 
-     # 9️⃣ Copiar arquivos E FAZER DEPLOY
-      - name: BE - Copiar arquivos e deploy (com deploy host_b)
-        run: |
-          mkdir -p logs
-          echo "🚀 Iniciando deploy..."
-          HOST_A=${{ secrets.REMOTE_HOST }}
-
-          if [ "${{ matrix.host }}" = "host_a" ]; then
-            # --- Bloco do Host A (Público) ---
-            echo "✅ Deploy direto para host_a ($HOST_A)"
-            rsync -rltgoDzvO --delete \
-              -e "ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no" \
-              "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima/" \
-              "${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend" \
-              | tee logs/deploy_host_a.log
-
-          else
-            # --- Bloco do Host B (Privado) via Bastion ---
-            echo "🛰️ Deploy para host_b (privado) via host_a ($HOST_A)"
-            
-            echo "📦 [1/2] Enviando código para host_a (bastion)..."
-            rsync -rltgoDzvO --delete \
-              -e "ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no" \
-              "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima/" \
-              "${{ secrets.REMOTE_USER }}@$HOST_A:/home/${{ secrets.REMOTE_USER }}/backend_temp_deploy" \
-              | tee logs/rsync_to_a.log
-
-            echo "🔄 [2/2] Conectando no host_a e disparando deploy para host_b..."
-            ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no \
-              ${{ secrets.REMOTE_USER }}@$HOST_A "\
-                mkdir -p ~/logs && \
-                echo 'Copiando chave para o bastion...' && \
-                echo '${{ secrets.EC2_SSH_KEY }}' > ~/private_key.pem && chmod 600 ~/private_key.pem && \
-                \
-                echo 'Copiando arquivos de bastion -> host_b...' && \
-                rsync -rltgoDzvO --delete \
-                  -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no' \
-                  /home/${{ secrets.REMOTE_USER }}/backend_temp_deploy/ \
-                  ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend && \
-                \
-                echo '🚀 Iniciando build Docker remoto no host_b...' && \
-                ssh -i ~/private_key.pem -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }} '\
-                  set -e && \
-                  LOG_DIR=\"/home/${{ secrets.REMOTE_USER }}/backend/logs\" && \
-                  mkdir -p \$LOG_DIR && \
-                  LOG_FILE=\"\$LOG_DIR/deploy_\$(date +%Y%m%d_%H%M%S).log\" && \
-                  { \
-                    echo \"🚀 Iniciando deploy do backend MimaStore na EC2 (host_b)...\" && \
-                    cd /home/${{ secrets.REMOTE_USER }}/backend && \
-                    echo \"🛑 Parando containers antigos...\" && \
-                    (docker stop mimastore-backend || true) && \
-                    (docker rm mimastore-backend || true) && \
-                    echo \"🏗️ Buildando nova imagem Docker...\" && \
-                    docker build -t mimastore-backend . 2>&1 | tee -a \"\$LOG_FILE\" && \
-                    echo \"🚀 Subindo novo container...\" && \
-                    docker run -d -p 8080:8080 --name mimastore-backend mimastore-backend 2>&1 | tee -a \"\$LOG_FILE\" && \
-                    echo \"✅ Backend (host_b) atualizado e rodando!\" \
-                  } | tee -a \"\$LOG_FILE\" \
-                ' \
-              " | tee logs/rsync_and_deploy_to_b.log
-
-            echo "✅ Deploy finalizado para host_b"
-          fi
+          echo "🛰️ Iniciando deploy do BACKEND para host_b ($HOST_B) via host_a ($HOST_A)..."
           
-      # 🔟 Buildar e rodar container Docker remotamente (APENAS HOST_A)
-      - name: BE - Buildar imagem e rodar container (Host A)
-        if: matrix.host == 'host_a'  # ⬅️ ADICIONE ESTA LINHA
-        uses: appleboy/ssh-action@v1.1.0
-        with:
-          host: ${{ env.HOST_REAL }}
-          username: ${{ secrets.REMOTE_USER }}
-          key_path: ${{ env.SSH_KEY_PATH }}
-          script: |
-            set -e
-            LOG_DIR="/home/${{ secrets.REMOTE_USER }}/backend/logs"
-            mkdir -p $LOG_DIR
-            LOG_FILE="$LOG_DIR/deploy_$(date +%Y%m%d_%H%M%S).log"
+          echo "📦 [1/3] Enviando código para host_a (bastion)..."
+          rsync -rltgoDzvO --delete \
+            -e "ssh -i $KEY_PATH -o StrictHostKeyChecking=no" \
+            "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima/" \
+            "$USER@$HOST_A:/home/$USER/backend_temp_deploy" \
+            | tee logs/rsync_to_a.log
 
-            {
-              echo "🚀 Iniciando deploy do backend MimaStore na EC2 $HOST_REAL..."
-              
-              if ! command -v docker &> /dev/null; then
-                echo "⚙️ Instalando Docker..."
-                if [ -x "$(command -v yum)" ]; then
-                  sudo yum install -y docker
-                elif [ -x "$(command -v dnf)" ]; then
-                  sudo dnf install -y docker
-                elif [ -x "$(command -v apt-get)" ]; then
-                  sudo apt-get update && sudo apt-get install -y docker.io
-                fi
-                sudo systemctl enable docker
-                sudo systemctl start docker
-                sudo usermod -aG docker $USER
-              fi
+          echo "🔄 [2/3] Conectando no host_a e disparando deploy de ARQUIVOS para host_b..."
+          # Este comando conecta no Host A...
+          ssh -i $KEY_PATH -o StrictHostKeyChecking=no $USER@$HOST_A "\
+              mkdir -p ~/logs && \
+              echo '...[Host A] Copiando chave para o bastion...' && \
+              echo '${{ secrets.EC2_SSH_KEY }}' > ~/private_key.pem && chmod 600 ~/private_key.pem && \
+              \
+              echo '...[Host A] Copiando arquivos de bastion -> host_b ($HOST_B)...' && \
+              rsync -rltgoDzvO --delete \
+                -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no' \
+                /home/$USER/backend_temp_deploy/ \
+                $USER@$HOST_B:/home/$USER/backend" \
+            | tee logs/rsync_to_b.log
 
-              cd /home/${{ secrets.REMOTE_USER }}/backend
-              echo "🛑 Parando containers antigos..."
-              docker stop mimastore-backend || true
-              docker rm mimastore-backend || true
+          echo "🚀 [3/3] Conectando no host_a e disparando INSTALAÇÃO/BUILD do Docker no host_b..."
+          # Este comando conecta no Host A...
+          ssh -i $KEY_PATH -o StrictHostKeyChecking=no $USER@$HOST_A "\
+              echo '...[Host A] Conectando no host_b ($HOST_B) para rodar o Docker...' && \
+              \
+              # ...que por sua vez conecta no Host B para rodar o script final
+              ssh -i ~/private_key.pem -o StrictHostKeyChecking=no $USER@$HOST_B '\
+                set -e && \
+                LOG_DIR=\"/home/$USER/backend/logs\" && \
+                mkdir -p \$LOG_DIR && \
+                LOG_FILE=\"\$LOG_DIR/deploy_\$(date +%Y%m%d_%H%M%S).log\" && \
+                { \
+                  echo \"...[Host B] Iniciando deploy no host_b...\" && \
+                  \
+                  # --- LÓGICA DE INSTALAÇÃO DO DOCKER --- \
+                  if ! command -v docker &> /dev/null; then \
+                    echo \"...[Host B] ⚙️ Docker não encontrado. Instalando Docker...\" && \
+                    ( \
+                      (sudo apt-get update && sudo apt-get install -y docker.io) || \
+                      (sudo yum install -y docker) || \
+                      (sudo dnf install -y docker) \
+                    ) && \
+                    sudo systemctl enable docker && \
+                    sudo systemctl start docker && \
+                    (sudo usermod -aG docker $USER || echo \"...[Host B] Aviso: Falha ao adicionar $USER ao grupo docker. Usando sudo.\") && \
+                    echo \"...[Host B] ✅ Docker instalado.\" ; \
+                  else \
+                    echo \"...[Host B] ✅ Docker já está instalado.\" ; \
+                  fi && \
+                  # ---------------------------------------- \
+                  \
+                  cd /home/$USER/backend && \
+                  echo \"...[Host B] 🛑 Parando containers antigos...\" && \
+                  (sudo docker stop mimastore-backend || true) && \
+                  (sudo docker rm mimastore-backend || true) && \
+                  echo \"...[Host B] 🏗️ Buildando nova imagem Docker...\" && \
+                  sudo docker build -t mimastore-backend . 2>&1 | tee -a \"\$LOG_FILE\" && \
+                  echo \"...[Host B] 🚀 Subindo novo container...\" && \
+                  sudo docker run -d -p 8080:8080 --name mimastore-backend mimastore-backend 2>&1 | tee -a \"\$LOG_FILE\" && \
+                  echo \"...[Host B] ✅ Backend (host_b) atualizado e rodando!\" \
+                } | tee -a \"\$LOG_FILE\" \
+              ' \
+            " | tee logs/deploy_docker_on_b.log
 
-              echo "🏗️ Buildando nova imagem Docker..."
-              docker build -t mimastore-backend . 2>&1 | tee -a "$LOG_FILE"
-
-              echo "🚀 Subindo novo container..."
-              docker run -d -p 8080:8080 --name mimastore-backend mimastore-backend 2>&1 | tee -a "$LOG_FILE"
-
-              echo "✅ Backend atualizado e rodando em $HOST_REAL!"
-            } | tee -a "$LOG_FILE"
+          echo "✅ Deploy finalizado para host_b"

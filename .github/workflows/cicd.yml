@@ -66,9 +66,10 @@ jobs:
 
       - name: Teste SSH manual
         run: |
-          echo "🔍 Testando conexão SSH manual..."
+          echo "🔍 Testando conexão SSH manual com variável"
           ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no \
-          ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }} "echo ✅ Conexão SSH OK"
+          ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }} "echo Conexão OK"
+
 
 
       # 5️⃣ Copiar arquivos para EC2 via SSH (rsync)

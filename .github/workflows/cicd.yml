@@ -10,15 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        host: ["host_a", "host_b"] # deploy nas duas instâncias
+        host: ["host_a", "host_b"] # Deploy em ambas as instâncias
 
     steps:
-      # 1️⃣ Checkout do repositório
-      - name: Checkout do código
+      # 1️⃣ Checkout do código
+      - name: Checkout do repositório
         uses: actions/checkout@v4
 
       # 2️⃣ Configurar ambiente Java/Maven
-      - name: Set up Java
+      - name: Configurar Java e Maven
         uses: actions/setup-java@v4
         with:
           java-version: '21'
@@ -31,36 +31,35 @@ jobs:
           cd "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima"
           mvn clean package -DskipTests
 
-       # 4️⃣ Mapear o host e configurar chave SSH corretamente
-      - name: Definir host real e chave
+      # 4️⃣ Definir host e chave SSH (corrigido)
+      - name: Definir host real e chave SSH
         id: set_host
         run: |
           if [ "${{ matrix.host }}" = "host_a" ]; then
-          echo "HOST_REAL=${{ secrets.REMOTE_HOST }}" >> $GITHUB_ENV
-          echo "${{ secrets.EC2_SSH_KEY }}" | sed 's/\\n/\n/g' > private_key.pem
+            echo "HOST_REAL=${{ secrets.REMOTE_HOST }}" >> $GITHUB_ENV
+            echo "${{ secrets.EC2_SSH_KEY }}" | sed 's/\\n/\n/g' > private_key.pem
           else
-          echo "HOST_REAL=${{ secrets.REMOTE_HOST_B }}" >> $GITHUB_ENV
-          echo "${{ secrets.EC2_SSH_KEY_PRIVATE }}" | sed 's/\\n/\n/g' > private_key.pem
+            echo "HOST_REAL=${{ secrets.REMOTE_HOST_B }}" >> $GITHUB_ENV
+            echo "${{ secrets.EC2_SSH_KEY_PRIVATE }}" | sed 's/\\n/\n/g' > private_key.pem
           fi
+
           chmod 600 private_key.pem
           echo "SSH_KEY_PATH=$PWD/private_key.pem" >> $GITHUB_ENV
 
           echo "✅ Chave SSH gravada e permissões aplicadas"
           echo "Host configurado: ${{ matrix.host }}"
-      
           echo "----- Início da chave -----"
           head -n 3 private_key.pem
           echo "----- Fim da prévia -----"
 
-     
-     # 5️⃣ Copiar arquivos para EC2 via SSH (rsync)
+      # 5️⃣ Copiar arquivos para EC2 via SSH (rsync)
       - name: BE - Copiar arquivos via SSH (rsync)
         run: |
           echo "🚀 Iniciando cópia de arquivos para ${{ env.HOST_REAL }} ..."
           rsync -rltgoDzvO --delete -e "ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no" \
           "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima/" \
           "${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/backend"
-      
+
       # 6️⃣ Buildar e subir container Docker remotamente
       - name: BE - Buildar imagem e subir container
         uses: appleboy/ssh-action@v1.1.0
@@ -71,7 +70,7 @@ jobs:
           script: |
             echo "🚀 Subindo backend MimaStore na EC2..."
 
-            # Instalar Docker se necessário
+            # Instalar Docker se não estiver presente
             if ! command -v docker &> /dev/null; then
               echo "⚙️ Instalando Docker..."
               if [ -x "$(command -v yum)" ]; then
@@ -88,12 +87,14 @@ jobs:
 
             cd /home/${{ secrets.REMOTE_USER }}/backend
 
-            # Parar containers antigos
+            echo "🛑 Parando containers antigos..."
             docker stop mimastore-backend || true
             docker rm mimastore-backend || true
 
-            # Buildar e rodar nova imagem
+            echo "🐳 Buildando nova imagem..."
             docker build -t mimastore-backend .
+
+            echo "🚀 Subindo novo container..."
             docker run -d -p 8080:8080 --name mimastore-backend mimastore-backend
 
-            echo "✅ Backend atualizado e rodando!"
+            echo "✅ Backend MimaStore atualizado e rodando!"

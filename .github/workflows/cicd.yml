@@ -31,20 +31,26 @@ jobs:
           cd "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima"
           mvn clean package -DskipTests
 
-     # 4️⃣ Mapear o host e a chave
+       # 4️⃣ Mapear o host e configurar chave SSH corretamente
       - name: Definir host real e chave
         id: set_host
         run: |
           if [ "${{ matrix.host }}" = "host_a" ]; then
           echo "HOST_REAL=${{ secrets.REMOTE_HOST }}" >> $GITHUB_ENV
-          echo "${{ secrets.EC2_SSH_KEY }}" > private_key_raw.txt
+          echo "${{ secrets.EC2_SSH_KEY }}" | sed 's/\\n/\n/g' > private_key.pem
           else
           echo "HOST_REAL=${{ secrets.REMOTE_HOST_B }}" >> $GITHUB_ENV
-          echo "${{ secrets.EC2_SSH_KEY_PRIVATE }}" > private_key_raw.txt
+          echo "${{ secrets.EC2_SSH_KEY_PRIVATE }}" | sed 's/\\n/\n/g' > private_key.pem
           fi
-          awk '{gsub(/\\n/,"\n")}1' private_key_raw.txt > private_key.pem
           chmod 600 private_key.pem
           echo "SSH_KEY_PATH=$PWD/private_key.pem" >> $GITHUB_ENV
+
+          echo "✅ Chave SSH gravada e permissões aplicadas"
+          echo "Host configurado: ${{ matrix.host }}"
+      
+          echo "----- Início da chave -----"
+          head -n 3 private_key.pem
+          echo "----- Fim da prévia -----"
 
      
      # 5️⃣ Copiar arquivos para EC2 via SSH (rsync)

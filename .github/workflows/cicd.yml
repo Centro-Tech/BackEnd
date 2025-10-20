@@ -127,39 +127,41 @@ jobs:
           
           HOST_A=${{ secrets.REMOTE_HOST }}
           HOST_B=${{ secrets.REMOTE_HOST_B }}
-          USER=${{ secrets.REMOTE_USER }}        # This should be 'ec2-user'
+          USER=${{ secrets.REMOTE_USER }}        # ec2-user
           KEY_PATH=~/.ssh/private_key.pem
 
           echo "🛰️ Iniciando deploy do BACKEND para host_b ($HOST_B) via host_a ($HOST_A)..."
           
           echo "📦 [1/3] Enviando código (com script) para host_a (bastion)..."
+          # Adicionando ServerAliveInterval aqui também, por segurança
           rsync -rltgoDzvO --delete \
-            -e "ssh -i $KEY_PATH -o StrictHostKeyChecking=no" \
+            -e "ssh -i $KEY_PATH -o StrictHostKeyChecking=no -o ServerAliveInterval=60" \
             "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima/" \
             "$USER@$HOST_A:/home/$USER/backend_temp_deploy" \
             | tee logs/rsync_to_a.log
 
           echo "🔄 [2/3] Conectando no host_a e disparando deploy de ARQUIVOS para host_b..."
-          ssh -i $KEY_PATH -o StrictHostKeyChecking=no $USER@$HOST_A "\
+          # Adicionando ServerAliveInterval na conexão Runner -> Host A
+          ssh -i $KEY_PATH -o StrictHostKeyChecking=no -o ServerAliveInterval=60 $USER@$HOST_A "\
               set -e && \
               mkdir -p ~/logs && \
               echo '...[Host A] Copiando chave para o bastion...' && \
               echo '${{ secrets.EC2_SSH_KEY }}' > ~/private_key.pem && chmod 600 ~/private_key.pem && \
               echo '...[Host A] Copiando arquivos (com script) de bastion -> host_b ($HOST_B)...' && \
               rsync -rltgoDzvO --delete \
-                -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no' \
+                -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60' \
                 /home/$USER/backend_temp_deploy/ \
                 $USER@$HOST_B:/home/$USER/backend" \
             | tee logs/rsync_to_b.log
 
           echo "🚀 [3/3] Conectando no host_a e disparando EXECUÇÃO do script no host_b..."
-          ssh -i $KEY_PATH -o StrictHostKeyChecking=no $USER@$HOST_A "\
+          # Adicionando ServerAliveInterval na conexão Runner -> Host A (de novo)
+          ssh -i $KEY_PATH -o StrictHostKeyChecking=no -o ServerAliveInterval=60 $USER@$HOST_A "\
               set -e && \
               echo '...[Host A] Conectando no host_b ($HOST_B) para executar o deploy_on_b.sh...' && \
               \
-              # --- !! CORREÇÃO AQUI !! ---
-              # Usamos /home/$USER/backend/ explicitly, em vez de $HOME/backend/
-              ssh -i ~/private_key.pem -o StrictHostKeyChecking=no $USER@$HOST_B 'bash /home/$USER/backend/deploy_on_b.sh' \
+              # Adicionando ServerAliveInterval na conexão Host A -> Host B
+              ssh -i ~/private_key.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60 $USER@$HOST_B 'bash /home/$USER/backend/deploy_on_b.sh' \
             " | tee logs/deploy_docker_on_b.log
 
           echo "✅ Deploy finalizado para host_b"

@@ -43,8 +43,6 @@ jobs:
       - name: BE - Deploy no Host Privado (via Bastion)
         run: |
           # --- !! MUDANÇA CRÍTICA !! ---
-          # set -e: Falha o script se qualquer comando falhar
-          # set -o pipefail: Falha o script se qualquer parte de um "pipe" (|) falhar
           set -e
           set -o pipefail
           # ------------------------------
@@ -73,7 +71,6 @@ jobs:
               mkdir -p ~/logs && \
               echo '...[Host A] Copiando chave para o bastion...' && \
               echo '${{ secrets.EC2_SSH_KEY }}' > ~/private_key.pem && chmod 600 ~/private_key.pem && \
-              \
               echo '...[Host A] Copiando arquivos de bastion -> host_b ($HOST_B)...' && \
               rsync -rltgoDzvO --delete \
                 -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no' \
@@ -96,7 +93,7 @@ jobs:
                 { \
                   echo \"...[Host B] Iniciando deploy no host_b...\" && \
                   \
-                  # --- !! LÓGICA DE INSTALAÇÃO DO DOCKER CORRIGIDA !! --- \
+                  # --- LÓGICA DE INSTALAÇÃO DO DOCKER CORRIGIDA --- \
                   if ! command -v docker &> /dev/null; then \
                     echo \"...[Host B] ⚙️ Docker não encontrado. Instalando Docker...\" && \
                     if command -v amazon-linux-extras &> /dev/null; then \

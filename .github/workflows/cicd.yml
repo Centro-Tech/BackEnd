@@ -56,6 +56,15 @@ jobs:
           ls -l private_key.pem
           echo "✅ Ambiente configurado para ${{ matrix.host }}"
 
+      - name: 🔎 Debug de variáveis de ambiente
+        run: |
+          echo "Matriz selecionada: ${{ matrix.host }}"
+          echo "HOST_REAL = ${{ env.HOST_REAL }}"
+          echo "REMOTE_HOST (secret) = '${{ secrets.REMOTE_HOST }}'"
+          echo "REMOTE_HOST_B (secret) = '${{ secrets.REMOTE_HOST_B }}'"
+          echo "REMOTE_USER (secret) = '${{ secrets.REMOTE_USER }}'"
+
+
       # 5️⃣ Mostrar qual host será usado
       - name: Debug host configurado
         run: |
@@ -63,12 +72,22 @@ jobs:
           echo "HOST_REAL = ${{ env.HOST_REAL }}"
           echo "SSH_KEY_PATH = ${{ env.SSH_KEY_PATH }}"
 
+      - name: 🔍 Validar variáveis obrigatórias
+        run: |
+          if [ -z "${{ env.HOST_REAL }}" ]; then
+            echo "❌ ERRO: HOST_REAL está vazio! Verifique se os secrets REMOTE_HOST e REMOTE_HOST_B estão configurados corretamente."
+            exit 1
+          fi
+          echo "✅ HOST_REAL definido como: ${{ env.HOST_REAL }}"
+
       # 6️⃣ Testar conexão SSH antes do deploy
       - name: Testar conexão SSH
         run: |
           echo "🔍 Testando conexão SSH com ${{ env.HOST_REAL }}..."
           ssh -vvv -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no \
             ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }} "echo '✅ Conexão SSH bem-sucedida!'"
+
+      
 
       # 7️⃣ Copiar arquivos e fazer deploy
       - name: BE - Copiar arquivos e deploy

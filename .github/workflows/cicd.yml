@@ -37,14 +37,15 @@ jobs:
         run: |
           if [ "${{ matrix.host }}" = "host_a" ]; then
           echo "HOST_REAL=${{ secrets.REMOTE_HOST }}" >> $GITHUB_ENV
-          echo "${{ secrets.EC2_SSH_KEY }}" | awk 'BEGIN{ORS="\n"}{print}' > private_key.pem
+          echo "${{ secrets.EC2_SSH_KEY }}" > private_key_raw.txt
           else
           echo "HOST_REAL=${{ secrets.REMOTE_HOST_B }}" >> $GITHUB_ENV
-          echo "${{ secrets.EC2_SSH_KEY_PRIVATE }}" | awk 'BEGIN{ORS="\n"}{print}' > private_key.pem
+          echo "${{ secrets.EC2_SSH_KEY_PRIVATE }}" > private_key_raw.txt
           fi
-
+          awk '{gsub(/\\n/,"\n")}1' private_key_raw.txt > private_key.pem
           chmod 600 private_key.pem
           echo "SSH_KEY_PATH=$PWD/private_key.pem" >> $GITHUB_ENV
+
      
      # 5️⃣ Copiar arquivos para EC2 via SSH (rsync)
       - name: BE - Copiar arquivos via SSH (rsync)

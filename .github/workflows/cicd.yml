@@ -91,11 +91,22 @@ jobs:
           fi
 
       # 8️⃣ Testar conexão SSH
-      - name: Testar conexão SSH
+      - name: Testar conexão SSH (direta ou via bastion)
         run: |
           echo "🔍 Testando conexão SSH com ${{ env.HOST_REAL }}..."
-          ssh -vvv -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no \
-            ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }} "echo '✅ Conexão SSH bem-sucedida!'"
+          mkdir -p logs
+          
+          if [ "${{ matrix.host }}" = "host_b" ]; then
+            echo "🛰️ Host B é privado — testando via bastion (host_A)..."
+            ssh -vvv -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no \
+              ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "\
+                echo '🔗 Conectado ao bastion host_A.' && \
+                ssh -i ~/private_key.pem -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }} 'echo ✅ Conexão SSH bem-sucedida via bastion!'" \
+              | tee logs/ssh_test_b_via_a.log
+          else
+            ssh -vvv -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no \
+              ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }} "echo '✅ Conexão SSH bem-sucedida!'"
+          fi
 
       # 9️⃣ Copiar arquivos e deploy
       - name: BE - Copiar arquivos e deploy
@@ -113,7 +124,7 @@ jobs:
               | tee logs/deploy_host_a.log
 
           else
-            echo "🛰️ Deploy para host_b (privada) via host_a ($HOST_A)"
+            echo "🛰️ Deploy para host_b (privado) via host_a ($HOST_A)"
             echo "📦 Enviando código para host_a..."
             rsync -rltgoDzvO --delete \
               -e "ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no" \
@@ -125,6 +136,7 @@ jobs:
             ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no \
               ${{ secrets.REMOTE_USER }}@$HOST_A "\
                 mkdir -p ~/logs && \
+                echo '${{ secrets.EC2_SSH_KEY }}' > ~/private_key.pem && chmod 600 ~/private_key.pem && \
                 rsync -rltgoDzvO --delete \
                 -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no' \
                 /home/${{ secrets.REMOTE_USER }}/backend/ \

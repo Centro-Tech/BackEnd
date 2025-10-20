@@ -53,6 +53,11 @@ jobs:
           head -n 3 private_key.pem
           echo "..."
 
+      - name: Debug Host
+        run: |
+          echo "HOST_REAL=$HOST_REAL"
+
+
       - name: Teste SSH manual
         run: |
           echo "🔍 Testando conexão SSH manual..."

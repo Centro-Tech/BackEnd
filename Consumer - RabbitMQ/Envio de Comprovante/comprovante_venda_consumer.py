@@ -1,9 +1,10 @@
 import os
-import json
 import re
+import json
 import time
 import smtplib
 import traceback
+import pika  # type: ignore
 from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -36,13 +37,9 @@ try:
             load_dotenv(p, override=False)
             print(f"[DEBUG] Arquivo .env externo carregado: {p}")
             
-    # mostra as configs de usuario e senha
-    print(f"[DEBUG] RABBITMQ_USER do ambiente: {os.getenv('RABBITMQ_USER', 'NOT_SET')}")
-    print(f"[DEBUG] RABBITMQ_PASSWORD do ambiente: {os.getenv('RABBITMQ_PASSWORD', 'NOT_SET')}")
-    
 except Exception as e:
-    print(f"[ERROR] Erro ao carregar .env: {e}")
-    pass
+    print(f"[WARN] python-dotenv não disponível ou erro ao carregar: {e}")
+    print("[INFO] Usando valores hardcoded padrão")
 
 EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
@@ -53,36 +50,36 @@ def env_bool(name: str, default: str = "0") -> bool:
 
 class ComprovanteVendaConsumer:
     def __init__(self):
-        # configs do RabbitMQ
+        # -------- RabbitMQ --------
         self.rabbitmq_host = os.getenv('RABBITMQ_HOST', 'localhost')
         self.rabbitmq_port = int(os.getenv('RABBITMQ_PORT', '5672'))
-        self.rabbitmq_user = os.getenv('RABBITMQ_USER', 'guest')
-        self.rabbitmq_password = os.getenv('RABBITMQ_PASSWORD', 'guest')
+        self.rabbitmq_user = os.getenv('RABBITMQ_USER', 'myuser')
+        self.rabbitmq_password = os.getenv('RABBITMQ_PASSWORD', 'secret')
         self.rabbitmq_vhost = os.getenv('RABBITMQ_VHOST', '/')
         self.queue_name = os.getenv('COMPROVANTE_VENDA_QUEUE', 'comprovante.venda.queue')
         self.prefetch_count = int(os.getenv('RABBITMQ_PREFETCH', '5'))
         self.reconnect_delay = int(os.getenv('RABBITMQ_RECONNECT_DELAY', '5'))
-        print(f"[RABBITMQ][DEBUG] host={self.rabbitmq_host} port={self.rabbitmq_port} user={self.rabbitmq_user} vhost={self.rabbitmq_vhost} queue={self.queue_name}")
+        print(f"[RABBITMQ][CONFIG] host={self.rabbitmq_host} port={self.rabbitmq_port} user={self.rabbitmq_user} vhost={self.rabbitmq_vhost} queue={self.queue_name}")
 
-        # configs do email
-        self.smtp_server = os.getenv('SMTP_SERVER', 'localhost')
+        # -------- SMTP --------
+        self.smtp_server = os.getenv('SMTP_SERVER', 'smtp.maileroo.com')
         self.smtp_port = int(os.getenv('SMTP_PORT', '587'))
         self.use_starttls = env_bool('SMTP_USE_TLS', '1')
         self.use_ssl = env_bool('SMTP_USE_SSL', '0')
-        self.email_address = os.getenv('EMAIL_FROM', 'no-reply@mimastore.com')
+        self.smtp_user = os.getenv('SMTP_USER', 'mima@0935a8e1530952e9.maileroo.org')
+        self.smtp_pass = os.getenv('SMTP_PASS', '1cff35807ba2cc8b1ac2103e')
+        self.email_address = os.getenv('EMAIL_FROM', 'mima@0935a8e1530952e9.maileroo.org')
         self.sender_name = os.getenv('SENDER_NAME', 'Mima Store')
-        self.smtp_user = os.getenv('SMTP_USER')
-        self.smtp_pass = os.getenv('SMTP_PASS')
         self.smtp_auth_required = env_bool('SMTP_AUTH_REQUIRED', '1')
         self.smtp_debug = env_bool('SMTP_DEBUG', '0')
         self.smtp_retry_attempts = int(os.getenv('SMTP_RETRY_ATTEMPTS', '3'))
         self.smtp_retry_delay = float(os.getenv('SMTP_RETRY_DELAY', '2'))
 
-        # dados da loja
+        # -------- Dados da Loja --------
         self.loja_nome = os.getenv('LOJA_NOME', 'Mima Store')
-        self.loja_endereco = os.getenv('LOJA_ENDERECO', 'R. das Pitangueiras, 470 - Jardim, Santo André - SP, 09090-150')
-        self.loja_telefone = os.getenv('LOJA_TELEFONE', '(11) 93906-0902')
-        self.loja_cnpj = os.getenv('LOJA_CNPJ', '00.000.000/0000-00')
+        self.loja_endereco = os.getenv('LOJA_ENDERECO', 'Rua das Compras, 123 - Centro - São Paulo/SP')
+        self.loja_telefone = os.getenv('LOJA_TELEFONE', '(11) 3000-0000')
+        self.loja_cnpj = os.getenv('LOJA_CNPJ', '12.345.678/0001-90')
 
         # tipos de email que vai enviar
         self.include_plain = True
@@ -91,6 +88,8 @@ class ComprovanteVendaConsumer:
         if self.use_ssl and self.use_starttls:
             print("[SMTP][WARN] SSL e TLS ativados juntos, usando só SSL")
             self.use_starttls = False
+
+        print(f"[SMTP][CONFIG] server={self.smtp_server}:{self.smtp_port} user={self.smtp_user} from={self.email_address}")
 
     # faz o email simples (texto)
     def _build_plain(self, data: dict) -> str:
@@ -115,7 +114,7 @@ class ComprovanteVendaConsumer:
 
         for item in itens:
             lines.append(
-                f"- {item.get('nome','Item')} (cod {item.get('codigo','N/A')}): {item.get('quantidade',1)} x R$ {item.get('precoUnitario',0.0):.2f} = R$ {item.get('subtotal',0.0):.2f}"  # noqa: E501
+                f"- {item.get('nome','Item')} (cod {item.get('codigo','N/A')}): {item.get('quantidade',1)} x R$ {item.get('precoUnitario',0.0):.2f} = R$ {item.get('subtotal',0.0):.2f}"
             )
 
         lines += [
@@ -126,6 +125,7 @@ class ComprovanteVendaConsumer:
             self.loja_nome,
             self.loja_endereco,
             f"Tel: {self.loja_telefone}",
+            f"CNPJ: {self.loja_cnpj}",
         ]
         return "\n".join(lines)
 
@@ -296,6 +296,7 @@ class ComprovanteVendaConsumer:
       <div><strong>{self.loja_nome}</strong></div>
       <div>{self.loja_endereco}</div>
       <div>Telefone: {self.loja_telefone}</div>
+      <div>CNPJ: {self.loja_cnpj}</div>
     </div>
   </div>
 </body>
@@ -369,7 +370,7 @@ class ComprovanteVendaConsumer:
         return self._smtp_connect_and_send(email, msg)
 
     # processa mensagem da fila
-    def process_message(self, ch, method, properties, body: bytes):  # type: ignore
+    def process_message(self, ch, method, properties, body: bytes):
         try:
             payload = json.loads(body.decode('utf-8'))
             if not payload.get('cliente', {}).get('email'):
@@ -384,7 +385,6 @@ class ComprovanteVendaConsumer:
 
     # fica rodando pra sempre escutando a fila
     def start_consuming(self):
-        import pika  # type: ignore
         while True:
             try:
                 print(f"[RABBITMQ][CONECTANDO] {self.rabbitmq_host}:{self.rabbitmq_port} vhost='{self.rabbitmq_vhost}' queue='{self.queue_name}'")
@@ -409,9 +409,13 @@ class ComprovanteVendaConsumer:
                 break
             except Exception as e:
                 print(f"[RABBITMQ][ERRO] {e}. Reconnecting in {self.reconnect_delay}s...")
+                traceback.print_exc()
                 time.sleep(self.reconnect_delay)
 
 
 if __name__ == '__main__':
+    print("=" * 60)
+    print("CONSUMER DE COMPROVANTE DE VENDA - MIMA STORE")
+    print("=" * 60)
     # começa a rodar
     ComprovanteVendaConsumer().start_consuming()

@@ -152,27 +152,154 @@ class PasswordRecoveryConsumer:
         msg['To'] = email
         msg['Subject'] = subject
 
-        plain_body = f"""Olá {nome},\n\nVocê solicitou a recuperação de senha da sua conta na Mima Store.\n\nToken: {token}\n\nAcesse para redefinir:\n{links['primary_link']}\n\nLinks alternativos:\n- Página de redefinição: {links['frontend_link']}\n- Autenticar e obter JWT (backend): {links['backend_auth_link']}\n- Endpoint de redefinição (POST JSON): {links['backend_reset_endpoint']}\n\nSe você não fez esta solicitação, ignore este e-mail.\n\nEquipe Mima Store\n"""
+        plain_body = f"""Olá {nome},\n\nVocê solicitou a recuperação de senha da sua conta na Mima Store.\n\nSeu token de recuperação:\n{token}\n\nCopie o token acima e utilize no Swagger ou na API para redefinir sua senha.\n\nSe você não fez esta solicitação, ignore este e-mail.\n\nEquipe Mima Store\n"""
 
-        html_body = f"""<html><body style='font-family:Arial,sans-serif;color:#222;'>
-<h2 style='color:#005bbb;'>Recuperação de Senha</h2>
-<p>Olá <strong>{nome}</strong>,</p>
-<p>Você solicitou a recuperação de senha da sua conta na <strong>Mima Store</strong>.</p>
-<p style='margin:18px 0;'>
-  <a href='{links['primary_link']}' style='background:#005bbb;color:#fff;padding:12px 20px;text-decoration:none;border-radius:4px;'>Redefinir Senha</a>
-</p>
-<p style='font-size:13px;'>Se o botão não funcionar, copie este link:<br>
-<code style='word-break:break-all;'>{links['primary_link']}</code></p>
-<hr style='border:none;border-top:1px solid #ddd;margin:24px 0;' />
-<p style='font-size:13px;margin:0 0 8px 0;'>Links alternativos:</p>
-<ul style='font-size:13px;line-height:1.4;'>
-  <li>Página de redefinição: <code style='word-break:break-all;'>{links['frontend_link']}</code></li>
-  <li>Autenticar e obter JWT: <code style='word-break:break-all;'>{links['backend_auth_link']}</code></li>
-  <li>Endpoint POST /usuarios/redefinir-senha: <code style='word-break:break-all;'>{links['backend_reset_endpoint']}</code></li>
-</ul>
-<p style='font-size:12px;color:#555;'>Se você não fez esta solicitação, ignore este e-mail.</p>
-<p style='font-size:12px;color:#777;'>&copy; Mima Store</p>
-</body></html>"""
+        html_body = f"""
+<!DOCTYPE html>
+<html lang='pt-BR'>
+<head>
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <title>Recuperação de Senha</title>
+  <style>
+    body {{
+      font-family: Arial, sans-serif;
+      background: #F8C8DC;
+      margin: 0;
+      padding: 24px;
+    }}
+    .container {{
+      max-width: 640px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #e0e0e0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }}
+    .header {{
+      background: #863e76;
+      color: #fff;
+      padding: 24px;
+      text-align: center;
+    }}
+    .header h1 {{
+      margin: 0;
+      font-size: 22px;
+    }}
+    .header p {{
+      margin: 4px 0 0;
+      font-size: 14px;
+    }}
+    .content {{
+      padding: 24px;
+    }}
+    .content h2 {{
+      margin: 0 0 12px;
+      font-size: 18px;
+      color: #222;
+    }}
+    .token-box {{
+      margin: 24px 0;
+      background: #f7e9f3;
+      padding: 20px;
+      border-radius: 6px;
+      border: 2px dashed #863e76;
+      text-align: center;
+    }}
+    .token-box span {{
+      display: block;
+      font-size: 14px;
+      color: #863e76;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }}
+    .token-box code {{
+      display: block;
+      font-size: 18px;
+      color: #222;
+      background: #fff;
+      padding: 12px;
+      border-radius: 4px;
+      word-break: break-all;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 1px;
+    }}
+    .instructions {{
+      background: #f8f9fa;
+      padding: 16px;
+      border-radius: 6px;
+      margin: 20px 0;
+      font-size: 14px;
+      color: #444;
+    }}
+    .instructions ol {{
+      margin: 8px 0;
+      padding-left: 20px;
+    }}
+    .instructions li {{
+      margin: 6px 0;
+    }}
+    .footer {{
+      margin: 28px 0 0;
+      text-align: center;
+      font-size: 13px;
+      color: #444;
+      background: #f8f9fa;
+      padding: 16px;
+      border-radius: 6px;
+    }}
+    .footer div {{
+      margin: 4px 0;
+    }}
+    .warning {{
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 12px;
+      margin: 16px 0;
+      font-size: 13px;
+      color: #856404;
+    }}
+  </style>
+</head>
+<body>
+  <div class='container'>
+    <div class='header'>
+      <h1>{self.loja_nome}</h1>
+      <p>Recuperação de Senha</p>
+    </div>
+    <div class='content'>
+      <h2>Olá, {nome}!</h2>
+      <p>Você solicitou a recuperação de senha da sua conta na <strong>Mima Store</strong>.</p>
+      
+      <div class='token-box'>
+        <span>SEU TOKEN DE RECUPERAÇÃO</span>
+        <code>{token}</code>
+      </div>
+
+      <div class='instructions'>
+        <strong>Como usar o token:</strong>
+        <ol>
+          <li>Copie o token acima</li>
+          <li>Acesse o Swagger ou a API da Mima Store</li>
+          <li>Cole o token no campo apropriado para validar a recuperação</li>
+          <li>Defina sua nova senha</li>
+        </ol>
+      </div>
+
+      <div class='warning'>
+        <strong>⚠️ Atenção:</strong> Se você não solicitou esta recuperação de senha, ignore este e-mail. Seu acesso permanecerá seguro.
+      </div>
+    </div>
+    <div class='footer'>
+      <div><strong>{self.loja_nome}</strong></div>
+      <div>Equipe de Suporte</div>
+      <div>&copy; 2025 Mima Store. Todos os direitos reservados.</div>
+    </div>
+  </div>
+</body>
+</html>
+"""
 
         if self.include_plain:
             msg.attach(MIMEText(plain_body, 'plain', 'utf-8'))

@@ -164,4 +164,4 @@ jobs:
               ssh -i ~/private_key.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60 $USER@$HOST_B 'bash /home/$USER/backend/deploy_on_b.sh' \
             " | tee logs/deploy_docker_on_b.log
 
-          echo "✅ Deploy finalizado para host_b"
+          echo "✅ Deploy finalizado para host_b ✅"

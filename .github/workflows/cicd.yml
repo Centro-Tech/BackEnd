@@ -6,15 +6,13 @@ on:
       - main
 
 jobs:
-  build-and-deploy-backend: # Nome do job único, focado no backend
+  build-and-deploy-backend:
     runs-on: ubuntu-latest
-
+    
     steps:
-      # 1️⃣ Checkout do código
       - name: Checkout do código
         uses: actions/checkout@v4
 
-      # 2️⃣ Configurar Java/Maven
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -22,7 +20,6 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      # 3️⃣ Build do backend
       - name: BE - Compilar projeto
         run: |
           echo "🏗️ Iniciando build do backend..."
@@ -30,138 +27,124 @@ jobs:
           mvn clean package -DskipTests
           echo "✅ Build concluído com sucesso."
 
-      # 4️⃣ Criar chave SSH para o runner
       - name: Criar chave SSH
         run: |
-          echo "🔧 Criando chave SSH para o runner..."
+          echo "[INFO] Criando chave SSH..."
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/private_key.pem
           chmod 600 ~/.ssh/private_key.pem
-          echo "✅ Chave criada."
+          
+          echo "[DEBUG] Verificando chave SSH criada:"
+          echo "  - Caminho: ~/.ssh/private_key.pem"
+          echo "  - Permissões:"
+          ls -l ~/.ssh/private_key.pem
+          echo "  - Tamanho (bytes): $(wc -c < ~/.ssh/private_key.pem)"
+          echo "  - Fingerprint:"
+          ssh-keygen -lf ~/.ssh/private_key.pem || echo "[WARN] Não foi possível gerar fingerprint da chave"
 
-      # 5️⃣ NOVO! Criar script de deploy para Host B
       - name: Criar script de deploy para Host B
         run: |
-          echo "Criando script de deploy..."
+          echo "[INFO] Criando script deploy_on_b.sh..."
           PROJETO_DIR="Sprint 4 - CleanArch/JavaSpringBoot/projetoMima"
-          
-          # Garante que o diretório existe ANTES de tentar escrever nele
           mkdir -p "$PROJETO_DIR"
           
-          # --- !! CORREÇÃO AQUI !! ---
-          # Colocamos "$PROJETO_DIR/deploy_on_b.sh" entre aspas
           cat << 'EOF' > "$PROJETO_DIR/deploy_on_b.sh"
           #!/bin/bash
           set -e
-          
-          # --- ESTE SCRIPT RODA DENTRO DO HOST B ---
-          
-          # $HOME será /home/ec2-user (ou qualquer que seja o usuário)
+          set -x  # DEBUG: mostrar comandos executados
+
           PROJETO_DIR="$HOME/backend"
+          DB_DIR="$HOME/backend/../Banco de Dados"
           LOG_DIR="$PROJETO_DIR/logs"
           LOG_FILE="$LOG_DIR/deploy_$(date +%Y%m%d_%H%M%S).log"
 
           mkdir -p $LOG_DIR
-          
-          # Redireciona toda a saída (stdout/stderr) para o log E para o console
           exec > >(tee -a "$LOG_FILE") 2>&1
-          
-          echo "...[Host B] Iniciando deploy no host_b..."
-          echo "...[Host B] Rodando como usuário: $(whoami) em $(pwd)"
 
-          # --- LÓGICA DE INSTALAÇÃO DO DOCKER ---
+          echo "[Host B] 🚀 Iniciando deploy completo (banco + backend)..."
+
+          # 🧩 Instalar Docker se necessário
           if ! command -v docker &> /dev/null; then
-            echo "...[Host B] ⚙️ Docker não encontrado. Instalando Docker..."
+            echo "[Host B] Instalando Docker..."
             if command -v amazon-linux-extras &> /dev/null; then
-              echo "...[Host B] Detectado Amazon Linux 2. Usando 'amazon-linux-extras'...."
               sudo amazon-linux-extras install docker -y
             elif command -v dnf &> /dev/null; then
-              echo "...[Host B] Detectado RHEL/Fedora/AL2023. Usando 'dnf'...."
               sudo dnf install -y docker
             elif command -v apt-get &> /dev/null; then
-              echo "...[Host B] Detectado Debian/Ubuntu. Usando 'apt-get'...."
               sudo apt-get update && sudo apt-get install -y docker.io
-            elif command -v yum &> /dev/null; then
-              echo "...[Host B] Detectado RHEL/CentOS. Usando 'yum'...."
-              sudo yum install -y docker
             else
-              echo "...[Host B] ERRO: Não foi possível determinar o gerenciador de pacotes." && exit 1
+              sudo yum install -y docker
             fi
-            
-            echo "...[Host B] Iniciando e ativando o serviço Docker..."
             sudo systemctl enable docker
             sudo systemctl start docker
-            (sudo usermod -aG docker $USER || echo "...[Host B] Aviso: Falha ao adicionar $USER ao grupo docker. Usando sudo.")
-            echo "...[Host B] ✅ Docker instalado."
-          else
-            echo "...[Host B] ✅ Docker já está instalado."
           fi
-          # ----------------------------------------
-          
-          cd $PROJETO_DIR
-          echo "...[Host B] 🛑 Parando containers antigos..."
-          (sudo docker stop mimastore-backend || true)
-          (sudo docker rm mimastore-backend || true)
-          
-          echo "...[Host B] 🏗️ Buildando nova imagem Docker..."
-          sudo docker build -t mimastore-backend .
-          
-          echo "...[Host B] 🚀 Subindo novo container..."
-          sudo docker run -d -p 8080:8080 --name mimastore-backend mimastore-backend
-          
-          echo "...[Host B] ✅ Backend (host_b) atualizado e rodando!"
-          
+
+          # 🧩 Instalar Docker Compose plugin se necessário
+          if ! command -v docker-compose &> /dev/null; then
+            echo "[Host B] Instalando Docker Compose..."
+            DOCKER_COMPOSE_VERSION=2.24.0
+            sudo curl -L "https://github.com/docker/compose/releases/download/v$DOCKER_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)" \
+              -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+          fi
+
+          echo "[Host B] ✅ Docker e Compose prontos."
+
+          # 🧩 Subir containers
+          cd "$DB_DIR"
+          echo "[Host B] Parando containers antigos (se existirem)..."
+          sudo docker compose down || true
+
+          echo "[Host B] 🏗️ Subindo containers com persistência..."
+          sudo docker compose up -d --build
+
+          echo "[Host B] ✅ Deploy completo! Containers ativos:"
+          sudo docker ps
           EOF
-          
-          echo "Script criado em $PROJETO_DIR/deploy_on_b.sh"
-          # Dá permissão de execução para o script
+
           chmod +x "$PROJETO_DIR/deploy_on_b.sh"
-          
-     # 6️⃣ Deploy do Backend no Host B (via Host A)
+
       - name: BE - Deploy no Host Privado (via Bastion)
         run: |
           set -e
-          set -o pipefail
-
+          set -x
           mkdir -p logs
           
           HOST_A=${{ secrets.REMOTE_HOST }}
           HOST_B=${{ secrets.REMOTE_HOST_B }}
-          USER=${{ secrets.REMOTE_USER }}        # ec2-user
+          USER=${{ secrets.REMOTE_USER }}
           KEY_PATH=~/.ssh/private_key.pem
 
-          echo "🛰️ Iniciando deploy do BACKEND para host_b ($HOST_B) via host_a ($HOST_A)..."
-          
-          echo "📦 [1/3] Enviando código (com script) para host_a (bastion)..."
-          # Adicionando ServerAliveInterval aqui também, por segurança
+          echo "[INFO] Iniciando deploy completo (banco + backend)"
+          echo "[DEBUG] HOST_A: $HOST_A"
+          echo "[DEBUG] HOST_B: $HOST_B"
+          echo "[DEBUG] Usuário: $USER"
+          echo "[DEBUG] Verificando chave SSH local:"
+          ls -l $KEY_PATH || echo "[ERRO] Chave não encontrada"
+          file $KEY_PATH || echo "[WARN] Não foi possível identificar o tipo da chave"
+
+          echo "[INFO] 📦 Enviando código para bastion (Host A)..."
           rsync -rltgoDzvO --delete \
             -e "ssh -i $KEY_PATH -o StrictHostKeyChecking=no -o ServerAliveInterval=60" \
-            "Sprint 4 - CleanArch/JavaSpringBoot/projetoMima/" \
+            "Sprint 4 - CleanArch/" \
             "$USER@$HOST_A:/home/$USER/backend_temp_deploy" \
             | tee logs/rsync_to_a.log
 
-          echo "🔄 [2/3] Conectando no host_a e disparando deploy de ARQUIVOS para host_b..."
-          # Adicionando ServerAliveInterval na conexão Runner -> Host A
+          echo "[INFO] 🔄 Copiando do bastion para Host B..."
           ssh -i $KEY_PATH -o StrictHostKeyChecking=no -o ServerAliveInterval=60 $USER@$HOST_A "\
-              set -e && \
-              mkdir -p ~/logs && \
-              echo '...[Host A] Copiando chave para o bastion...' && \
-              echo '${{ secrets.EC2_SSH_KEY }}' > ~/private_key.pem && chmod 600 ~/private_key.pem && \
-              echo '...[Host A] Copiando arquivos (com script) de bastion -> host_b ($HOST_B)...' && \
-              rsync -rltgoDzvO --delete \
-                -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60' \
-                /home/$USER/backend_temp_deploy/ \
-                $USER@$HOST_B:/home/$USER/backend" \
+            set -x && \
+            echo '[DEBUG] Criando chave privada no bastion...' && \
+            echo '${{ secrets.EC2_SSH_KEY }}' > ~/private_key.pem && chmod 600 ~/private_key.pem && \
+            echo '[DEBUG] Verificando chave criada no bastion:' && ls -l ~/private_key.pem && \
+            echo '[DEBUG] Fingerprint:' && ssh-keygen -lf ~/private_key.pem || true && \
+            rsync -rltgoDzvO --delete \
+              -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60' \
+              /home/$USER/backend_temp_deploy/ \
+              $USER@$HOST_B:/home/$USER/backend" \
             | tee logs/rsync_to_b.log
 
-          echo "🚀 [3/3] Conectando no host_a e disparando EXECUÇÃO do script no host_b..."
-          # Adicionando ServerAliveInterval na conexão Runner -> Host A (de novo)
+          echo "[INFO] 🚀 Executando deploy_on_b.sh no Host B..."
           ssh -i $KEY_PATH -o StrictHostKeyChecking=no -o ServerAliveInterval=60 $USER@$HOST_A "\
-              set -e && \
-              echo '...[Host A] Conectando no host_b ($HOST_B) para executar o deploy_on_b.sh...' && \
-              \
-              # Adicionando ServerAliveInterval na conexão Host A -> Host B
-              ssh -i ~/private_key.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60 $USER@$HOST_B 'bash /home/$USER/backend/deploy_on_b.sh' \
-            " | tee logs/deploy_docker_on_b.log
-
-          echo "✅ Deploy finalizado para host_b"
+            set -x && \
+            ssh -i ~/private_key.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60 $USER@$HOST_B 'bash /home/$USER/backend/JavaSpringBoot/projetoMima/deploy_on_b.sh'" \
+            | tee logs/deploy_exec.log

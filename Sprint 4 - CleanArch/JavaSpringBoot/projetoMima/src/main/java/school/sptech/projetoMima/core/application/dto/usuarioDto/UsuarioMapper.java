@@ -58,6 +58,7 @@ public class UsuarioMapper {
         UsuarioResumidoDto dto = new UsuarioResumidoDto();
         dto.setId(usuario.getId());
         dto.setNome(usuario.getNome());
+        dto.setEmail(usuario.getEmail());
         dto.setCargo(usuario.getCargo());
         dto.setImagem(usuario.getImagem());
         return dto;

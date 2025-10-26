@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 import school.sptech.projetoMima.infrastructure.persistance.ClienteRepository;
 import school.sptech.projetoMima.infrastructure.persistance.VendaPersistance.VendaJpaRepository;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -66,5 +68,21 @@ public class DashboardVendaController {
         return resposta;
     }
 
+
+    @GetMapping("/vendas-ultimos-12-meses")
+    public List<Map<String, Object>> getVendasUltimos12Meses() {
+        List<Object[]> resultados = vendaRepository.findQuantidadeVendasUltimos12Meses();
+
+        List<Map<String, Object>> resposta = new ArrayList<>();
+
+        for (Object[] linha : resultados) {
+            Map<String, Object> mapa = new HashMap<>();
+            mapa.put("mes", linha[0]); // String no formato "YYYY-MM"
+            mapa.put("totalVendas", ((Number) linha[1]).longValue()); // converte para Long
+            resposta.add(mapa);
+        }
+
+        return resposta;
+    }
 
 }

@@ -28,4 +28,10 @@ public interface VendaJpaRepository extends JpaRepository<VendaEntity, Integer> 
             "WHERE data >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)", nativeQuery = true)
     Long findClientesUltimoMes();
 
+    @Query(value = "SELECT DATE_FORMAT(data, '%Y-%m') AS mes, COUNT(*) AS totalVendas " +
+            "FROM Venda " +
+            "WHERE data >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH) " +
+            "GROUP BY DATE_FORMAT(data, '%Y-%m') " +
+            "ORDER BY mes ASC", nativeQuery = true)
+    List<Object[]> findQuantidadeVendasUltimos12Meses();
 }

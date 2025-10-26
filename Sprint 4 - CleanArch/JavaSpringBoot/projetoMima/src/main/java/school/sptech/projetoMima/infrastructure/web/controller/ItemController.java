@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import school.sptech.projetoMima.core.application.command.Item.*;
 import school.sptech.projetoMima.core.application.usecase.Item.*;
 import school.sptech.projetoMima.core.application.dto.itemDto.*;
+import school.sptech.projetoMima.core.application.usecase.Item.auxiliares.AdicionarEstoqueItemUseCase;
 import school.sptech.projetoMima.core.domain.item.Item;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,6 +33,7 @@ public class ItemController {
     private final FiltrarItemPorCategoriaUseCase filtrarItemPorCategoriaUseCase;
     private final FiltrarItemPorFornecedorUseCase filtrarItemPorFornecedorUseCase;
     private final FiltrarItemPorNomeUseCase filtrarItemPorNomeUseCase;
+    private final AdicionarEstoqueItemUseCase adicionarEstoqueItemUseCase;
 
     public ItemController(CadastrarItemUseCase cadastrarItemUseCase,
                          AtualizarItemUseCase atualizarItemUseCase,
@@ -43,7 +45,8 @@ public class ItemController {
                          ListarEstoqueUseCase listarEstoqueUseCase,
                          FiltrarItemPorCategoriaUseCase filtrarItemPorCategoriaUseCase,
                          FiltrarItemPorFornecedorUseCase filtrarItemPorFornecedorUseCase,
-                         FiltrarItemPorNomeUseCase filtrarItemPorNomeUseCase) {
+                         FiltrarItemPorNomeUseCase filtrarItemPorNomeUseCase,
+                         AdicionarEstoqueItemUseCase adicionarEstoqueItemUseCase) {
         this.cadastrarItemUseCase = cadastrarItemUseCase;
         this.atualizarItemUseCase = atualizarItemUseCase;
         this.excluirItemUseCase = excluirItemUseCase;
@@ -56,6 +59,7 @@ public class ItemController {
         this.filtrarItemPorCategoriaUseCase = filtrarItemPorCategoriaUseCase;
         this.filtrarItemPorFornecedorUseCase = filtrarItemPorFornecedorUseCase;
         this.filtrarItemPorNomeUseCase = filtrarItemPorNomeUseCase;
+        this.adicionarEstoqueItemUseCase = adicionarEstoqueItemUseCase;
     }
 
     @GetMapping("/{id}")
@@ -183,6 +187,14 @@ public class ItemController {
         DeletarItemPorCodigoCommand command = new DeletarItemPorCodigoCommand(codigo);
         deletarItemPorCodigoUseCase.execute(command);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/adicionar-estoque")
+    @Operation(summary = "Adicionar quantidade ao estoque do item")
+    public ResponseEntity<ItemResponseDto> adicionarEstoque(@PathVariable Integer id, @RequestParam Integer quantidade) {
+        AdicionarEstoqueItemCommand command = new AdicionarEstoqueItemCommand(id, quantidade);
+        Item item = adicionarEstoqueItemUseCase.execute(command);
+        return ResponseEntity.ok(ItemMapper.toResponseDto(item));
     }
 
 }

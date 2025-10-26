@@ -6,6 +6,7 @@ import school.sptech.projetoMima.core.adapter.Fornecedor.FornecedorGateway;
 import school.sptech.projetoMima.core.adapter.Item.ItemGateway;
 import school.sptech.projetoMima.core.adapter.Item.auxiliares.*;
 import school.sptech.projetoMima.core.application.usecase.Item.*;
+import school.sptech.projetoMima.core.application.usecase.Item.auxiliares.AdicionarEstoqueItemUseCase;
 
 @Configuration
 public class ItemBeanConfig {
@@ -77,5 +78,10 @@ public class ItemBeanConfig {
     @Bean
     public FiltrarItemPorNomeUseCase filtrarItemPorNomeUseCase(ItemGateway itemGateway) {
         return new FiltrarItemPorNomeUseCase(itemGateway);
+    }
+
+    @Bean
+    public AdicionarEstoqueItemUseCase adicionarEstoqueItemUseCase(ItemGateway itemGateway) {
+        return new AdicionarEstoqueItemUseCase(itemGateway);
     }
 }

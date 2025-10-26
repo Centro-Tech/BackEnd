@@ -95,7 +95,7 @@ public class UsuarioController {
 
     @Operation(summary = "Cadastrar funcionário com senha padrão")
     @PostMapping("/funcionarios")
-    public ResponseEntity<UsuarioResumidoDto> cadastrarFuncionario(@RequestBody UsuarioCadastroDto dto) {
+    public ResponseEntity<UsuarioCadastroResponseDto> cadastrarFuncionario(@RequestBody UsuarioCadastroDto dto) {
         Usuario usuarioDomain = UsuarioMapper.fromCadastroDto(dto);
 
         CriarUsuarioCommand cmd = new CriarUsuarioCommand(
@@ -108,21 +108,21 @@ public class UsuarioController {
                 usuarioDomain.getImagem()
         );
 
-        Usuario novo = criarUsuarioUseCase.executar(cmd, true);
+        CriarUsuarioUseCase.Resultado resultado = criarUsuarioUseCase.executarComSenhaProvisoria(cmd, true);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(UsuarioMapper.toResumidoDto(novo));
+                .body(UsuarioMapper.toCadastroResponseDto(resultado.usuario(), resultado.senhaProvisoria()));
     }
 
     @Operation(summary = "Cadastrar funcionário com imagem")
     @PostMapping(value = "/funcionarios/com-imagem", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<UsuarioResumidoDto> cadastrarFuncionarioComImagem(@RequestParam("nome") String nome,
-                                                                            @RequestParam("email") String email,
-                                                                            @RequestParam("telefone") String telefone,
-                                                                            @RequestParam("cargo") String cargo,
-                                                                            @RequestParam("endereco") String endereco,
-                                                                            @RequestParam(value = "imagem", required = false) MultipartFile imagemFile) {
+    public ResponseEntity<UsuarioCadastroResponseDto> cadastrarFuncionarioComImagem(@RequestParam("nome") String nome,
+                                                                                    @RequestParam("email") String email,
+                                                                                    @RequestParam("telefone") String telefone,
+                                                                                    @RequestParam("cargo") String cargo,
+                                                                                    @RequestParam("endereco") String endereco,
+                                                                                    @RequestParam(value = "imagem", required = false) MultipartFile imagemFile) {
         String imagemUrl = null;
-        
+
         // Se uma imagem foi enviada, fazer upload para S3
         if (imagemFile != null && !imagemFile.isEmpty()) {
             try {
@@ -143,9 +143,9 @@ public class UsuarioController {
                 imagemUrl
         );
 
-        Usuario novo = criarUsuarioUseCase.executar(cmd, true);
+        CriarUsuarioUseCase.Resultado resultado = criarUsuarioUseCase.executarComSenhaProvisoria(cmd, true);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(UsuarioMapper.toResumidoDto(novo));
+                .body(UsuarioMapper.toCadastroResponseDto(resultado.usuario(), resultado.senhaProvisoria()));
     }
 
     @Operation(summary = "Criar novo usuário com senha informada")
@@ -178,7 +178,7 @@ public class UsuarioController {
                                                         @RequestParam(value = "imagem", required = false) MultipartFile imagemFile,
                                                         @PathVariable Integer id) {
         String imagemUrl = null;
-        
+
         // Se uma imagem foi enviada, fazer upload para S3
         if (imagemFile != null && !imagemFile.isEmpty()) {
             try {

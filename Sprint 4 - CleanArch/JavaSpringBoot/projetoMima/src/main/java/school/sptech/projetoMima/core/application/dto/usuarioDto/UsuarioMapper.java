@@ -90,4 +90,15 @@ public class UsuarioMapper {
         dto.setToken(token);
         return dto;
     }
+
+    public static UsuarioCadastroResponseDto toCadastroResponseDto(Usuario usuario, String senhaProvisoria) {
+        UsuarioCadastroResponseDto dto = new UsuarioCadastroResponseDto();
+        dto.setId(usuario.getId());
+        dto.setNome(usuario.getNome());
+        dto.setEmail(usuario.getEmail());
+        dto.setCargo(usuario.getCargo());
+        dto.setImagem(usuario.getImagem());
+        dto.setSenhaProvisoria(senhaProvisoria);
+        return dto;
+    }
 }

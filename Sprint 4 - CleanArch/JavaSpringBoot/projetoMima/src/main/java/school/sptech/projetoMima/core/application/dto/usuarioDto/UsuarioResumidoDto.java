@@ -6,6 +6,7 @@ public class UsuarioResumidoDto {
     private String nome;
     private String cargo;
     private String imagem;
+    private String email;
 
     public Integer getId() {
         return id;
@@ -37,5 +38,13 @@ public class UsuarioResumidoDto {
 
     public void setImagem(String imagem) {
         this.imagem = imagem;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

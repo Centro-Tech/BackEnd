@@ -14,6 +14,9 @@ public class ClienteListagemDto {
     @Schema(description = "Endereço de e-mail do cliente", example = "email@dominio.com")
     private String email;
 
+    @Schema(description = "Número de telefone do cliente", example = "(11) 91234-5678")
+    private String telefone;
+
     public Integer getIdCliente() {
         return idCliente;
     }
@@ -36,5 +39,13 @@ public class ClienteListagemDto {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getTelefone() {
+        return telefone;
+    }
+
+    public void setTelefone(String telefone) {
+        this.telefone = telefone;
     }
 }

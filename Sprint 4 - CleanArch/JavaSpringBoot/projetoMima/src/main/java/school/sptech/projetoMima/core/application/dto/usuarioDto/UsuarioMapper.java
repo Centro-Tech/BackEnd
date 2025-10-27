@@ -47,10 +47,10 @@ public class UsuarioMapper {
                 dto.getId(),
                 dto.getNome(),
                 dto.getUsername(),
-                null,
-                null,
+                dto.getTelefone(),
+                dto.getEndereco(),
                 dto.getPassword(),
-                null
+                dto.getCargo()
         );
     }
 

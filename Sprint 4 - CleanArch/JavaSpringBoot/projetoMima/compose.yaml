@@ -14,7 +14,7 @@ services:
 
   backend:
     build:
-      context: ./JavaSpringBoot/projetoMima
+      context: .
       dockerfile: Dockerfile
     container_name: mimastore-backend
     restart: always

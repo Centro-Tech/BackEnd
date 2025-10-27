@@ -16,25 +16,8 @@ services:
       - /home/ec2-user/app/db_data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
-      - app_net
-
-  backend:
-    build: .
-    container_name: mimastore-backend
-    restart: always
-    depends_on:
-      - db
-    ports:
-      - "8080:8080"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/MimaStore
-      SPRING_DATASOURCE_USERNAME: mimastore_user
-      SPRING_DATASOURCE_PASSWORD: 12345
-      SPRING_JPA_HIBERNATE_DDL_AUTO: none
-    networks:
-      - app_net
+      - mima-network
 
 networks:
-  app_net:
   mima-network:
     external: true

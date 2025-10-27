@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   rabbitmq:
     image: 'rabbitmq:3.13-management'
@@ -8,26 +10,29 @@ services:
       - '5672:5672'
       - '15672:15672'
     networks:
-      - app-network
+      - mima-network
 
-  app:
+  backend:
     build:
-      context: .
+      context: ./JavaSpringBoot/projetoMima
       dockerfile: Dockerfile
-    ports:
-      - '8080:8080'
+    container_name: mimastore-backend
+    restart: always
     depends_on:
       - rabbitmq
+    ports:
+      - '8080:8080'
     environment:
-      - SPRING_RABBITMQ_HOST=rabbitmq
-      - SPRING_RABBITMQ_PORT=5672
-      - SPRING_RABBITMQ_USERNAME=myuser
-      - SPRING_RABBITMQ_PASSWORD=secret
+      SPRING_DATASOURCE_URL: jdbc:mysql://mimastore-db:3306/MimaStore
+      SPRING_DATASOURCE_USERNAME: mimastore_user
+      SPRING_DATASOURCE_PASSWORD: 12345
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: myuser
+      SPRING_RABBITMQ_PASSWORD: secret
     networks:
-      - app-network
+      - mima-network
 
 networks:
-  app-network:
-    driver: bridge
   mima-network:
-    external: true 
+    external: true

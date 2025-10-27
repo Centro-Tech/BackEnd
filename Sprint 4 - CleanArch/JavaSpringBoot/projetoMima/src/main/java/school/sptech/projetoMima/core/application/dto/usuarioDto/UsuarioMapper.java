@@ -61,6 +61,8 @@ public class UsuarioMapper {
         dto.setCargo(usuario.getCargo());
         dto.setEmail(usuario.getEmail());
         dto.setImagem(usuario.getImagem());
+        dto.setTelefone(usuario.getTelefone());
+        dto.setEndereco(usuario.getEndereco());
         return dto;
     }
 

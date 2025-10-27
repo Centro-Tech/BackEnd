@@ -7,6 +7,8 @@ public class UsuarioResumidoDto {
     private String cargo;
     private String imagem;
     private String email;
+    private String telefone;
+    private String endereco;
 
     public Integer getId() {
         return id;
@@ -46,5 +48,21 @@ public class UsuarioResumidoDto {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getTelefone() {
+        return telefone;
+    }
+
+    public void setTelefone(String telefone) {
+        this.telefone = telefone;
+    }
+
+    public String getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(String endereco) {
+        this.endereco = endereco;
     }
 }

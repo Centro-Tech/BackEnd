@@ -16,11 +16,20 @@ public class UsuarioDetalhesDto implements UserDetails {
 
     private final String senha;
 
+    private final String telefone;
+
+    private final String endereco;
+
+    private final String cargo;
+
     public UsuarioDetalhesDto(Usuario usuario) {
         this.id = usuario.getId();
         this.nome = usuario.getNome();
         this.email = usuario.getEmail();
         this.senha = usuario.getSenha();
+        this.telefone = usuario.getTelefone();
+        this.endereco = usuario.getEndereco();
+        this.cargo = usuario.getCargo();
     }
 
     public Integer getId() {
@@ -29,6 +38,16 @@ public class UsuarioDetalhesDto implements UserDetails {
 
     public String getNome() {
         return nome;
+    }
+
+    public String getTelefone() {
+        return telefone;
+    }
+    public String getEndereco() {
+        return endereco;
+    }
+    public String getCargo() {
+        return cargo;
     }
 
     @Override
@@ -65,4 +84,6 @@ public class UsuarioDetalhesDto implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+
 }

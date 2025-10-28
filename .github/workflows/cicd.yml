@@ -33,25 +33,17 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/private_key.pem
           chmod 600 ~/.ssh/private_key.pem
-          
-          echo "[DEBUG] Verificando chave SSH criada:"
-          echo "  - Caminho: ~/.ssh/private_key.pem"
-          echo "  - Permissões:"
-          ls -l ~/.ssh/private_key.pem
-          echo "  - Tamanho (bytes): $(wc -c < ~/.ssh/private_key.pem)"
-          echo "  - Fingerprint:"
-          ssh-keygen -lf ~/.ssh/private_key.pem || echo "[WARN] Não foi possível gerar fingerprint da chave"
 
-      - name: Criar script de deploy para Host B
+      - name: Criar script de deploy para hosts privados
         run: |
-          echo "[INFO] Criando script deploy_on_b.sh..."
+          echo "[INFO] Criando script deploy_on_privado.sh..."
           PROJETO_DIR="Sprint 4 - CleanArch/JavaSpringBoot/projetoMima"
           mkdir -p "$PROJETO_DIR"
           
-          cat << 'EOF' > "$PROJETO_DIR/deploy_on_b.sh"
+          cat << 'EOF' > "$PROJETO_DIR/deploy_on_privado.sh"
           #!/bin/bash
           set -e
-          set -x  # DEBUG: mostrar comandos executados
+          set -x
 
           PROJETO_DIR="$HOME/backend"
           DB_DIR="$HOME/backend/../Banco de Dados"
@@ -61,11 +53,10 @@ jobs:
           mkdir -p $LOG_DIR
           exec > >(tee -a "$LOG_FILE") 2>&1
 
-          echo "[Host B] 🚀 Iniciando deploy completo (banco + backend)..."
+          echo "🚀 Iniciando deploy completo (banco + backend)..."
 
-          # 🧩 Instalar Docker se necessário
           if ! command -v docker &> /dev/null; then
-            echo "[Host B] Instalando Docker..."
+            echo "[INFO] Instalando Docker..."
             if command -v amazon-linux-extras &> /dev/null; then
               sudo amazon-linux-extras install docker -y
             elif command -v dnf &> /dev/null; then
@@ -79,50 +70,58 @@ jobs:
             sudo systemctl start docker
           fi
 
-          # 🧩 Instalar Docker Compose plugin se necessário
           if ! command -v docker-compose &> /dev/null; then
-            echo "[Host B] Instalando Docker Compose..."
+            echo "[INFO] Instalando Docker Compose..."
             DOCKER_COMPOSE_VERSION=2.24.0
             sudo curl -L "https://github.com/docker/compose/releases/download/v$DOCKER_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)" \
               -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
           fi
 
-          echo "[Host B] ✅ Docker e Compose prontos."
+          echo "[INFO] ✅ Docker e Compose prontos."
 
-          # 🧩 Subir containers
-          cd "$DB_DIR"
-          echo "[Host B] Parando containers antigos (se existirem)..."
-          sudo docker compose down || true
+          cd "backend/Banco de dados"
+          echo "[INFO] Parando containers antigos..."
+          sudo docker-compose down || true
 
-          echo "[Host B] 🏗️ Subindo containers com persistência..."
-          sudo docker compose up -d --build
+          echo "[INFO] Subindo containers do banco..."
+          sudo docker-compose up -d --build
 
-          echo "[Host B] ✅ Deploy completo! Containers ativos:"
+          cd /. 
+          cd
+          cd "backend/JavaSpringBoot/projetoMima"
+          echo "[INFO] Subindo container do backend..."
+          sudo docker-compose down || true
+          sudo docker-compose up -d --build
+
+          echo "[INFO] ✅ Deploy completo! Containers ativos:"
           sudo docker ps
           EOF
 
-          chmod +x "$PROJETO_DIR/deploy_on_b.sh"
+          chmod +x "$PROJETO_DIR/deploy_on_privado.sh"
 
-      - name: BE - Deploy no Host Privado (via Bastion)
+      - name: BE - Deploy nos Hosts Privados (A→B e C→D)
         run: |
           set -e
           set -x
           mkdir -p logs
           
+          # 🧩 Hosts originais
           HOST_A=${{ secrets.REMOTE_HOST }}
           HOST_B=${{ secrets.REMOTE_HOST_B }}
+          
+          # 🧩 Novos hosts
+          HOST_C=${{ secrets.REMOTE_HOST_C }}
+          HOST_D=${{ secrets.REMOTE_HOST_D }}
+
           USER=${{ secrets.REMOTE_USER }}
           KEY_PATH=~/.ssh/private_key.pem
 
-          echo "[INFO] Iniciando deploy completo (banco + backend)"
-          echo "[DEBUG] HOST_A: $HOST_A"
-          echo "[DEBUG] HOST_B: $HOST_B"
-          echo "[DEBUG] Usuário: $USER"
-          echo "[DEBUG] Verificando chave SSH local:"
-          ls -l $KEY_PATH || echo "[ERRO] Chave não encontrada"
-          file $KEY_PATH || echo "[WARN] Não foi possível identificar o tipo da chave"
-
+          echo "[INFO] Iniciando deploy completo nos pares (A→B e C→D)"
+          
+          # ==========================================================
+          # 1️⃣ Deploy para A → B
+          # ==========================================================
           echo "[INFO] 📦 Enviando código para bastion (Host A)..."
           rsync -rltgoDzvO --delete \
             -e "ssh -i $KEY_PATH -o StrictHostKeyChecking=no -o ServerAliveInterval=60" \
@@ -130,21 +129,42 @@ jobs:
             "$USER@$HOST_A:/home/$USER/backend_temp_deploy" \
             | tee logs/rsync_to_a.log
 
-          echo "[INFO] 🔄 Copiando do bastion para Host B..."
+          echo "[INFO] 🔄 Copiando do bastion A para Host B..."
           ssh -i $KEY_PATH -o StrictHostKeyChecking=no -o ServerAliveInterval=60 $USER@$HOST_A "\
             set -x && \
-            echo '[DEBUG] Criando chave privada no bastion...' && \
             echo '${{ secrets.EC2_SSH_KEY }}' > ~/private_key.pem && chmod 600 ~/private_key.pem && \
-            echo '[DEBUG] Verificando chave criada no bastion:' && ls -l ~/private_key.pem && \
-            echo '[DEBUG] Fingerprint:' && ssh-keygen -lf ~/private_key.pem || true && \
             rsync -rltgoDzvO --delete \
               -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60' \
               /home/$USER/backend_temp_deploy/ \
               $USER@$HOST_B:/home/$USER/backend" \
             | tee logs/rsync_to_b.log
 
-          echo "[INFO] 🚀 Executando deploy_on_b.sh no Host B..."
+          echo "[INFO] 🚀 Executando deploy_on_privado.sh no Host B..."
           ssh -i $KEY_PATH -o StrictHostKeyChecking=no -o ServerAliveInterval=60 $USER@$HOST_A "\
+            ssh -i ~/private_key.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60 $USER@$HOST_B 'bash /home/$USER/backend/JavaSpringBoot/projetoMima/deploy_on_privado.sh'" \
+            | tee logs/deploy_b.log
+
+          # ==========================================================
+          # 2️⃣ Deploy para C → D
+          # ==========================================================
+          echo "[INFO] 📦 Enviando código para bastion (Host C)..."
+          rsync -rltgoDzvO --delete \
+            -e "ssh -i $KEY_PATH -o StrictHostKeyChecking=no -o ServerAliveInterval=60" \
+            "Sprint 4 - CleanArch/" \
+            "$USER@$HOST_C:/home/$USER/backend_temp_deploy" \
+            | tee logs/rsync_to_c.log
+
+          echo "[INFO] 🔄 Copiando do bastion C para Host D..."
+          ssh -i $KEY_PATH -o StrictHostKeyChecking=no -o ServerAliveInterval=60 $USER@$HOST_C "\
             set -x && \
-            ssh -i ~/private_key.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60 $USER@$HOST_B 'bash /home/$USER/backend/JavaSpringBoot/projetoMima/deploy_on_b.sh'" \
-            | tee logs/deploy_exec.log
+            echo '${{ secrets.EC2_SSH_KEY_CD || secrets.EC2_SSH_KEY }}' > ~/private_key.pem && chmod 600 ~/private_key.pem && \
+            rsync -rltgoDzvO --delete \
+              -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60' \
+              /home/$USER/backend_temp_deploy/ \
+              $USER@$HOST_D:/home/$USER/backend" \
+            | tee logs/rsync_to_d.log
+
+          echo "[INFO] 🚀 Executando deploy_on_privado.sh no Host D..."
+          ssh -i $KEY_PATH -o StrictHostKeyChecking=no -o ServerAliveInterval=60 $USER@$HOST_C "\
+            ssh -i ~/private_key.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60 $USER@$HOST_D 'bash /home/$USER/backend/JavaSpringBoot/projetoMima/deploy_on_privado.sh'" \
+            | tee logs/deploy_d.log

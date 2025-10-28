@@ -15,6 +15,7 @@ services:
     volumes:
       - /home/ec2-user/app/db_data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./my.cnf:/etc/mysql/conf.d/my.cnf     # ✅ adicionado para manter case-sensitive
     networks:
       - mima-network
 

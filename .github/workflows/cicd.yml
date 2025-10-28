@@ -77,7 +77,7 @@ jobs:
           if ! docker compose version &> /dev/null; then
             echo "[INFO] Instalando Docker Compose V2..."
             DOCKER_COMPOSE_VERSION=2.24.0
-            sudo curl -SL "https://github.com/docker/compose/releases/download/v$DOCKER_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo curl -SL "https://github.com/docker/compose/releases/download/v\$DOCKER_COMPOSE_VERSION/docker-compose-\$(uname -s)-\$(uname -m)" -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
             sudo ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
           fi
@@ -85,6 +85,14 @@ jobs:
           echo "[INFO] ✅ Docker e Compose prontos."
           docker --version
           docker-compose --version || docker compose version
+
+          # 🌐 Garantir que a rede mima-network exista
+          if ! sudo docker network inspect mima-network &>/dev/null; then
+            echo "[INFO] Criando rede Docker 'mima-network'..."
+            sudo docker network create mima-network
+          else
+            echo "[INFO] Rede 'mima-network' já existe."
+          fi
 
           # 🧱 Banco de dados
           cd "$DB_DIR"

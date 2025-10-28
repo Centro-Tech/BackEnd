@@ -46,13 +46,14 @@ jobs:
           set -x
 
           PROJETO_DIR="$HOME/backend"
-          DB_DIR="$HOME/backend/../Banco de Dados"
+          DB_DIR="$PROJETO_DIR/Banco de Dados"
+          BACKEND_DIR="$PROJETO_DIR/JavaSpringBoot/projetoMima"
           LOG_DIR="$PROJETO_DIR/logs"
           LOG_FILE="$LOG_DIR/deploy_$(date +%Y%m%d_%H%M%S).log"
 
           mkdir -p $LOG_DIR
           exec > >(tee -a "$LOG_FILE") 2>&1
-
+          
           echo "🚀 Iniciando deploy completo (banco + backend)..."
 
           if ! command -v docker &> /dev/null; then
@@ -80,24 +81,27 @@ jobs:
 
           echo "[INFO] ✅ Docker e Compose prontos."
 
-          cd "backend/Banco de dados"
-          echo "[INFO] Parando containers antigos..."
+          # 🧱 Banco de dados
+          cd "$DB_DIR"
+          echo "[INFO] Parando containers antigos do banco..."
           sudo docker-compose down || true
-
           echo "[INFO] Subindo containers do banco..."
           sudo docker-compose up -d --build
 
-          cd /. 
-          cd
-          cd "backend/JavaSpringBoot/projetoMima"
-          echo "[INFO] Subindo container do backend..."
+          # ⚙️ Backend
+          cd "$BACKEND_DIR"
+          echo "[INFO] Parando containers antigos do backend..."
           sudo docker-compose down || true
+          echo "[INFO] Subindo containers do backend..."
           sudo docker-compose up -d --build
 
           echo "[INFO] ✅ Deploy completo! Containers ativos:"
           sudo docker ps
-          EOF
 
+          echo "[INFO] ✅ Deploy completo! Containers ativos:"
+          sudo docker ps
+          EOF
+          
           chmod +x "$PROJETO_DIR/deploy_on_privado.sh"
 
       - name: BE - Deploy nos Hosts Privados (A→B e C→D)

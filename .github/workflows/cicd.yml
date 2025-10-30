@@ -8,7 +8,7 @@ on:
 jobs:
   build-and-deploy-backend:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
@@ -27,158 +27,122 @@ jobs:
           mvn clean package -DskipTests
           echo "✅ Build concluído com sucesso."
 
-      - name: Criar chave SSH
+      - name: Criar chaves SSH para Zona 1 e Zona 2
         run: |
-          echo "[INFO] Criando chave SSH..."
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/private_key.pem
-          chmod 600 ~/.ssh/private_key.pem
+          echo "${{ secrets.EC2_SSH_KEY_AB }}" > ~/.ssh/private_key_ab.pem
+          chmod 600 ~/.ssh/private_key_ab.pem
+          echo "${{ secrets.EC2_SSH_KEY_CD }}" > ~/.ssh/private_key_cd.pem
+          chmod 600 ~/.ssh/private_key_cd.pem
+          ls -lah ~/.ssh
 
       - name: Criar script de deploy para hosts privados
         run: |
-          echo "[INFO] Criando script deploy_on_privado.sh..."
           PROJETO_DIR="Sprint 4 - CleanArch/JavaSpringBoot/projetoMima"
           mkdir -p "$PROJETO_DIR"
-          
+
           cat << 'EOF' > "$PROJETO_DIR/deploy_on_privado.sh"
           #!/bin/bash
-          set -e
-          set -x
+          set -euo pipefail
+
+          # ✅ Corrige permissão do Docker socket
+          sudo chmod 666 /var/run/docker.sock || true
 
           PROJETO_DIR="$HOME/backend"
           DB_DIR="$PROJETO_DIR/Banco de Dados"
           BACKEND_DIR="$PROJETO_DIR/JavaSpringBoot/projetoMima"
-          LOG_DIR="$PROJETO_DIR/logs"
-          LOG_FILE="$LOG_DIR/deploy_$(date +%Y%m%d_%H%M%S).log"
 
-          mkdir -p "$LOG_DIR"
-          exec > >(tee -a "$LOG_FILE") 2>&1
-          
-          echo "🚀 Iniciando deploy completo (banco + backend)..."
-
-          # 🧩 Instalação do Docker
-          if ! command -v docker &> /dev/null; then
-            echo "[INFO] Instalando Docker..."
-            if command -v amazon-linux-extras &> /dev/null; then
-              sudo amazon-linux-extras install docker -y
-            elif command -v dnf &> /dev/null; then
-              sudo dnf install -y docker
-            elif command -v apt-get &> /dev/null; then
-              sudo apt-get update && sudo apt-get install -y docker.io
-            else
-              sudo yum install -y docker
-            fi
-            sudo systemctl enable docker
-            sudo systemctl start docker
-            sudo usermod -aG docker $USER
+          COMPOSE_CMD=""
+          if docker compose version &> /dev/null; then
+            COMPOSE_CMD="docker compose"
+          elif command -v docker-compose &> /dev/null; then
+            COMPOSE_CMD="docker-compose"
           fi
 
-          # 🧩 Instalação do Docker Compose (V2)
-          if ! docker compose version &> /dev/null; then
-            echo "[INFO] Instalando Docker Compose V2..."
+          if [ -z "$COMPOSE_CMD" ]; then
             DOCKER_COMPOSE_VERSION=2.24.0
-            sudo curl -SL "https://github.com/docker/compose/releases/download/v\$DOCKER_COMPOSE_VERSION/docker-compose-\$(uname -s)-\$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo curl -SL "https://github.com/docker/compose/releases/download/v$DOCKER_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
-            sudo ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
+            sudo ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose || true
+            COMPOSE_CMD="docker-compose"
           fi
 
-          echo "[INFO] ✅ Docker e Compose prontos."
-          docker --version
-          docker-compose --version || docker compose version
-
-          # 🌐 Garantir que a rede mima-network exista
-          if ! sudo docker network inspect mima-network &>/dev/null; then
-            echo "[INFO] Criando rede Docker 'mima-network'..."
-            sudo docker network create mima-network
+          echo "🌐 Verificando se a rede 'mima-network' existe..."
+          if ! docker network ls --format '{{.Name}}' | grep -q '^mima-network$'; then
+            echo "🧩 Criando rede Docker: mima-network"
+            sudo docker network create mima-network || true
           else
-            echo "[INFO] Rede 'mima-network' já existe."
+            echo "✅ Rede 'mima-network' já existe."
           fi
 
-          # 🧱 Banco de dados
-          cd "$DB_DIR"
-          echo "[INFO] Parando containers antigos do banco..."
-          sudo docker compose down || sudo docker-compose down || true
-          echo "[INFO] Subindo containers do banco..."
-          sudo docker compose up -d --build || sudo docker-compose up -d --build
+          if [ -d "$DB_DIR" ]; then
+            echo "🗄️ Subindo containers do Banco de Dados..."
+            cd "$DB_DIR"
+            sudo $COMPOSE_CMD down -v || true
+            sudo $COMPOSE_CMD up -d --build
+          fi
 
-          # ⚙️ Backend
-          cd "$BACKEND_DIR"
-          echo "[INFO] Parando containers antigos do backend..."
-          sudo docker compose down || sudo docker-compose down || true
-          echo "[INFO] Subindo containers do backend..."
-          sudo docker compose up -d --build || sudo docker-compose up -d --build
-
-          echo "[INFO] ✅ Containers ativos:"
-          sudo docker ps
+          if [ -d "$BACKEND_DIR" ]; then
+            echo "⚙️ Subindo containers do Backend..."
+            cd "$BACKEND_DIR"
+            sudo $COMPOSE_CMD down -v || true
+            sudo $COMPOSE_CMD up -d --build
+          fi
           EOF
-          
+
           chmod +x "$PROJETO_DIR/deploy_on_privado.sh"
 
       - name: BE - Deploy nos Hosts Privados (A→B e C→D)
         run: |
-          set -e
-          set -x
-          mkdir -p logs
-          
-          # 🧩 Hosts originais
+          set -euo pipefail
+
           HOST_A=${{ secrets.REMOTE_HOST }}
           HOST_B=${{ secrets.REMOTE_HOST_B }}
-          
-          # 🧩 Novos hosts
           HOST_C=${{ secrets.REMOTE_HOST_C }}
           HOST_D=${{ secrets.REMOTE_HOST_D }}
-
           USER=${{ secrets.REMOTE_USER }}
-          KEY_PATH=~/.ssh/private_key.pem
 
-          echo "[INFO] Iniciando deploy completo nos pares (A→B e C→D)"
-          
-          # ==========================================================
-          # 1️⃣ Deploy para A → B
-          # ==========================================================
-          echo "[INFO] 📦 Enviando código para bastion (Host A)..."
-          rsync -rltgoDzvO --delete \
-            -e "ssh -i $KEY_PATH -o StrictHostKeyChecking=no -o ServerAliveInterval=60" \
-            "Sprint 4 - CleanArch/" \
-            "$USER@$HOST_A:/home/$USER/backend_temp_deploy" \
-            | tee logs/rsync_to_a.log
+          KEY_AB=~/.ssh/private_key_ab.pem
+          KEY_CD=~/.ssh/private_key_cd.pem
 
-          echo "[INFO] 🔄 Copiando do bastion A para Host B..."
-          ssh -i $KEY_PATH -o StrictHostKeyChecking=no -o ServerAliveInterval=60 $USER@$HOST_A "\
-            set -x && \
-            echo '${{ secrets.EC2_SSH_KEY }}' > ~/private_key.pem && chmod 600 ~/private_key.pem && \
-            rsync -rltgoDzvO --delete \
-              -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60' \
-              /home/$USER/backend_temp_deploy/ \
-              $USER@$HOST_B:/home/$USER/backend" \
-            | tee logs/rsync_to_b.log
+          try_scp() {
+            local key="$1"
+            local src="$2"
+            local dest="$3"
+            local tries=3
+            local delay=3
+            local attempt=1
+            while [ $attempt -le $tries ]; do
+              scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "$key" "$src" "$dest" && return 0 || true
+              sleep $delay
+              attempt=$((attempt+1))
+              delay=$((delay*2))
+            done
+            return 1
+          }
 
-          echo "[INFO] 🚀 Executando deploy_on_privado.sh no Host B..."
-          ssh -i $KEY_PATH -o StrictHostKeyChecking=no -o ServerAliveInterval=60 $USER@$HOST_A "\
-            ssh -i ~/private_key.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60 $USER@$HOST_B 'bash /home/$USER/backend/JavaSpringBoot/projetoMima/deploy_on_privado.sh'" \
-            | tee logs/deploy_b.log
+          echo "🚀 Iniciando deploy na Zona 1 (A → B)..."
+          try_scp "$KEY_AB" "$KEY_AB" "$USER@$HOST_A:~/private_key.pem"
+          ssh -i "$KEY_AB" -o StrictHostKeyChecking=no $USER@$HOST_A "chmod 600 ~/private_key.pem"
 
-          # ==========================================================
-          # 2️⃣ Deploy para C → D
-          # ==========================================================
-          echo "[INFO] 📦 Enviando código para bastion (Host C)..."
-          rsync -rltgoDzvO --delete \
-            -e "ssh -i $KEY_PATH -o StrictHostKeyChecking=no -o ServerAliveInterval=60" \
-            "Sprint 4 - CleanArch/" \
-            "$USER@$HOST_C:/home/$USER/backend_temp_deploy" \
-            | tee logs/rsync_to_c.log
+          echo "📦 Enviando código para Host A..."
+          rsync -avz -e "ssh -i $KEY_AB -o StrictHostKeyChecking=no" "Sprint 4 - CleanArch/" "$USER@$HOST_A:/home/$USER/backend_temp_deploy"
 
-          echo "[INFO] 🔄 Copiando do bastion C para Host D..."
-          ssh -i $KEY_PATH -o StrictHostKeyChecking=no -o ServerAliveInterval=60 $USER@$HOST_C "\
-            set -x && \
-            echo '${{ secrets.EC2_SSH_KEY_CD || secrets.EC2_SSH_KEY }}' > ~/private_key.pem && chmod 600 ~/private_key.pem && \
-            rsync -rltgoDzvO --delete \
-              -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60' \
-              /home/$USER/backend_temp_deploy/ \
-              $USER@$HOST_D:/home/$USER/backend" \
-            | tee logs/rsync_to_d.log
+          echo "🔁 Replicando código de A → B..."
+          ssh -i "$KEY_AB" -o StrictHostKeyChecking=no $USER@$HOST_A "rsync -avz -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no' /home/$USER/backend_temp_deploy/ $USER@$HOST_B:/home/$USER/backend"
 
-          echo "[INFO] 🚀 Executando deploy_on_privado.sh no Host D..."
-          ssh -i $KEY_PATH -o StrictHostKeyChecking=no -o ServerAliveInterval=60 $USER@$HOST_C "\
-            ssh -i ~/private_key.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=60 $USER@$HOST_D 'bash /home/$USER/backend/JavaSpringBoot/projetoMima/deploy_on_privado.sh'" \
-            | tee logs/deploy_d.log
+          echo "⚙️ Executando script de deploy no Host B..."
+          ssh -i "$KEY_AB" -o StrictHostKeyChecking=no $USER@$HOST_A "ssh -i ~/private_key.pem -o StrictHostKeyChecking=no $USER@$HOST_B 'bash /home/$USER/backend/JavaSpringBoot/projetoMima/deploy_on_privado.sh'"
+
+          echo "🚀 Iniciando deploy na Zona 2 (C → D)..."
+          try_scp "$KEY_CD" "$KEY_CD" "$USER@$HOST_C:~/private_key.pem"
+          ssh -i "$KEY_CD" -o StrictHostKeyChecking=no $USER@$HOST_C "chmod 600 ~/private_key.pem"
+
+          echo "📦 Enviando código para Host C..."
+          rsync -avz -e "ssh -i $KEY_CD -o StrictHostKeyChecking=no" "Sprint 4 - CleanArch/" "$USER@$HOST_C:/home/$USER/backend_temp_deploy"
+
+          echo "🔁 Replicando código de C → D..."
+          ssh -i "$KEY_CD" -o StrictHostKeyChecking=no $USER@$HOST_C "rsync -avz -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no' /home/$USER/backend_temp_deploy/ $USER@$HOST_D:/home/$USER/backend"
+
+          echo "⚙️ Executando script de deploy no Host D..."
+          ssh -i "$KEY_CD" -o StrictHostKeyChecking=no $USER@$HOST_C "ssh -i ~/private_key.pem -o StrictHostKeyChecking=no $USER@$HOST_D 'bash /home/$USER/backend/JavaSpringBoot/projetoMima/deploy_on_privado.sh'"

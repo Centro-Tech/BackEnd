@@ -12,7 +12,9 @@ CREATE TABLE IF NOT EXISTS `Usuario` (
     `endereco` VARCHAR(255) NOT NULL,
     `senha` VARCHAR(255) NOT NULL,
     `cargo` VARCHAR(50) NOT NULL,
-    `imagem` VARCHAR(500)
+    `imagem` VARCHAR(500),
+    `recovery_token` VARCHAR(500),
+    `recovery_token_expiry` DATETIME
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabela `Cliente` (presume-se que Cliente seja semelhante a Usuario)
@@ -95,19 +97,9 @@ CREATE TABLE IF NOT EXISTS `ItemVenda` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Adiciona colunas de recovery na tabela Usuario (se já existir nada será alterado além disso)
-ALTER TABLE `Usuario`
-    ADD COLUMN IF NOT EXISTS `recovery_token` VARCHAR(500),
-    ADD COLUMN IF NOT EXISTS `recovery_token_expiry` DATETIME;
 
 
-DROP TABLE IF EXISTS `itemVenda`;
-
--- 2. Agora pode remover as tabelas pai
-DROP TABLE IF EXISTS `item`;
-DROP TABLE IF EXISTS `venda`;
-DROP TABLE IF EXISTS `categoria`;
-DROP TABLE IF EXISTS `cor`;
-DROP TABLE IF EXISTS `material`;
+show tables;
 
 -- Inserções de teste
 INSERT INTO `Usuario` (`nome`, `email`, `senha`, `telefone`, `endereco`, `cargo`)

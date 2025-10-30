@@ -99,6 +99,12 @@ ALTER TABLE `Usuario`
     ADD COLUMN IF NOT EXISTS `recovery_token` VARCHAR(500),
     ADD COLUMN IF NOT EXISTS `recovery_token_expiry` DATETIME;
 
+DROP TABLE categoria;
+DROP TABLE cor;
+DROP TABLE item;
+DROP TABLE material;
+DROP TABLE venda;
+
 -- Inserções de teste
 INSERT INTO `Usuario` (`nome`, `email`, `senha`, `telefone`, `endereco`, `cargo`)
 VALUES ('John Doe', 'john@doe.com', '$2a$10$0/TKTGxdREbWaWjWYhwf6e9P1fPOAMMNqEnZgOG95jnSkHSfkkIrC', '1111-11111', 'Rua do bacana', 'Funcionario');
@@ -139,7 +145,6 @@ SELECT * FROM `ItemVenda`;
 SELECT * FROM `Venda`;
 -- Inserts
 INSERT INTO Usuario (nome, email, senha, telefone, endereco, cargo) VALUES
-('John Doe', 'john@doe.com', '$2a$10$0/TKTGxdREbWaWjWYhwf6e9P1fPOAMMNqEnZgOG95jnSkHSfkkIrC', '1111-11111', 'Rua do bacana', 'Funcionario'),
 ('Ana Souza', 'ana.gerente@mimastore.com', 'senha123', '11999990000', 'Av. Central', 'Gerente'),
 ('Carlos Lima', 'carlos.funcionario@mimastore.com', 'senha123', '11988887777', 'Rua das Laranjeiras', 'Funcionario');
 

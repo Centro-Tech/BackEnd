@@ -99,11 +99,15 @@ ALTER TABLE `Usuario`
     ADD COLUMN IF NOT EXISTS `recovery_token` VARCHAR(500),
     ADD COLUMN IF NOT EXISTS `recovery_token_expiry` DATETIME;
 
-DROP TABLE categoria;
-DROP TABLE cor;
-DROP TABLE item;
-DROP TABLE material;
-DROP TABLE venda;
+
+DROP TABLE IF EXISTS `itemVenda`;
+
+-- 2. Agora pode remover as tabelas pai
+DROP TABLE IF EXISTS `item`;
+DROP TABLE IF EXISTS `venda`;
+DROP TABLE IF EXISTS `categoria`;
+DROP TABLE IF EXISTS `cor`;
+DROP TABLE IF EXISTS `material`;
 
 -- Inserções de teste
 INSERT INTO `Usuario` (`nome`, `email`, `senha`, `telefone`, `endereco`, `cargo`)

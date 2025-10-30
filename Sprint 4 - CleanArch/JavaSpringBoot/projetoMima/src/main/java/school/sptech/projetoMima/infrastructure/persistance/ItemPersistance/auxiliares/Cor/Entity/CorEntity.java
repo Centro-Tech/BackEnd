@@ -3,7 +3,7 @@ package school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.aux
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "cor")
+@Table(name = "Cor")
 public class CorEntity {
 
     @Id

@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Usuario")
+@Table(name = "usuario")
 @Schema(description = "Classe base para os usuários, contendo nome, CPF, email, telefone e endereço.")
 public class UsuarioEntity {
     @Id

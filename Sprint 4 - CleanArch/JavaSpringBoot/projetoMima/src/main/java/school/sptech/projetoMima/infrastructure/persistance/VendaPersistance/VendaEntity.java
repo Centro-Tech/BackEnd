@@ -13,7 +13,7 @@ import java.util.List;
 
 
 @Entity
-@Table(name = "Venda")
+@Table(name = "venda")
 @Schema(description = "Representa uma venda realizada, contendo informações como valor total, data, cliente, funcionário e itens vendidos.")
 public class VendaEntity {
     @Id

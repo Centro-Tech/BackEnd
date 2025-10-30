@@ -14,7 +14,7 @@ import school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxi
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "Item")
+@Table(name = "item")
 @Schema(description = "Entidade que representa um item no sistema")
 public class ItemEntity {
 

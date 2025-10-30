@@ -10,7 +10,7 @@ import school.sptech.projetoMima.infrastructure.persistance.UsuarioPersistance.U
 import school.sptech.projetoMima.infrastructure.persistance.VendaPersistance.VendaEntity;
 
 @Entity
-@Table(name = "ItemVenda")
+@Table(name = "itemvenda")
 @Schema(description = "Representa um item incluído em uma venda")
 public class ItemVendaEntity {
 

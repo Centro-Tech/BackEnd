@@ -3,7 +3,7 @@ package school.sptech.projetoMima.infrastructure.persistance.ClientePersistance.
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Cliente")
+@Table(name = "cliente")
 public class ClienteEntity {
 
     @Id

@@ -15,7 +15,6 @@ services:
     volumes:
       - /home/ec2-user/app/db_data:/var/lib/mysql
       - ./scriptpcro.sql:/docker-entrypoint-initdb.d/01-scriptpcro.sql:ro
-      - ./my.cnf:/etc/mysql/conf.d/my.cnf:ro
     networks:
       - mima-network
 #Rede para criação!

@@ -1,10 +1,8 @@
 CREATE DATABASE IF NOT EXISTS MimaStore;
-
 USE MimaStore;
 
- -- VENDA / Funcionario / CLIENTE
 -- Tabela Usuario
-CREATE TABLE if not exists Usuario (
+CREATE TABLE IF NOT EXISTS Usuario (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL,
@@ -14,17 +12,18 @@ CREATE TABLE if not exists Usuario (
     cargo VARCHAR(50) NOT NULL
 );
 
--- Tabela Cliente (presume-se que Cliente seja semelhante a Usuario, mas você pode ajustar)
-CREATE TABLE if not exists Cliente (
+-- Tabela Cliente
+CREATE TABLE IF NOT EXISTS Cliente (
     id_cliente INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL,
     telefone VARCHAR(20) NOT NULL,
-    endereco VARCHAR(255) NOT NULL
+    endereco VARCHAR(255) NOT NULL,
+    cpf VARCHAR(14)
 );
 
 -- Tabela Fornecedor
-CREATE TABLE if not exists Fornecedor (
+CREATE TABLE IF NOT EXISTS Fornecedor (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     telefone VARCHAR(20),
@@ -32,38 +31,41 @@ CREATE TABLE if not exists Fornecedor (
     endereco VARCHAR(255)
 );
 
-CREATE TABLE if not exists Venda (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+-- Tabela Venda
+CREATE TABLE IF NOT EXISTS Venda (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     valor_total DOUBLE DEFAULT 0.0,
-    data DATETIME DEFAULT current_timestamp,
+    data DATETIME DEFAULT CURRENT_TIMESTAMP,
     fkCliente INT,
     fkFuncionario INT,
     CONSTRAINT fk_venda_cliente FOREIGN KEY (fkCliente) REFERENCES Cliente(id_cliente),
     CONSTRAINT fk_venda_funcionario FOREIGN KEY (fkFuncionario) REFERENCES Usuario(id)
 );
 
-CREATE TABLE if not exists Tamanho (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+-- Tabelas auxiliares
+CREATE TABLE IF NOT EXISTS Tamanho (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255)
 );
 
-CREATE TABLE if not exists Cor (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS Cor (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255)
 );
 
-CREATE TABLE if not exists Material (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS Material (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255)
 );
 
-CREATE TABLE if not exists Categoria (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS Categoria (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255)
 );
 
-CREATE TABLE if not exists Item (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+-- Tabela Item
+CREATE TABLE IF NOT EXISTS Item (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     codigo VARCHAR(255),
     qtd_estoque INT,
     nome VARCHAR(255),
@@ -81,7 +83,7 @@ CREATE TABLE if not exists Item (
 );
 
 -- Tabela ItemVenda
-CREATE TABLE if not exists ItemVenda (
+CREATE TABLE IF NOT EXISTS ItemVenda (
     id INT AUTO_INCREMENT PRIMARY KEY,
     fkItem INT,
     fkItemFornecedor INT,
@@ -96,79 +98,35 @@ CREATE TABLE if not exists ItemVenda (
     FOREIGN KEY (fkVendaFuncionario) REFERENCES Usuario(id)
 );
 
-insert into Usuario
-(nome, email, senha, telefone, endereco,cargo)
-values
-    ('John Doe', 'john@doe.com', '$2a$10$0/TKTGxdREbWaWjWYhwf6e9P1fPOAMMNqEnZgOG95jnSkHSfkkIrC', '1111-11111', 'Rua do bacana','Funcionario');
--- senha: 123456
+-- Inserts
+INSERT INTO Usuario (nome, email, senha, telefone, endereco, cargo) VALUES
+('John Doe', 'john@doe.com', '$2a$10$0/TKTGxdREbWaWjWYhwf6e9P1fPOAMMNqEnZgOG95jnSkHSfkkIrC', '1111-11111', 'Rua do bacana', 'Funcionario'),
+('Ana Souza', 'ana.gerente@mimastore.com', 'senha123', '11999990000', 'Av. Central', 'Gerente'),
+('Carlos Lima', 'carlos.funcionario@mimastore.com', 'senha123', '11988887777', 'Rua das Laranjeiras', 'Funcionario');
 
-INSERT INTO Fornecedor (nome, telefone, email)
-VALUES ('Empresa XYZ LTDA', '11987654321', 'contato@empresa.com');
-
-insert into Tamanho (nome) values
-    ('M');
-
-insert into Categoria (nome) values
-    ('Camiseta');
-
-insert into Cor (nome) values
-    ('Preto');
-
-insert into Material (nome) values
-    ( 'Lã');
-
-INSERT INTO Usuario (nome, telefone, email, senha, cargo) VALUES
-('Ana Souza', '11999990000', 'ana.gerente@mimastore.com', 'senha123', 'Gerente'),
-('Carlos Lima', '11988887777', 'carlos.funcionario@mimastore.com', 'senha123', 'Funcionario');
-
-
-INSERT INTO Cliente (nome, telefone, CPF, email) VALUES
-('João Pereira', '11977776666', '12345678901', 'joao@gmail.com'),
-('Maria Silva', '11966665555', '98765432100', 'maria@gmail.com');
-
+INSERT INTO Cliente (nome, email, telefone, endereco, cpf) VALUES
+('João Pereira', 'joao@gmail.com', '11977776666', 'Rua das Flores', '12345678901'),
+('Maria Silva', 'maria@gmail.com', '11966665555', 'Rua dos Sonhos', '98765432100');
 
 INSERT INTO Fornecedor (nome, telefone, email) VALUES
 ('Fornecedora A', '1133221100', 'contato@fornecedoraa.com'),
 ('Fornecedora B', '1144332211', 'suporte@fornecedorab.com');
 
+INSERT INTO Cor (nome) VALUES ('Vermelho'), ('Azul'), ('Preto');
+INSERT INTO Categoria (nome) VALUES ('Camiseta'), ('Calça'), ('Acessório');
+INSERT INTO Material (nome) VALUES ('Algodão'), ('Jeans'), ('Couro');
+INSERT INTO Tamanho (nome) VALUES ('P'), ('M'), ('G'), ('GG');
 
-INSERT INTO Cor (nome) VALUES
-('Vermelho'),
-('Azul'),
-('Preto');
+INSERT INTO Item (codigo, qtd_estoque, nome, preco, fkFornecedor, fkCor, fkCategoria, fkMaterial, fkTamanho) VALUES
+('CAMV021M', 50, 'Camiseta Vermelha M', 39.90, 1, 1, 1, 1, 2),
+('CAL567G', 30, 'Calça Jeans G', 79.90, 2, 2, 2, 2, 3),
+('ACS678P', 20, 'Acessório Preto P', 119.90, 1, 3, 3, 3, 1);
 
-
-INSERT INTO Categoria (tipo) VALUES
-('Camiseta'),
-('Calça'),
-('Acessório');
-
-
-INSERT INTO Material (material) VALUES
-('Algodão'),
-('Jeans'),
-('Couro');
-
-
-INSERT INTO Tamanho (tamanho) VALUES
-('P'),
-('M'),
-('G'),
-('GG');
-
-
-INSERT INTO Item (fkFornecedor, quantidade, preco, codigo, fkCor, fkCategoria, fkMaterial, fkTamanho) VALUES
-(1, 50, 39.90, 'CAMV021M', 1, 1, 1, 2), -- Camiseta Vermelha M
-(2, 30, 79.90, 'CAL567G', 2, 2, 2, 3), -- Calça Jeans G
-(1, 20, 119.90, 'ACS678P', 3, 3, 3, 1); -- Acessório Preto P
-
-
-INSERT INTO Venda (preco_total, fkCliente, fkUsuario) VALUES
+INSERT INTO Venda (valor_total, fkCliente, fkFuncionario) VALUES
 (159.80, 1, 1),
 (119.90, 2, 2);
 
-
-INSERT INTO ItensVenda (fkItem, fkItemFornecedor, fkVenda, fkVendaCliente, fKVendaFuncionario, quantidade) VALUES
-(10, 1, 1, 1, 1, 2),
-(11, 2, 1, 1, 1, 1),
-(12, 1, 2, 2, 2, 1);
+INSERT INTO ItemVenda (fkItem, fkItemFornecedor, fkVenda, fkVendaCliente, fkVendaFuncionario, qtdParaVender) VALUES
+(1, 1, 1, 1, 1, 2),
+(2, 2, 1, 1, 1, 1),
+(3, 1, 2, 2, 2, 1);

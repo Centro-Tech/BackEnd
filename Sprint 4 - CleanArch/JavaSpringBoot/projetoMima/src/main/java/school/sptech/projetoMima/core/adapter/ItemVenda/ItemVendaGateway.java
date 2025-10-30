@@ -16,7 +16,7 @@ public interface ItemVendaGateway {
 
     Optional<ItemVenda> findById(Integer id);
 
-    List<ItemVenda> findByClienteIdAndVendaIsNull(Integer clienteId);
+    List<ItemVenda> findByVendaIsNull(); // Novo método
 
     Optional<ItemVenda> buscarPorIdEVenda(Integer idItemVenda, Integer idVenda);
 }

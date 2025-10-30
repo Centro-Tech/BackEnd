@@ -1,4 +1,4 @@
-package school.sptech.projetoMima.infrastructure.config.AutorizaçãoSwagger;
+package school.sptech.projetoMima.infrastructure.config.swagger;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

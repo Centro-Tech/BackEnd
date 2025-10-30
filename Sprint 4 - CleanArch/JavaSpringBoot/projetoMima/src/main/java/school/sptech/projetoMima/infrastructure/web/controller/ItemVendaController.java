@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import school.sptech.projetoMima.core.application.dto.itemVendaDto.ItemVendaRequestDto;
 import school.sptech.projetoMima.core.application.dto.itemVendaDto.ItemVendaResponseDto;
@@ -50,6 +51,7 @@ public class ItemVendaController {
         @ApiResponse(responseCode = "400", description = "Dados inválidos"),
         @ApiResponse(responseCode = "404", description = "Item, cliente ou funcionário não encontrado")
     })
+    @Transactional
     @PostMapping("/carrinho")
     public ResponseEntity<ItemVendaResponseDto> adicionarAoCarrinho(@RequestBody @Valid ItemVendaRequestDto dto) {
         AdicionarItemAoCarrinhoCommand command = new AdicionarItemAoCarrinhoCommand(
@@ -87,11 +89,11 @@ public class ItemVendaController {
         @ApiResponse(responseCode = "400", description = "Carrinho vazio"),
         @ApiResponse(responseCode = "404", description = "Venda não encontrada")
     })
-    @PostMapping("/carrinho/finalizar/{clienteId}/{vendaId}")
-    public ResponseEntity<String> finalizarCarrinho(@PathVariable Integer clienteId,
-                                                   @PathVariable Integer vendaId) {
+    @Transactional
+    @PostMapping("/carrinho/finalizar/{clienteId}")
+    public ResponseEntity<String> finalizarCarrinho(@PathVariable Integer clienteId){
 
-        FinalizarCarrinhoCommand command = new FinalizarCarrinhoCommand(clienteId, vendaId);
+        FinalizarCarrinhoCommand command = new FinalizarCarrinhoCommand(clienteId);
 
         finalizarCarrinhoUseCase.execute(command);
         return ResponseEntity.ok("Carrinho finalizado com sucesso!");

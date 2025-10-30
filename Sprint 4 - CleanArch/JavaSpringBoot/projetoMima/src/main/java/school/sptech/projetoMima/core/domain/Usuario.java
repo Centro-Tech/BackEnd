@@ -1,6 +1,5 @@
 package school.sptech.projetoMima.core.domain;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 
 public class Usuario {

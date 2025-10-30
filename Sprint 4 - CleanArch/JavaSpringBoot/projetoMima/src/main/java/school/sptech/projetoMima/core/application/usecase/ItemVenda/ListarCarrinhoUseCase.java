@@ -17,7 +17,8 @@ public class ListarCarrinhoUseCase {
 
     public List<ItemVenda> execute(ListarCarrinhoCommand command) {
 
-        List<ItemVenda> carrinho = itemVendaGateway.findByClienteIdAndVendaIsNull(command.clienteId());
+        // Agora lista TODOS os itens do carrinho (sem filtro por cliente)
+        List<ItemVenda> carrinho = itemVendaGateway.findByVendaIsNull();
 
         if (carrinho.isEmpty()) {
             throw new CarrinhoVazioException("O carrinho está vazio.");

@@ -17,7 +17,8 @@ public class RemoverUltimoItemDoCarrinhoUseCase {
     }
 
     public ItemVenda execute(RemoverUltimoItemDoCarrinhoCommand command) {
-        List<ItemVenda> carrinho = itemVendaGateway.findByClienteIdAndVendaIsNull(command.clienteId());
+        // Busca TODOS os itens do carrinho (sem venda)
+        List<ItemVenda> carrinho = itemVendaGateway.findByVendaIsNull();
 
         if (carrinho.isEmpty()) {
             throw new CarrinhoVazioException("O carrinho está vazio.");

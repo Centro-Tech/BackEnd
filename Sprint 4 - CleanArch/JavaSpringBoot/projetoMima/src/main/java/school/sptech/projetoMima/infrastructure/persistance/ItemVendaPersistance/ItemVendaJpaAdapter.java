@@ -17,9 +17,29 @@ public class ItemVendaJpaAdapter implements ItemVendaGateway {
 
     @Override
     public ItemVenda save(ItemVenda itemVenda) {
-        ItemVendaEntity jpaEntity = ItemVendaEntityMapper.toEntity(itemVenda);
-        ItemVendaEntity savedEntity = itemVendaJpaRepository.save(jpaEntity);
-        return ItemVendaEntityMapper.toDomain(savedEntity);
+        try {
+            System.out.println("============ SALVANDO ITEMVENDA ============");
+            System.out.println("ItemVenda ID: " + itemVenda.getId());
+            System.out.println("Item ID: " + (itemVenda.getItem() != null ? itemVenda.getItem().getId() : "null"));
+            System.out.println("Fornecedor ID: " + (itemVenda.getFornecedor() != null ? itemVenda.getFornecedor().getId() : "null"));
+            System.out.println("Venda ID: " + (itemVenda.getVenda() != null ? itemVenda.getVenda().getId() : "null"));
+            System.out.println("Quantidade: " + itemVenda.getQtdParaVender());
+            
+            ItemVendaEntity jpaEntity = ItemVendaEntityMapper.toEntity(itemVenda);
+            System.out.println("Entity criada, chamando save...");
+            
+            ItemVendaEntity savedEntity = itemVendaJpaRepository.save(jpaEntity);
+            System.out.println("Save retornou ID: " + savedEntity.getId());
+            System.out.println("============================================");
+            
+            return ItemVendaEntityMapper.toDomain(savedEntity);
+        } catch (Exception e) {
+            System.err.println("============ ERRO AO SALVAR ITEMVENDA ============");
+            System.err.println("Erro: " + e.getMessage());
+            e.printStackTrace();
+            System.err.println("==================================================");
+            throw e;
+        }
     }
 
     @Override
@@ -47,8 +67,8 @@ public class ItemVendaJpaAdapter implements ItemVendaGateway {
     }
 
     @Override
-    public List<ItemVenda> findByClienteIdAndVendaIsNull(Integer clienteId) {
-        return itemVendaJpaRepository.findByCliente_IdClienteAndVendaIsNull(clienteId)
+    public List<ItemVenda> findByVendaIsNull() {
+        return itemVendaJpaRepository.findByVendaIsNull()
                 .stream()
                 .map(ItemVendaEntityMapper::toDomain)
                 .toList();

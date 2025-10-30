@@ -96,8 +96,8 @@ CREATE TABLE IF NOT EXISTS `ItemVenda` (
 
 -- Adiciona colunas de recovery na tabela Usuario (se já existir nada será alterado além disso)
 ALTER TABLE `Usuario`
-    ADD COLUMN IF NOT EXISTS `recovery_token` VARCHAR(500),
-    ADD COLUMN IF NOT EXISTS `recovery_token_expiry` DATETIME;
+    ADD COLUMN `recovery_token` VARCHAR(500),
+    ADD COLUMN `recovery_token_expiry` DATETIME;
 
 -- Inserções de teste
 INSERT INTO `Usuario` (`nome`, `email`, `senha`, `telefone`, `endereco`, `cargo`)

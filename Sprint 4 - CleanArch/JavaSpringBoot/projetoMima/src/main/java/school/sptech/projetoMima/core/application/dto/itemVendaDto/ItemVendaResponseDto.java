@@ -4,6 +4,7 @@ public class ItemVendaResponseDto {
     private Integer id;
     private String nomeItem;
     private Integer qtdParaVender;
+    private Integer itemId;
 
     public Integer getId() {
         return id;
@@ -27,5 +28,13 @@ public class ItemVendaResponseDto {
 
     public void setQtdParaVender(Integer qtdParaVender) {
         this.qtdParaVender = qtdParaVender;
+    }
+
+    public Integer getItemId() {
+        return itemId;
+    }
+
+    public void setItemId(Integer itemId) {
+        this.itemId = itemId;
     }
 }

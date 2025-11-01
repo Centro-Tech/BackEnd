@@ -4,6 +4,7 @@ import school.sptech.projetoMima.core.application.dto.itemDto.auxiliares.*;
 import school.sptech.projetoMima.core.application.dto.fornecedorDto.FornecedorResponseDto;
 
 public class ItemResponseDto {
+    private Integer id;
     private String nome;
     private Integer qtdEstoque;
     private String codigo;
@@ -84,5 +85,13 @@ public class ItemResponseDto {
 
     public void setFornecedor(FornecedorResponseDto fornecedor) {
         this.fornecedor = fornecedor;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }

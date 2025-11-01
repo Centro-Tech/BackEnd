@@ -10,6 +10,7 @@ public class ItemVendaMapper {
         ItemVendaResponseDto dto = new ItemVendaResponseDto();
         dto.setId(entity.getId());
         dto.setQtdParaVender(entity.getQtdParaVender());
+        dto.setItemId(entity.getItem() != null ? entity.getItem().getId() : null);
 
         if (entity.getItem() != null) {
             dto.setNomeItem(entity.getItem().getNome());

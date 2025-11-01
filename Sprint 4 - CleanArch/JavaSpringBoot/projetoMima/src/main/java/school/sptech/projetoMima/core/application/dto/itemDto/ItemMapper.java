@@ -14,6 +14,7 @@ public class ItemMapper {
         response.setNome(item.getNome());
         response.setQtdEstoque(item.getQtdEstoque());
         response.setPreco(item.getPreco());
+        response.setId(item.getId());
 
         if (item.getTamanho() != null) {
             response.setTamanho(TamanhoMapper.toDto(item.getTamanho()));

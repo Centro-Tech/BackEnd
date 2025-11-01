@@ -1,118 +1,155 @@
-CREATE DATABASE IF NOT EXISTS MimaStore;
+-- ===========================================
+-- BANCO DE DADOS MimaStore (corrigido)
+-- ===========================================
 
-USE MimaStore;
+CREATE DATABASE IF NOT EXISTS `MimaStore`
+  DEFAULT CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
 
- -- VENDA / Funcionario / CLIENTE
--- Tabela Usuario
-CREATE TABLE if not exists Usuario (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    telefone VARCHAR(20) NOT NULL,
-    endereco VARCHAR(255) NOT NULL,
-    senha VARCHAR(255) NOT NULL,
-    cargo VARCHAR(50) NOT NULL
-);
+USE `MimaStore`;
 
--- Tabela Cliente (presume-se que Cliente seja semelhante a Usuario, mas você pode ajustar)
-CREATE TABLE if not exists Cliente (
-    id_cliente INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    telefone VARCHAR(20) NOT NULL,
-    endereco VARCHAR(255) NOT NULL
-);
+-- ===========================================
+-- TABELA: usuario
+-- ===========================================
+CREATE TABLE IF NOT EXISTS `usuario` (
+  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `nome` VARCHAR(100) NOT NULL,
+  `email` VARCHAR(100) NOT NULL,
+  `telefone` VARCHAR(20) NOT NULL,
+  `endereco` VARCHAR(255) NOT NULL,
+  `senha` VARCHAR(255) NOT NULL,
+  `cargo` VARCHAR(50) NOT NULL,
+  `imagem` VARCHAR(500),
+  `recoveryToken` VARCHAR(500),
+  `recoveryTokenExpiry` DATETIME
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Tabela Fornecedor
-CREATE TABLE if not exists Fornecedor (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    telefone VARCHAR(20),
-    email VARCHAR(100),
-    endereco VARCHAR(255)
-);
+-- ===========================================
+-- TABELA: cliente
+-- ===========================================
+CREATE TABLE IF NOT EXISTS `cliente` (
+  `idCliente` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `nome` VARCHAR(100) NOT NULL,
+  `email` VARCHAR(100) NOT NULL,
+  `telefone` VARCHAR(20) NOT NULL,
+  `endereco` VARCHAR(255) NOT NULL,
+  `cpf` VARCHAR(20)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE if not exists Venda (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    valor_total DOUBLE DEFAULT 0.0,
-    data DATETIME DEFAULT current_timestamp,
-    fkCliente INT,
-    fkFuncionario INT,
-    CONSTRAINT fk_venda_cliente FOREIGN KEY (fkCliente) REFERENCES Cliente(id_cliente),
-    CONSTRAINT fk_venda_funcionario FOREIGN KEY (fkFuncionario) REFERENCES Usuario(id)
-);
+-- ===========================================
+-- TABELA: fornecedor
+-- ===========================================
+CREATE TABLE IF NOT EXISTS `fornecedor` (
+  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `nome` VARCHAR(100) NOT NULL,
+  `telefone` VARCHAR(20),
+  `email` VARCHAR(100),
+  `endereco` VARCHAR(255)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE if not exists Tamanho (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nome VARCHAR(255)
-);
+-- ===========================================
+-- TABELAS AUXILIARES (tamanho, cor, material, categoria)
+-- ===========================================
+CREATE TABLE IF NOT EXISTS `tamanho` (
+  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `nome` VARCHAR(255)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE if not exists Cor (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nome VARCHAR(255)
-);
+CREATE TABLE IF NOT EXISTS `cor` (
+  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `nome` VARCHAR(255)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE if not exists Material (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nome VARCHAR(255)
-);
+CREATE TABLE IF NOT EXISTS `material` (
+  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `nome` VARCHAR(255)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE if not exists Categoria (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nome VARCHAR(255)
-);
+CREATE TABLE IF NOT EXISTS `categoria` (
+  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `nome` VARCHAR(255)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE if not exists Item (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    codigo VARCHAR(255),
-    qtd_estoque INT,
-    nome VARCHAR(255),
-    preco DOUBLE,
-    fkTamanho INT,
-    fkCor INT,
-    fkMaterial INT,
-    fkCategoria INT,
-    fkFornecedor INT,
-    FOREIGN KEY (fkTamanho) REFERENCES Tamanho(id),
-    FOREIGN KEY (fkCor) REFERENCES Cor(id),
-    FOREIGN KEY (fkMaterial) REFERENCES Material(id),
-    FOREIGN KEY (fkCategoria) REFERENCES Categoria(id),
-    FOREIGN KEY (fkFornecedor) REFERENCES Fornecedor(id)
-);
+-- ===========================================
+-- TABELA: item
+-- ===========================================
+CREATE TABLE IF NOT EXISTS `item` (
+  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `codigo` VARCHAR(255),
+  `qtdEstoque` INT,
+  `nome` VARCHAR(255),
+  `preco` DOUBLE,
+  `fkTamanho` INT NULL,
+  `fkCor` INT NULL,
+  `fkMaterial` INT NULL,
+  `fkCategoria` INT NULL,
+  `fkFornecedor` INT NULL,
+  FOREIGN KEY (`fkTamanho`) REFERENCES `tamanho`(`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  FOREIGN KEY (`fkCor`) REFERENCES `cor`(`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  FOREIGN KEY (`fkMaterial`) REFERENCES `material`(`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  FOREIGN KEY (`fkCategoria`) REFERENCES `categoria`(`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  FOREIGN KEY (`fkFornecedor`) REFERENCES `fornecedor`(`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Tabela ItemVenda
-CREATE TABLE if not exists ItemVenda (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    fkItem INT,
-    fkItemFornecedor INT,
-    fkVenda INT,
-    fkVendaCliente INT,
-    fkVendaFuncionario INT,
-    qtdParaVender INT,
-    FOREIGN KEY (fkItem) REFERENCES Item(id),
-    FOREIGN KEY (fkItemFornecedor) REFERENCES Fornecedor(id),
-    FOREIGN KEY (fkVenda) REFERENCES Venda(id),
-    FOREIGN KEY (fkVendaCliente) REFERENCES Cliente(id_cliente),
-    FOREIGN KEY (fkVendaFuncionario) REFERENCES Usuario(id)
-);
+-- ===========================================
+-- TABELA: venda
+-- ===========================================
+CREATE TABLE IF NOT EXISTS `venda` (
+  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `valorTotal` DOUBLE DEFAULT 0.0,
+  `data` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `fkCliente` INT NULL,
+  `fkFuncionario` INT NULL,
+  CONSTRAINT `fk_venda_cliente` FOREIGN KEY (`fkCliente`) REFERENCES `cliente`(`idCliente`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_venda_funcionario` FOREIGN KEY (`fkFuncionario`) REFERENCES `usuario`(`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-insert into usuario
-(nome, email, senha, telefone, endereco,cargo)
-values
-    ('John Doe', 'john@doe.com', '$2a$10$0/TKTGxdREbWaWjWYhwf6e9P1fPOAMMNqEnZgOG95jnSkHSfkkIrC', '1111-11111', 'Rua do bacana','Funcionario');
--- senha: 123456
+-- ===========================================
+-- TABELA: itemvenda
+-- ===========================================
+CREATE TABLE IF NOT EXISTS `itemvenda` (
+  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `fkItem` INT NULL,
+  `fkItemFornecedor` INT NULL,
+  `fkVenda` INT NULL,
+  `qtdParaVender` INT,
+  FOREIGN KEY (`fkItem`) REFERENCES `item`(`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  FOREIGN KEY (`fkItemFornecedor`) REFERENCES `fornecedor`(`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  FOREIGN KEY (`fkVenda`) REFERENCES `venda`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO Fornecedor (nome, telefone, email)
-VALUES ('Empresa XYZ LTDA', '11987654321', 'contato@empresa.com');
+-- ===========================================
+-- INSERÇÕES DE TESTE
+-- ===========================================
+INSERT INTO `usuario` (`nome`, `email`, `senha`, `telefone`, `endereco`, `cargo`)
+VALUES
+('John Doe', 'john@doe.com', '$2a$10$0/TKTGxdREbWaWjWYhwf6e9P1fPOAMMNqEnZgOG95jnSkHSfkkIrC', '1111-11111', 'Rua do Bacana', 'Funcionario'),
+('Ana Souza', 'ana.gerente@mimastore.com', 'senha123', '11999990000', 'Av. Central', 'Gerente'),
+('Carlos Lima', 'carlos.funcionario@mimastore.com', 'senha123', '11988887777', 'Rua das Laranjeiras', 'Funcionario');
 
-insert into Tamanho (nome) values
-    ('M');
+INSERT INTO `cliente` (`nome`, `email`, `telefone`, `endereco`, `cpf`) VALUES
+('João Pereira', 'joao@gmail.com', '11977776666', 'Rua das Flores', '12345678901'),
+('Maria Silva', 'maria@gmail.com', '11966665555', 'Rua dos Sonhos', '98765432100');
 
-insert into Categoria (nome) values
-    ('Camiseta');
+INSERT INTO `fornecedor` (`nome`, `telefone`, `email`) VALUES
+('Fornecedora A', '1133221100', 'contato@fornecedoraa.com'),
+('Fornecedora B', '1144332211', 'suporte@fornecedorab.com');
 
-insert into Cor (nome) values
-    ('Preto');
+INSERT INTO `cor` (`nome`) VALUES ('Vermelho'), ('Azul'), ('Preto');
+INSERT INTO `categoria` (`nome`) VALUES ('Camiseta'), ('Calça'), ('Acessório');
+INSERT INTO `material` (`nome`) VALUES ('Algodão'), ('Jeans'), ('Couro');
+INSERT INTO `tamanho` (`nome`) VALUES ('P'), ('M'), ('G'), ('GG');
 
-insert into Material (nome) values
-    ( 'Lã');
+INSERT INTO `item` (`codigo`, `qtdEstoque`, `nome`, `preco`, `fkFornecedor`, `fkCor`, `fkCategoria`, `fkMaterial`, `fkTamanho`) VALUES
+('CAMV021M', 50, 'Camiseta Vermelha M', 39.90, 1, 1, 1, 1, 2),
+('CAL567G', 30, 'Calça Jeans G', 79.90, 2, 2, 2, 2, 3),
+('ACS678P', 20, 'Acessório Preto P', 119.90, 1, 3, 3, 3, 1);
+
+INSERT INTO `venda` (`valorTotal`, `fkCliente`, `fkFuncionario`) VALUES
+(159.80, 1, 1),
+(119.90, 2, 2);
+
+INSERT INTO `itemvenda` (`fkItem`, `fkItemFornecedor`, `fkVenda`, `qtdParaVender`) VALUES
+(1, 1, 1, 2),
+(2, 2, 1, 1),
+(3, 1, 2, 1);

@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ItemVendaRepository extends JpaRepository<ItemVendaEntity, Integer> {
-    List<ItemVendaEntity> findByCliente_IdClienteAndVendaIsNull(Integer clienteId);
+    // Buscar itens no carrinho (sem venda associada)
+    List<ItemVendaEntity> findByVendaIsNull();
 
     @Query("SELECT iv FROM ItemVendaEntity iv JOIN FETCH iv.venda WHERE iv.id = :id")
     Optional<ItemVendaEntity> buscarComVenda(@Param("id") Integer id);
@@ -22,6 +23,7 @@ public interface ItemVendaRepository extends JpaRepository<ItemVendaEntity, Inte
     Optional<ItemVendaEntity> buscarPorIdEVendaComJoin(@Param("idItemVenda") Integer idItemVenda,
                                                        @Param("idVenda") Integer idVenda);
 
-    @Query("SELECT iv FROM ItemVendaEntity iv WHERE iv.cliente.idCliente = :clienteId AND iv.venda IS NULL")
-    List<ItemVendaEntity> buscarCarrinhoParaFinalizar(@Param("clienteId") Integer clienteId);
+    // Buscar itens do carrinho (sem venda) - não filtramos mais por cliente pois ItemVenda não tem cliente direto
+    @Query("SELECT iv FROM ItemVendaEntity iv WHERE iv.venda IS NULL")
+    List<ItemVendaEntity> buscarCarrinhoParaFinalizar();
 }

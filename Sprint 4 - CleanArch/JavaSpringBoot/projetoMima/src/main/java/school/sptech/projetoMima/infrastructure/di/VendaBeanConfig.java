@@ -27,8 +27,8 @@ public class VendaBeanConfig {
     }
 
     @Bean
-    public CriarVendaUseCase criarVendaUseCase(VendaGateway vendaGateway, ClienteGateway clienteGateway, ItemGateway itemGateway, UsuarioGateway usuarioGateway) {
-        return new CriarVendaUseCase(vendaGateway, clienteGateway, itemGateway, usuarioGateway);
+    public CriarVendaUseCase criarVendaUseCase(VendaGateway vendaGateway, ClienteGateway clienteGateway, UsuarioGateway usuarioGateway) {
+        return new CriarVendaUseCase(vendaGateway, clienteGateway, usuarioGateway);
     }
 
     @Bean

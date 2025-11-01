@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 
 
 @Entity
-@Table(name = "Tamanho")
+@Table(name = "tamanho")
 @Schema(name = "Tamanho", description = "Representa o tamanho de um item")
 public class TamanhoEntity {
     @Id

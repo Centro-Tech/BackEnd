@@ -26,29 +26,6 @@ public class ItemVendaEntityMapper {
             entity.setItem(ItemEntityMapper.toEntity(domainEntity.getItem()));
         }
 
-        if (domainEntity.getCliente() != null) {
-            ClienteEntity clienteEntity = new ClienteEntity();
-            clienteEntity.setIdCliente(domainEntity.getCliente().getId());
-            clienteEntity.setNome(domainEntity.getCliente().getNome());
-            clienteEntity.setCPF(domainEntity.getCliente().getCPF());
-            clienteEntity.setTelefone(domainEntity.getCliente().getTelefone());
-            clienteEntity.setEmail(domainEntity.getCliente().getEmail());
-            clienteEntity.setEndereco(domainEntity.getCliente().getEndereco());
-            entity.setCliente(clienteEntity);
-        }
-
-        if (domainEntity.getFuncionario() != null) {
-            UsuarioEntity funcionarioEntity = new UsuarioEntity();
-            funcionarioEntity.setId(domainEntity.getFuncionario().getId());
-            funcionarioEntity.setNome(domainEntity.getFuncionario().getNome());
-            funcionarioEntity.setEmail(domainEntity.getFuncionario().getEmail());
-            funcionarioEntity.setTelefone(domainEntity.getFuncionario().getTelefone());
-            funcionarioEntity.setEndereco(domainEntity.getFuncionario().getEndereco());
-            funcionarioEntity.setSenha(domainEntity.getFuncionario().getSenha());
-            funcionarioEntity.setCargo(domainEntity.getFuncionario().getCargo());
-            entity.setFuncionario(funcionarioEntity);
-        }
-
         if (domainEntity.getFornecedor() != null) {
             FornecedorEntity fornecedorEntity = new FornecedorEntity();
             fornecedorEntity.setId(domainEntity.getFornecedor().getId());
@@ -78,28 +55,11 @@ public class ItemVendaEntityMapper {
             domainEntity.setItem(ItemEntityMapper.toDomain(entity.getItem()));
         }
 
-        if (entity.getCliente() != null) {
-            Cliente cliente = new Cliente();
-            cliente.setId(entity.getCliente().getIdCliente());
-            cliente.setNome(entity.getCliente().getNome());
-            cliente.setCPF(entity.getCliente().getCPF());
-            cliente.setTelefone(entity.getCliente().getTelefone());
-            cliente.setEmail(entity.getCliente().getEmail());
-            cliente.setEndereco(entity.getCliente().getEndereco());
-            domainEntity.setCliente(cliente);
-        }
-
-        if (entity.getFuncionario() != null) {
-            Usuario funcionario = new Usuario(
-                entity.getFuncionario().getNome(),
-                entity.getFuncionario().getEmail(),
-                entity.getFuncionario().getTelefone(),
-                entity.getFuncionario().getEndereco(),
-                entity.getFuncionario().getSenha(),
-                entity.getFuncionario().getCargo()
-            );
-            funcionario.setId(entity.getFuncionario().getId());
-            domainEntity.setFuncionario(funcionario);
+        // Cliente e Funcionário são obtidos da Venda, não diretamente do ItemVenda
+        if (entity.getVenda() != null) {
+            Venda venda = new Venda();
+            venda.setId(entity.getVenda().getId());
+            domainEntity.setVenda(venda);
         }
 
         if (entity.getFornecedor() != null) {
@@ -109,12 +69,6 @@ public class ItemVendaEntityMapper {
             fornecedor.setTelefone(entity.getFornecedor().getTelefone());
             fornecedor.setEmail(entity.getFornecedor().getEmail());
             domainEntity.setFornecedor(fornecedor);
-        }
-
-        if (entity.getVenda() != null) {
-            Venda venda = new Venda();
-            venda.setId(entity.getVenda().getId());
-            domainEntity.setVenda(venda);
         }
 
         return domainEntity;

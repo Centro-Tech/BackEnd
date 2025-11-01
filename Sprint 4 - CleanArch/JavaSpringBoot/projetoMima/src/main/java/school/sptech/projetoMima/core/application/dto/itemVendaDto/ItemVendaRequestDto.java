@@ -6,18 +6,21 @@ import jakarta.validation.constraints.Positive;
 
 public class ItemVendaRequestDto {
 
+<<<<<<< HEAD
     @Schema(description = "ID da venda", example = "1", required = true)
     private Integer vendaId;
 
+=======
+>>>>>>> de83bb02485acd4ebebf3ef62e21d63a10c2a7f6
     @Schema(description = "ID do item a ser adicionado", example = "1", required = true)
     @NotNull
     private Integer itemId;
 
-    @Schema(description = "ID do cliente que está adicionando o item", example = "1", required = true)
+    @Schema(description = "ID do cliente", example = "1", required = true)
     @NotNull
     private Integer clienteId;
 
-    @Schema(description = "ID do funcionário responsável", example = "1", required = true)
+    @Schema(description = "ID do funcionário", example = "1", required = true)
     @NotNull
     private Integer funcionarioId;
 
@@ -25,14 +28,6 @@ public class ItemVendaRequestDto {
     @NotNull
     @Positive
     private Integer qtdParaVender;
-
-    public Integer getVendaId() {
-        return vendaId;
-    }
-
-    public void setVendaId(Integer vendaId) {
-        this.vendaId = vendaId;
-    }
 
     public Integer getItemId() {
         return itemId;
@@ -42,19 +37,11 @@ public class ItemVendaRequestDto {
         this.itemId = itemId;
     }
 
-    public Integer getQtdParaVender() {
-        return qtdParaVender;
-    }
-
-    public void setQtdParaVender(Integer qtdParaVender) {
-        this.qtdParaVender = qtdParaVender;
-    }
-
     public Integer getClienteId() {
         return clienteId;
     }
 
-    public void setClienteId (Integer clienteId) {
+    public void setClienteId(Integer clienteId) {
         this.clienteId = clienteId;
     }
 
@@ -64,5 +51,13 @@ public class ItemVendaRequestDto {
 
     public void setFuncionarioId(Integer funcionarioId) {
         this.funcionarioId = funcionarioId;
+    }
+
+    public Integer getQtdParaVender() {
+        return qtdParaVender;
+    }
+
+    public void setQtdParaVender(Integer qtdParaVender) {
+        this.qtdParaVender = qtdParaVender;
     }
 }

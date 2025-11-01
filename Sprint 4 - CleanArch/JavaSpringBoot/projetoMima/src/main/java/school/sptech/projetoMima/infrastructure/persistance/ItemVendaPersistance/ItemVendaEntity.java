@@ -10,7 +10,7 @@ import school.sptech.projetoMima.infrastructure.persistance.UsuarioPersistance.U
 import school.sptech.projetoMima.infrastructure.persistance.VendaPersistance.VendaEntity;
 
 @Entity
-@Table(name = "ItemVenda")
+@Table(name = "itemvenda")
 @Schema(description = "Representa um item incluído em uma venda")
 public class ItemVendaEntity {
 
@@ -34,16 +34,6 @@ public class ItemVendaEntity {
     @JsonBackReference
     @Schema(description = "Venda à qual pertence")
     private VendaEntity venda;
-
-    @ManyToOne
-    @JoinColumn(name = "fkVendaCliente")
-    @Schema(description = "Cliente da venda")
-    private ClienteEntity cliente;
-
-    @ManyToOne
-    @JoinColumn(name = "fkVendaFuncionario")
-    @Schema(description = "Funcionário responsável")
-    private UsuarioEntity funcionario;
 
     @Schema(description = "Quantidade do item")
     private Integer qtdParaVender;
@@ -86,21 +76,5 @@ public class ItemVendaEntity {
 
     public void setVenda(VendaEntity venda) {
         this.venda = venda;
-    }
-
-    public ClienteEntity getCliente() {
-        return cliente;
-    }
-
-    public void setCliente(ClienteEntity cliente) {
-        this.cliente = cliente;
-    }
-
-    public UsuarioEntity getFuncionario() {
-        return funcionario;
-    }
-
-    public void setFuncionario(UsuarioEntity funcionario) {
-        this.funcionario = funcionario;
     }
 }

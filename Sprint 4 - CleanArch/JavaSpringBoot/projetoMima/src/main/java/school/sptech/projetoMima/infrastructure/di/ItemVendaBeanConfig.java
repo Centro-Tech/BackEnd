@@ -11,6 +11,7 @@ import school.sptech.projetoMima.core.application.usecase.ItemVenda.AdicionarIte
 import school.sptech.projetoMima.core.application.usecase.ItemVenda.ListarCarrinhoUseCase;
 import school.sptech.projetoMima.core.application.usecase.ItemVenda.FinalizarCarrinhoUseCase;
 import school.sptech.projetoMima.core.application.usecase.ItemVenda.RemoverUltimoItemDoCarrinhoUseCase;
+import school.sptech.projetoMima.core.application.usecase.Venda.CriarVendaUseCase;
 import school.sptech.projetoMima.infrastructure.persistance.ItemVendaPersistance.ItemVendaJpaAdapter;
 import school.sptech.projetoMima.infrastructure.persistance.ItemVendaPersistance.ItemVendaJpaRepository;
 import school.sptech.projetoMima.infrastructure.persistance.ItemVendaPersistance.ItemVendaEntityMapper;
@@ -29,7 +30,11 @@ public class ItemVendaBeanConfig {
     }
 
     @Bean
-    public AdicionarItemAoCarrinhoUseCase adicionarItemAoCarrinhoUseCase(ItemVendaGateway itemVendaGateway, ItemGateway itemGateway, ClienteGateway clienteGateway, UsuarioGateway usuarioGateway) {
+    public AdicionarItemAoCarrinhoUseCase adicionarItemAoCarrinhoUseCase(
+            ItemVendaGateway itemVendaGateway,
+            ItemGateway itemGateway,
+            ClienteGateway clienteGateway,
+            UsuarioGateway usuarioGateway) {
         return new AdicionarItemAoCarrinhoUseCase(itemVendaGateway, itemGateway, clienteGateway, usuarioGateway);
     }
 
@@ -40,8 +45,8 @@ public class ItemVendaBeanConfig {
 
     @Bean
     public FinalizarCarrinhoUseCase finalizarCarrinhoUseCase(ItemVendaGateway itemVendaGateway,
-                                                           VendaGateway vendaGateway) {
-        return new FinalizarCarrinhoUseCase(itemVendaGateway, vendaGateway);
+                                                             CriarVendaUseCase criarVendaUseCase) {
+        return new FinalizarCarrinhoUseCase(itemVendaGateway, criarVendaUseCase);
     }
 
     @Bean

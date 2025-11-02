@@ -53,7 +53,6 @@ public class FinalizarCarrinhoUseCase {
             item.setVenda(novaVenda);
             itemVendaGateway.save(item);
         }
-
         return novaVenda;
     }
 }

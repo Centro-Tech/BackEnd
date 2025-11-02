@@ -20,7 +20,9 @@ import school.sptech.projetoMima.core.application.command.ItemVenda.FinalizarCar
 import school.sptech.projetoMima.core.application.command.ItemVenda.RemoverUltimoItemDoCarrinhoCommand;
 import school.sptech.projetoMima.core.application.usecase.ItemVenda.*;
 import school.sptech.projetoMima.core.domain.ItemVenda;
+import school.sptech.projetoMima.core.domain.Venda;
 
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -91,12 +93,12 @@ public class ItemVendaController {
     })
     @Transactional
     @PostMapping("/carrinho/finalizar/{clienteId}")
-    public ResponseEntity<String> finalizarCarrinho(@PathVariable Integer clienteId){
-
+    public ResponseEntity<Venda> finalizarCarrinho(@PathVariable Integer clienteId){
         FinalizarCarrinhoCommand command = new FinalizarCarrinhoCommand(clienteId);
+        Venda novaVenda = finalizarCarrinhoUseCase.execute(command);
 
-        finalizarCarrinhoUseCase.execute(command);
-        return ResponseEntity.ok("Carrinho finalizado com sucesso!");
+        URI location = URI.create("/vendas/" + novaVenda.getId());
+        return ResponseEntity.created(location).body(novaVenda);
     }
 
     @Operation(summary = "Remover o último item adicionado do carrinho")

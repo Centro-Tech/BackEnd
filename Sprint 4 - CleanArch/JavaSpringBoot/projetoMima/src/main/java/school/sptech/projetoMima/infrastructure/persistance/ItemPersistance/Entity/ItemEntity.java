@@ -11,7 +11,6 @@ import school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxi
 import school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares.Material.Entity.MaterialEntity;
 import school.sptech.projetoMima.infrastructure.persistance.ItemPersistance.auxiliares.Tamanho.Entity.TamanhoEntity;
 
-import java.math.BigDecimal;
 
 @Entity
 @Table(name = "item")
@@ -20,54 +19,54 @@ public class ItemEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(description = "Identificador único do item gerado automaticamente pelo sistema", example = "1", type = "integer", format = "int32", required = true)
+    @Schema(description = "Identificador único do item gerado automaticamente pelo sistema", example = "1", type = "integer", format = "int32", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer id;
 
     @NotNull
     @NotBlank
     @Column(nullable = false, unique = true)
-    @Schema(description = "Código único do item", example = "ITEM001", type = "string", maxLength = 50, required = true)
+    @Schema(description = "Código único do item", example = "ITEM001", type = "string", maxLength = 50, requiredMode = Schema.RequiredMode.REQUIRED)
     private String codigo;
 
     @NotNull
     @PositiveOrZero
     @Column(nullable = false)
-    @Schema(description = "Quantidade em estoque do item", example = "100", type = "integer", format = "int32", required = true)
+    @Schema(description = "Quantidade em estoque do item", example = "100", type = "integer", format = "int32", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer qtdEstoque;
 
     @NotNull
     @NotBlank
     @Column(nullable = false)
-    @Schema(description = "Nome do item", example = "Camiseta Básica", type = "string", maxLength = 100, required = true)
+    @Schema(description = "Nome do item", example = "Camiseta Básica", type = "string", maxLength = 100, requiredMode = Schema.RequiredMode.REQUIRED)
     private String nome;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_tamanho")
+    @JoinColumn(name = "fkTamanho")
     @Schema(description = "Tamanho do item")
     private TamanhoEntity tamanho;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_cor")
+    @JoinColumn(name = "fkCor")
     @Schema(description = "Cor do item")
     private CorEntity cor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_material")
+    @JoinColumn(name = "fkMaterial")
     @Schema(description = "Material do item")
     private MaterialEntity material;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_categoria")
+    @JoinColumn(name = "fkCategoria")
     @Schema(description = "Categoria do item")
     private CategoriaEntity categoria;
 
     @NotNull
     @Column(nullable = false)
-    @Schema(description = "Preço do item", example = "29.99", type = "number", format = "decimal", required = true)
+    @Schema(description = "Preço do item", example = "29.99", type = "number", format = "decimal", requiredMode = Schema.RequiredMode.REQUIRED)
     private Double preco;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_fornecedor")
+    @JoinColumn(name = "fkFornecedor")
     @Schema(description = "Fornecedor do item")
     private FornecedorEntity fornecedor;
 

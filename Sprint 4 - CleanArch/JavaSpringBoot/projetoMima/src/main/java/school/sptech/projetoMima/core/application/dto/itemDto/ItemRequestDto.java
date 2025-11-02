@@ -11,37 +11,37 @@ public class ItemRequestDto {
     @NotBlank
     @NotNull
     @Size(max = 100, min = 1)
-    @Schema(description = "Nome do item", example = "Camiseta", maxLength = 100, minLength = 1, required = true)
+    @Schema(description = "Nome do item", example = "Camiseta", maxLength = 100, minLength = 1, requiredMode = Schema.RequiredMode.REQUIRED)
     private String nome;
 
     @NotNull
     @DecimalMin(value = "1.0")
-    @Schema(description = "Quantidade disponível no estoque", example = "50", minimum = "1", required = true)
+    @Schema(description = "Quantidade disponível no estoque", example = "50", minimum = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer qtdEstoque;
 
     @NotNull
     @DecimalMin(value = "1.0")
-    @Schema(description = "Preço do item", example = "79.90", minimum = "1.0", required = true)
+    @Schema(description = "Preço do item", example = "79.90", minimum = "1.0", requiredMode = Schema.RequiredMode.REQUIRED)
     private Double preco;
 
     @NotNull
-    @Schema(description = "ID do tamanho do item", example = "1", required = true)
+    @Schema(description = "ID do tamanho do item", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer idTamanho;
 
     @NotNull
-    @Schema(description = "ID da cor do item", example = "1", required = true)
+    @Schema(description = "ID da cor do item", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer idCor;
 
     @NotNull
-    @Schema(description = "ID do material do item", example = "1", required = true)
+    @Schema(description = "ID do material do item", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer idMaterial;
 
     @NotNull
-    @Schema(description = "ID da categoria do item", example = "1", required = true)
+    @Schema(description = "ID da categoria do item", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer idCategoria;
 
     @NotNull
-    @Schema(description = "Objeto fornecedor com os dados básicos", example = "{\"id\": 1, \"nome\": \"Empresa XYZ LTDA\", \"telefone\": \"11987654321\", \"email\": \"contato@empresa.com\"}", required = true)
+    @Schema(description = "Objeto fornecedor com os dados básicos", example = "{\"id\": 1, \"nome\": \"Empresa XYZ LTDA\", \"telefone\": \"11987654321\", \"email\": \"contato@empresa.com\"}", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer idFornecedor;
 
     public String getNome() {

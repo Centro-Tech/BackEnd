@@ -1,5 +1,5 @@
 -- ===========================================
--- BANCO DE DADOS MimaStore (corrigido)
+-- BANCO DE DADOS MimaStore (corrigido para camelCase conforme seu DDL)
 -- ===========================================
 
 CREATE DATABASE IF NOT EXISTS `MimaStore`
@@ -153,3 +153,4 @@ INSERT INTO `itemvenda` (`fkItem`, `fkItemFornecedor`, `fkVenda`, `qtdParaVender
 (1, 1, 1, 2),
 (2, 2, 1, 1),
 (3, 1, 2, 1);
+

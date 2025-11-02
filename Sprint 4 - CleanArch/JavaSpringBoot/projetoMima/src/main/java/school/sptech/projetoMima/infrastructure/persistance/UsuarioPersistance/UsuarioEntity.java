@@ -17,43 +17,43 @@ public class UsuarioEntity {
 
     @NotBlank
     @Size(min = 3, max = 100)
-    @Schema(description = "Nome completo do usuário", example = "João da Silva", minLength = 3, maxLength = 100, required = true)
+    @Schema(description = "Nome completo do usuário", example = "João da Silva", minLength = 3, maxLength = 100, requiredMode = Schema.RequiredMode.REQUIRED)
     private String nome;
 
     @NotBlank
     @Size(min = 5, max = 100)
-    @Schema(description = "Endereço de email do usuário", example = "joao@email.com", minLength = 5, maxLength = 100, required = true)
+    @Schema(description = "Endereço de email do usuário", example = "joao@email.com", minLength = 5, maxLength = 100, requiredMode = Schema.RequiredMode.REQUIRED)
     private String email;
 
     @NotBlank
     @Size(min = 8, max = 20)
-    @Schema(description = "Número de telefone do usuário (apenas dígitos)", example = "11987654321", minLength = 8, maxLength = 20, required = true)
+    @Schema(description = "Número de telefone do usuário (apenas dígitos)", example = "11987654321", minLength = 8, maxLength = 20, requiredMode = Schema.RequiredMode.REQUIRED)
     private String telefone;
 
     @NotBlank
     @Size(min = 5, max = 255)
-    @Schema(description = "Endereço físico do usuário", example = "Rua das Flores, 123 - Centro", minLength = 5, maxLength = 255, required = true)
+    @Schema(description = "Endereço físico do usuário", example = "Rua das Flores, 123 - Centro", minLength = 5, maxLength = 255, requiredMode = Schema.RequiredMode.REQUIRED)
     private String endereco;
 
     @NotBlank
     @Size(min = 5, max = 255)
-    @Schema(description = "Senha de acesso do funcionário", example = "*******", minLength = 5, maxLength = 255, required = true)
+    @Schema(description = "Senha de acesso do funcionário", example = "*******", minLength = 5, maxLength = 255, requiredMode = Schema.RequiredMode.REQUIRED)
     private String senha;
 
 
     @NotBlank(message = "O cargo é obrigatório")
     @Size(min = 2, max = 50, message = "O cargo deve ter entre 2 e 50 caracteres")
-    @Schema(description = "Cargo do funcionário dentro da empresa, como por exemplo 'Atendente', 'Gerente de vendas' ou 'Estoquista'", example = "Gerente de vendas", type = "string", minLength = 2, maxLength = 50, required = true)
+    @Schema(description = "Cargo do funcionário dentro da empresa, como por exemplo 'Atendente', 'Gerente de vendas' ou 'Estoquista'", example = "Gerente de vendas", type = "string", minLength = 2, maxLength = 50, requiredMode = Schema.RequiredMode.REQUIRED)
     private String cargo;
 
     @Size(max = 500)
     @Schema(description = "URL ou caminho da imagem de perfil do usuário", example = "https://exemplo.com/imagem.jpg", maxLength = 500)
     private String imagem;
 
-    @Column(name = "recovery_token")
+    @Column(name = "recoveryToken")
     private String recoveryToken;
 
-    @Column(name = "recovery_token_expiry")
+    @Column(name = "recoveryTokenExpiry")
     private LocalDateTime recoveryTokenExpiry;
 
     public UsuarioEntity() {

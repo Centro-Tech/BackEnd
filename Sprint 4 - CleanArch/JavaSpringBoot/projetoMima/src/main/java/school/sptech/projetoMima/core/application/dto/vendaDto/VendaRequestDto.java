@@ -8,20 +8,20 @@ import java.util.List;
 
 public class VendaRequestDto {
 
-    @Schema(description = "Valor total da venda", example = "199.99", required = true)
+    @Schema(description = "Valor total da venda", example = "199.99", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull
     @PositiveOrZero
     private Double valorTotal;
 
-    @Schema(description = "ID do cliente que está realizando a compra", required = true)
+    @Schema(description = "ID do cliente que está realizando a compra", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull
     private Integer clienteId;
 
-    @Schema(description = "Lista de IDs dos itens que compõem a venda", required = true)
+    @Schema(description = "Lista de IDs dos itens que compõem a venda", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotEmpty
     private List<Integer> itensVenda;
 
-    @Schema(description = "ID do funcionário responsável pela venda", required = true)
+    @Schema(description = "ID do funcionário responsável pela venda", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull
     private Integer funcionarioId;
 

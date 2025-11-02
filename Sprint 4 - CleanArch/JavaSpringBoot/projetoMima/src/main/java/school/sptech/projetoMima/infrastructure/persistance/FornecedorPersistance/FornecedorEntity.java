@@ -10,23 +10,22 @@ import jakarta.validation.constraints.NotNull;
 public class FornecedorEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(description = "Identificador único do fornecedor gerado automaticamente pelo sistema", example = "1", type = "integer", format = "int32", required = true)
+    @Schema(description = "Identificador único do fornecedor gerado automaticamente pelo sistema", example = "1", type = "integer", format = "int32", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer id;
 
     @NotNull
     @NotBlank
-    @Schema(description = "Nome completo ou razão social do fornecedor", example = "Empresa XYZ LTDA", type = "string", maxLength = 100, required = true)
+    @Schema(description = "Nome completo ou razão social do fornecedor", example = "Empresa XYZ LTDA", type = "string", maxLength = 100, requiredMode = Schema.RequiredMode.REQUIRED)
     private String nome;
 
-    @NotNull
-    @NotBlank
-    @Schema(description = "Número de telefone do fornecedor com DDD", example = "11987654321", type = "string", required = true)
+    @Schema(description = "Número de telefone do fornecedor com DDD", example = "11987654321", type = "string")
     private String telefone;
 
-    @NotNull
-    @NotBlank
-    @Schema(description = "Endereço de e-mail para contato com o fornecedor", example = "contato@empresa.com", type = "string", format = "email", required = true)
+    @Schema(description = "Endereço de e-mail para contato com o fornecedor", example = "contato@empresa.com", type = "string", format = "email")
     private String email;
+
+    @Schema(description = "Endereço físico do fornecedor", example = "Rua das Indústrias, 1000", type = "string")
+    private String endereco;
 
     public Integer getId() {
         return id;
@@ -58,5 +57,13 @@ public class FornecedorEntity {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(String endereco) {
+        this.endereco = endereco;
     }
 }

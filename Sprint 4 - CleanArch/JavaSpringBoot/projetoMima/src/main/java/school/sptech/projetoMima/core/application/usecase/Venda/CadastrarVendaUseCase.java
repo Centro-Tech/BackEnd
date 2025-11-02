@@ -7,7 +7,7 @@ import school.sptech.projetoMima.core.application.exception.Cliente.ClienteNaoEn
 import school.sptech.projetoMima.core.domain.Cliente;
 import school.sptech.projetoMima.core.domain.Venda;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class CadastrarVendaUseCase {
 
@@ -29,7 +29,7 @@ public class CadastrarVendaUseCase {
 
         Venda venda = new Venda();
         venda.setCliente(cliente);
-        venda.setData(LocalDate.now());
+        venda.setData(LocalDateTime.now());
         venda.setValorTotal(command.valorTotal());
 
         return vendaGateway.save(venda);

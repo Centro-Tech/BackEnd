@@ -9,7 +9,7 @@ import school.sptech.projetoMima.core.domain.item.Categoria;
 @Schema(description = "DTO para categoria do item")
 public class CategoriaDto {
 
-    @Schema(description = "Tipo da categoria", example = "Casual", required = true)
+    @Schema(description = "Tipo da categoria", example = "Casual", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull
     @NotBlank
     @Size(min = 2)

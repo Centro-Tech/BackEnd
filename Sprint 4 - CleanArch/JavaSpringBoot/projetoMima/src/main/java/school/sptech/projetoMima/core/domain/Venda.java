@@ -1,6 +1,6 @@
 package school.sptech.projetoMima.core.domain;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 public class Venda {
 
@@ -8,7 +8,7 @@ public class Venda {
 
     private Double valorTotal = 0.0;
 
-    private LocalDate data;
+    private LocalDateTime data;
 
     private Cliente cliente;
 
@@ -34,11 +34,11 @@ public class Venda {
         this.valorTotal = valorTotal;
     }
 
-    public LocalDate getData() {
+    public LocalDateTime getData() {
         return data;
     }
 
-    public void setData(LocalDate data) {
+    public void setData(LocalDateTime data) {
         this.data = data;
     }
 

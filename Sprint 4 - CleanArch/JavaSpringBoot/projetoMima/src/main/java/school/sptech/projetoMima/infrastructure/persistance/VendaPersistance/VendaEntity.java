@@ -8,7 +8,7 @@ import school.sptech.projetoMima.infrastructure.persistance.ClientePersistance.E
 import school.sptech.projetoMima.infrastructure.persistance.UsuarioPersistance.UsuarioEntity;
 import school.sptech.projetoMima.infrastructure.persistance.ItemVendaPersistance.ItemVendaEntity;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -25,8 +25,8 @@ public class VendaEntity {
     private Double valorTotal = 0.0;
 
     @CurrentTimestamp
-    @Schema(description = "Data em que a venda foi registrada", example = "2024-04-15", type = "string", format = "date")
-    private LocalDate data;
+    @Schema(description = "Data e hora em que a venda foi registrada", example = "2024-04-15T10:30:00", type = "string", format = "date-time")
+    private LocalDateTime data;
 
     @ManyToOne
     @JoinColumn(name = "fkCliente")
@@ -59,11 +59,11 @@ public class VendaEntity {
         this.valorTotal = valorTotal;
     }
 
-    public LocalDate getData() {
+    public LocalDateTime getData() {
         return data;
     }
 
-    public void setData(LocalDate data) {
+    public void setData(LocalDateTime data) {
         this.data = data;
     }
 

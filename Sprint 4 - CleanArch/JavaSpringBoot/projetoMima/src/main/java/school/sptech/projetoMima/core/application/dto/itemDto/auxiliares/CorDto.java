@@ -9,7 +9,7 @@ import school.sptech.projetoMima.core.domain.item.Cor;
 @Schema(description = "DTO para cor do item")
 public class CorDto {
 
-    @Schema(description = "Nome da cor", example = "Azul", required = true)
+    @Schema(description = "Nome da cor", example = "Azul", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank
     @NotNull
     @Size(min = 2)

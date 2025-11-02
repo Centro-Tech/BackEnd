@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -80,7 +82,9 @@ public class VendaJpaAdapter implements VendaGateway {
 
     @Override
     public List<Venda> findByDataBetween(LocalDate dataInicio, LocalDate dataFim) {
-        return vendaJpaRepository.findByDataBetween(dataInicio, dataFim)
+        LocalDateTime dataInicioTime = dataInicio.atStartOfDay();
+        LocalDateTime dataFimTime = dataFim.atTime(LocalTime.MAX);
+        return vendaJpaRepository.findByDataBetween(dataInicioTime, dataFimTime)
                 .stream()
                 .map(vendaEntityMapper::toDomain)
                 .collect(Collectors.toList());

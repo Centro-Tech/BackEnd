@@ -67,4 +67,10 @@ public class VendaBeanConfig {
     public EnviarComprovanteVendaUseCase enviarComprovanteVendaUseCase(ComprovanteVendaPublisherGateway comprovantePublisherGateway) {
         return new EnviarComprovanteVendaUseCase(comprovantePublisherGateway);
     }
+
+    @Bean
+    public FinalizarVendaUseCase finalizarVendaUseCase(VendaGateway vendaGateway, 
+                                                       ComprovanteVendaPublisherGateway comprovantePublisherGateway) {
+        return new FinalizarVendaUseCase(vendaGateway, comprovantePublisherGateway);
+    }
 }

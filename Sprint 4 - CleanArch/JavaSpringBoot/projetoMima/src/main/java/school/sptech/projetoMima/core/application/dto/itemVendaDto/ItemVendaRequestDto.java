@@ -6,12 +6,6 @@ import jakarta.validation.constraints.Positive;
 
 public class ItemVendaRequestDto {
 
-<<<<<<< HEAD
-    @Schema(description = "ID da venda", example = "1", required = true)
-    private Integer vendaId;
-
-=======
->>>>>>> de83bb02485acd4ebebf3ef62e21d63a10c2a7f6
     @Schema(description = "ID do item a ser adicionado", example = "1", required = true)
     @NotNull
     private Integer itemId;

@@ -1,5 +1,6 @@
 package school.sptech.projetoMima.infrastructure.web.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -138,7 +139,7 @@ public class ItemController {
 
     @PostMapping
     @Operation(summary = "Cadastrar novo item")
-    public ResponseEntity<ItemResponseDto> cadastrar(@RequestBody ItemRequestDto requestDto) {
+    public ResponseEntity<ItemResponseDto> cadastrar(@Valid @RequestBody ItemRequestDto requestDto) {
         CadastrarItemCommand command = new CadastrarItemCommand(
                 requestDto.getNome(),
                 requestDto.getQtdEstoque(),

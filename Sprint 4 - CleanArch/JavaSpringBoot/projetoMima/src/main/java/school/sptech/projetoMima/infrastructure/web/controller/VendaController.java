@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import school.sptech.projetoMima.core.application.command.Venda.CriarVendaCommand;
+import school.sptech.projetoMima.core.application.command.Venda.FinalizarVendaCommand;
 import school.sptech.projetoMima.core.application.command.Venda.FiltrarVendasPorClienteCommand;
 import school.sptech.projetoMima.core.application.command.Venda.FiltrarVendasPorDataCommand;
 import school.sptech.projetoMima.core.application.command.Venda.FiltrarVendasPorValorCommand;
@@ -34,6 +35,7 @@ public class VendaController {
 
     // Injeção dos Use Cases
     private final CriarVendaUseCase criarVendaUseCase;
+    private final FinalizarVendaUseCase finalizarVendaUseCase;
     private final ListarVendasUseCase listarVendasUseCase;
     private final FiltrarVendasPorDataUseCase filtrarVendasPorDataUseCase;
     private final FiltrarVendasPorClienteUseCase filtrarVendasPorClienteUseCase;
@@ -44,6 +46,7 @@ public class VendaController {
 
     @Autowired
     public VendaController(CriarVendaUseCase criarVendaUseCase,
+                          FinalizarVendaUseCase finalizarVendaUseCase,
                           ListarVendasUseCase listarVendasUseCase,
                           FiltrarVendasPorDataUseCase filtrarVendasPorDataUseCase,
                           FiltrarVendasPorClienteUseCase filtrarVendasPorClienteUseCase,
@@ -52,6 +55,7 @@ public class VendaController {
                           RemoverItemDaVendaComDtoUseCase removerItemDaVendaComDtoUseCase,
                           EnviarComprovanteVendaUseCase enviarComprovanteVendaUseCase) {
         this.criarVendaUseCase = criarVendaUseCase;
+        this.finalizarVendaUseCase = finalizarVendaUseCase;
         this.listarVendasUseCase = listarVendasUseCase;
         this.filtrarVendasPorDataUseCase = filtrarVendasPorDataUseCase;
         this.filtrarVendasPorClienteUseCase = filtrarVendasPorClienteUseCase;
@@ -76,36 +80,26 @@ public class VendaController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Registrar uma nova venda")
+    @Operation(summary = "Finalizar venda e enviar comprovante via RabbitMQ",
+               description = "Busca uma venda existente pelo ID e envia o comprovante para o RabbitMQ. " +
+                           "Este endpoint deve ser usado após a venda ter sido criada com seus itens.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Venda registrada com sucesso",
+        @ApiResponse(responseCode = "200", description = "Venda finalizada e comprovante enviado com sucesso",
                     content = @Content(schema = @Schema(implementation = VendaResponseDto.class))),
-        @ApiResponse(responseCode = "400", description = "Dados inválidos")
+        @ApiResponse(responseCode = "404", description = "Venda não encontrada"),
+        @ApiResponse(responseCode = "400", description = "Venda sem itens ou dados inválidos")
     })
-    @PostMapping("/vender")
-    public ResponseEntity<VendaResponseDto> criarVenda(@Valid @RequestBody VendaRequestDto request) {
-        // Converter DTO para Command
-        CriarVendaCommand command = new CriarVendaCommand(
-            request.getValorTotal(),
-            request.getClienteId(),
-            request.getItensVenda(),
-            request.getFuncionarioId()
-        );
+    @PostMapping("/finalizar/{vendaId}")
+    public ResponseEntity<VendaResponseDto> finalizarVenda(@PathVariable Integer vendaId) {
+        // Criar command com o ID da venda
+        FinalizarVendaCommand command = new FinalizarVendaCommand(vendaId);
 
-        // Executar Use Case
-        Venda venda = criarVendaUseCase.execute(command);
-
-        // Enviar comprovante por email automaticamente
-        try {
-            enviarComprovanteVendaUseCase.executar(venda);
-        } catch (Exception e) {
-            // Log do erro mas não falha a operação de venda
-            System.err.println("[COMPROVANTE][ERRO] Falha ao enviar comprovante para venda ID " + venda.getId() + ": " + e.getMessage());
-        }
+        // Executar Use Case que busca a venda e envia para RabbitMQ
+        Venda venda = finalizarVendaUseCase.execute(command);
 
         // Converter para DTO de resposta
         VendaResponseDto response = VendaMapper.toResponseDto(venda);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Filtrar vendas por intervalo de datas")

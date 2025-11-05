@@ -10,9 +10,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # -------------------------------------------------------------
+      # 1️⃣ Checkout do repositório
+      # -------------------------------------------------------------
       - name: Checkout do código
         uses: actions/checkout@v4
 
+      # -------------------------------------------------------------
+      # 2️⃣ Configuração do Java
+      # -------------------------------------------------------------
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -20,6 +26,9 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
+      # -------------------------------------------------------------
+      # 3️⃣ Build do projeto
+      # -------------------------------------------------------------
       - name: BE - Compilar projeto
         run: |
           echo "🏗️ Iniciando build do backend..."
@@ -27,6 +36,9 @@ jobs:
           mvn clean package -DskipTests
           echo "✅ Build concluído com sucesso."
 
+      # -------------------------------------------------------------
+      # 4️⃣ Criação das chaves SSH temporárias
+      # -------------------------------------------------------------
       - name: Criar chaves SSH para Zona 1 e Zona 2
         run: |
           mkdir -p ~/.ssh
@@ -36,6 +48,9 @@ jobs:
           chmod 600 ~/.ssh/private_key_cd.pem
           ls -lah ~/.ssh
 
+      # -------------------------------------------------------------
+      # 5️⃣ Script remoto de deploy (criado no host destino)
+      # -------------------------------------------------------------
       - name: Criar script de deploy para hosts privados
         run: |
           PROJETO_DIR="Sprint 4 - CleanArch/JavaSpringBoot/projetoMima"
@@ -45,7 +60,9 @@ jobs:
           #!/bin/bash
           set -euo pipefail
 
-          # ✅ Corrige permissão do Docker socket
+          echo "🚀 Iniciando deploy privado no host $(hostname)..."
+
+          # ✅ Corrige permissão do Docker socket (caso travado)
           sudo chmod 666 /var/run/docker.sock || true
 
           PROJETO_DIR="$HOME/backend"
@@ -59,6 +76,7 @@ jobs:
             COMPOSE_CMD="docker-compose"
           fi
 
+          # Instala docker-compose se não existir
           if [ -z "$COMPOSE_CMD" ]; then
             DOCKER_COMPOSE_VERSION=2.24.0
             sudo curl -SL "https://github.com/docker/compose/releases/download/v$DOCKER_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
@@ -75,6 +93,7 @@ jobs:
             echo "✅ Rede 'mima-network' já existe."
           fi
 
+          # Banco de dados
           if [ -d "$DB_DIR" ]; then
             echo "🗄️ Subindo containers do Banco de Dados..."
             cd "$DB_DIR"
@@ -82,20 +101,27 @@ jobs:
             sudo $COMPOSE_CMD up -d --build
           fi
 
+          # Backend
           if [ -d "$BACKEND_DIR" ]; then
             echo "⚙️ Subindo containers do Backend..."
             cd "$BACKEND_DIR"
             sudo $COMPOSE_CMD down -v || true
             sudo $COMPOSE_CMD up -d --build
           fi
+
+          echo "✅ Deploy finalizado com sucesso em $(hostname)"
           EOF
 
           chmod +x "$PROJETO_DIR/deploy_on_privado.sh"
 
+      # -------------------------------------------------------------
+      # 6️⃣ Deploy automatizado (com verificação e retry)
+      # -------------------------------------------------------------
       - name: BE - Deploy nos Hosts Privados (A→B e C→D)
         run: |
           set -euo pipefail
 
+          # Variáveis de ambiente seguras
           HOST_A=${{ secrets.REMOTE_HOST }}
           HOST_B=${{ secrets.REMOTE_HOST_B }}
           HOST_C=${{ secrets.REMOTE_HOST_C }}
@@ -105,44 +131,115 @@ jobs:
           KEY_AB=~/.ssh/private_key_ab.pem
           KEY_CD=~/.ssh/private_key_cd.pem
 
-          try_scp() {
-            local key="$1"
-            local src="$2"
-            local dest="$3"
+          # ---------------------------------------------------------
+          # 🔍 Função de verificação de host (ping + ssh)
+          # ---------------------------------------------------------
+          check_host_alive() {
+            local host="$1"
+            local key="$2"
+
+            echo "🔎 Verificando disponibilidade do host $host..."
+            if ! ping -c 2 -W 2 "$host" >/dev/null 2>&1; then
+              echo "❌ Host $host não responde ao ping!"
+              return 1
+            fi
+
+            if ! ssh -i "$key" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no $USER@$host "echo ok" >/dev/null 2>&1; then
+              echo "❌ SSH não conseguiu conectar em $host!"
+              return 1
+            fi
+
+            echo "✅ Host $host está online e acessível."
+            return 0
+          }
+
+          # ---------------------------------------------------------
+          # ♻️ Funções auxiliares com retry
+          # ---------------------------------------------------------
+          retry_ssh() {
+            local cmd="$1"
+            local key="$2"
+            local host="$3"
             local tries=3
-            local delay=3
+            local delay=5
             local attempt=1
-            while [ $attempt -le $tries ]; do
-              scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "$key" "$src" "$dest" && return 0 || true
+            until [ $attempt -gt $tries ]; do
+              echo "🔁 Tentativa $attempt de conexão com $host..."
+              ssh -i "$key" -o ConnectTimeout=20 -o StrictHostKeyChecking=no $USER@$host "$cmd" && return 0
+              echo "⚠️ Falha, tentando novamente em $delay segundos..."
               sleep $delay
               attempt=$((attempt+1))
               delay=$((delay*2))
             done
+            echo "❌ Falha ao conectar em $host após $tries tentativas."
             return 1
           }
 
-          echo "🚀 Iniciando deploy na Zona 1 (A → B)..."
-          try_scp "$KEY_AB" "$KEY_AB" "$USER@$HOST_A:~/private_key.pem"
-          ssh -i "$KEY_AB" -o StrictHostKeyChecking=no $USER@$HOST_A "chmod 600 ~/private_key.pem"
+          retry_rsync() {
+            local src="$1"
+            local dest="$2"
+            local key="$3"
+            local tries=3
+            local delay=5
+            local attempt=1
+            until [ $attempt -gt $tries ]; do
+              echo "📦 Enviando arquivos (tentativa $attempt)..."
+              rsync -avz --partial --timeout=60 \
+                -e "ssh -i $key -o StrictHostKeyChecking=no -o ServerAliveInterval=30" \
+                "$src" "$dest" && return 0
+              echo "⚠️ Falha no rsync, tentando novamente em $delay segundos..."
+              sleep $delay
+              attempt=$((attempt+1))
+              delay=$((delay*2))
+            done
+            echo "❌ Falha no rsync após $tries tentativas."
+            return 1
+          }
 
-          echo "📦 Enviando código para Host A..."
-          rsync -avz -e "ssh -i $KEY_AB -o StrictHostKeyChecking=no" "Sprint 4 - CleanArch/" "$USER@$HOST_A:/home/$USER/backend_temp_deploy"
+          # ---------------------------------------------------------
+          # 🧭 Deploy - Zona 1 (A → B)
+          # ---------------------------------------------------------
+          echo "🌍 Iniciando deploy na Zona 1 (A → B)..."
+          check_host_alive "$HOST_A" "$KEY_AB"
+          check_host_alive "$HOST_B" "$KEY_AB"
+
+          retry_rsync "Sprint 4 - CleanArch/" "$USER@$HOST_A:/home/$USER/backend_temp_deploy" "$KEY_AB"
+
+          retry_ssh "echo '${{ secrets.EC2_SSH_KEY_AB }}' > ~/private_key.pem && chmod 600 ~/private_key.pem" "$KEY_AB" "$HOST_A"
 
           echo "🔁 Replicando código de A → B..."
-          ssh -i "$KEY_AB" -o StrictHostKeyChecking=no $USER@$HOST_A "rsync -avz -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no' /home/$USER/backend_temp_deploy/ $USER@$HOST_B:/home/$USER/backend"
+          retry_ssh "
+            for i in {1..3}; do
+              rsync -avz --partial --timeout=60 \
+                -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=30' \
+                /home/$USER/backend_temp_deploy/ $USER@$HOST_B:/home/$USER/backend && break || sleep 10;
+            done
+          " "$KEY_AB" "$HOST_A"
 
           echo "⚙️ Executando script de deploy no Host B..."
-          ssh -i "$KEY_AB" -o StrictHostKeyChecking=no $USER@$HOST_A "ssh -i ~/private_key.pem -o StrictHostKeyChecking=no $USER@$HOST_B 'bash /home/$USER/backend/JavaSpringBoot/projetoMima/deploy_on_privado.sh'"
+          retry_ssh "ssh -i ~/private_key.pem -o StrictHostKeyChecking=no $USER@$HOST_B 'bash /home/$USER/backend/JavaSpringBoot/projetoMima/deploy_on_privado.sh'" "$KEY_AB" "$HOST_A"
 
-          echo "🚀 Iniciando deploy na Zona 2 (C → D)..."
-          try_scp "$KEY_CD" "$KEY_CD" "$USER@$HOST_C:~/private_key.pem"
-          ssh -i "$KEY_CD" -o StrictHostKeyChecking=no $USER@$HOST_C "chmod 600 ~/private_key.pem"
+          # ---------------------------------------------------------
+          # 🧭 Deploy - Zona 2 (C → D)
+          # ---------------------------------------------------------
+          echo "🌍 Iniciando deploy na Zona 2 (C → D)..."
+          check_host_alive "$HOST_C" "$KEY_CD"
+          check_host_alive "$HOST_D" "$KEY_CD"
 
-          echo "📦 Enviando código para Host C..."
-          rsync -avz -e "ssh -i $KEY_CD -o StrictHostKeyChecking=no" "Sprint 4 - CleanArch/" "$USER@$HOST_C:/home/$USER/backend_temp_deploy"
+          retry_rsync "Sprint 4 - CleanArch/" "$USER@$HOST_C:/home/$USER/backend_temp_deploy" "$KEY_CD"
+
+          retry_ssh "echo '${{ secrets.EC2_SSH_KEY_CD }}' > ~/private_key.pem && chmod 600 ~/private_key.pem" "$KEY_CD" "$HOST_C"
 
           echo "🔁 Replicando código de C → D..."
-          ssh -i "$KEY_CD" -o StrictHostKeyChecking=no $USER@$HOST_C "rsync -avz -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no' /home/$USER/backend_temp_deploy/ $USER@$HOST_D:/home/$USER/backend"
+          retry_ssh "
+            for i in {1..3}; do
+              rsync -avz --partial --timeout=60 \
+                -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=30' \
+                /home/$USER/backend_temp_deploy/ $USER@$HOST_D:/home/$USER/backend && break || sleep 10;
+            done
+          " "$KEY_CD" "$HOST_C"
 
           echo "⚙️ Executando script de deploy no Host D..."
-          ssh -i "$KEY_CD" -o StrictHostKeyChecking=no $USER@$HOST_C "ssh -i ~/private_key.pem -o StrictHostKeyChecking=no $USER@$HOST_D 'bash /home/$USER/backend/JavaSpringBoot/projetoMima/deploy_on_privado.sh'"
+          retry_ssh "ssh -i ~/private_key.pem -o StrictHostKeyChecking=no $USER@$HOST_D 'bash /home/$USER/backend/JavaSpringBoot/projetoMima/deploy_on_privado.sh'" "$KEY_CD" "$HOST_C"
+
+          echo "✅ Deploy finalizado com sucesso em todas as zonas!"

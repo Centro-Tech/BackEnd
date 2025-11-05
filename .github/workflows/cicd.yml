@@ -115,13 +115,12 @@ jobs:
           chmod +x "$PROJETO_DIR/deploy_on_privado.sh"
 
       # -------------------------------------------------------------
-      # 6️⃣ Deploy automatizado (com verificação e retry)
+      # 6️⃣ Deploy automatizado (verifica apenas hosts públicos)
       # -------------------------------------------------------------
       - name: BE - Deploy nos Hosts Privados (A→B e C→D)
         run: |
           set -euo pipefail
 
-          # Variáveis de ambiente seguras
           HOST_A=${{ secrets.REMOTE_HOST }}
           HOST_B=${{ secrets.REMOTE_HOST_B }}
           HOST_C=${{ secrets.REMOTE_HOST_C }}
@@ -132,29 +131,7 @@ jobs:
           KEY_CD=~/.ssh/private_key_cd.pem
 
           # ---------------------------------------------------------
-          # 🔍 Função de verificação de host (ping + ssh)
-          # ---------------------------------------------------------
-          check_host_alive() {
-            local host="$1"
-            local key="$2"
-
-            echo "🔎 Verificando disponibilidade do host $host..."
-            if ! ping -c 2 -W 2 "$host" >/dev/null 2>&1; then
-              echo "❌ Host $host não responde ao ping!"
-              return 1
-            fi
-
-            if ! ssh -i "$key" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no $USER@$host "echo ok" >/dev/null 2>&1; then
-              echo "❌ SSH não conseguiu conectar em $host!"
-              return 1
-            fi
-
-            echo "✅ Host $host está online e acessível."
-            return 0
-          }
-
-          # ---------------------------------------------------------
-          # ♻️ Funções auxiliares com retry
+          # Funções com retry (SSH e RSYNC)
           # ---------------------------------------------------------
           retry_ssh() {
             local cmd="$1"
@@ -200,20 +177,21 @@ jobs:
           # 🧭 Deploy - Zona 1 (A → B)
           # ---------------------------------------------------------
           echo "🌍 Iniciando deploy na Zona 1 (A → B)..."
-          check_host_alive "$HOST_A" "$KEY_AB"
-          check_host_alive "$HOST_B" "$KEY_AB"
+
+          echo "🔎 Testando acesso SSH ao host público A..."
+          if ! ssh -i "$KEY_AB" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no $USER@$HOST_A "echo ok" >/dev/null 2>&1; then
+            echo "❌ Host público A ($HOST_A) inacessível via SSH!"
+            exit 1
+          fi
 
           retry_rsync "Sprint 4 - CleanArch/" "$USER@$HOST_A:/home/$USER/backend_temp_deploy" "$KEY_AB"
-
           retry_ssh "echo '${{ secrets.EC2_SSH_KEY_AB }}' > ~/private_key.pem && chmod 600 ~/private_key.pem" "$KEY_AB" "$HOST_A"
 
           echo "🔁 Replicando código de A → B..."
           retry_ssh "
-            for i in {1..3}; do
-              rsync -avz --partial --timeout=60 \
-                -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=30' \
-                /home/$USER/backend_temp_deploy/ $USER@$HOST_B:/home/$USER/backend && break || sleep 10;
-            done
+            rsync -avz --partial --timeout=60 \
+              -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=30' \
+              /home/$USER/backend_temp_deploy/ $USER@$HOST_B:/home/$USER/backend
           " "$KEY_AB" "$HOST_A"
 
           echo "⚙️ Executando script de deploy no Host B..."
@@ -223,20 +201,21 @@ jobs:
           # 🧭 Deploy - Zona 2 (C → D)
           # ---------------------------------------------------------
           echo "🌍 Iniciando deploy na Zona 2 (C → D)..."
-          check_host_alive "$HOST_C" "$KEY_CD"
-          check_host_alive "$HOST_D" "$KEY_CD"
+
+          echo "🔎 Testando acesso SSH ao host público C..."
+          if ! ssh -i "$KEY_CD" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no $USER@$HOST_C "echo ok" >/dev/null 2>&1; then
+            echo "❌ Host público C ($HOST_C) inacessível via SSH!"
+            exit 1
+          fi
 
           retry_rsync "Sprint 4 - CleanArch/" "$USER@$HOST_C:/home/$USER/backend_temp_deploy" "$KEY_CD"
-
           retry_ssh "echo '${{ secrets.EC2_SSH_KEY_CD }}' > ~/private_key.pem && chmod 600 ~/private_key.pem" "$KEY_CD" "$HOST_C"
 
           echo "🔁 Replicando código de C → D..."
           retry_ssh "
-            for i in {1..3}; do
-              rsync -avz --partial --timeout=60 \
-                -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=30' \
-                /home/$USER/backend_temp_deploy/ $USER@$HOST_D:/home/$USER/backend && break || sleep 10;
-            done
+            rsync -avz --partial --timeout=60 \
+              -e 'ssh -i ~/private_key.pem -o StrictHostKeyChecking=no -o ServerAliveInterval=30' \
+              /home/$USER/backend_temp_deploy/ $USER@$HOST_D:/home/$USER/backend
           " "$KEY_CD" "$HOST_C"
 
           echo "⚙️ Executando script de deploy no Host D..."

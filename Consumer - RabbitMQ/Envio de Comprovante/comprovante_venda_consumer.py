@@ -417,5 +417,6 @@ if __name__ == '__main__':
     print("=" * 60)
     print("CONSUMER DE COMPROVANTE DE VENDA - MIMA STORE")
     print("=" * 60)
-    # começa a rodar
+    # começa a rodarr
+
     ComprovanteVendaConsumer().start_consuming()

@@ -5,171 +5,106 @@ on:
     branches:
       - main
     paths:
-      - 'Consumer - RabbitMQ/Envio de Comprovante/**'
+      - 'consumer/**'
       - '.github/workflows/deploy-consumer.yml'
   workflow_dispatch:
 
 jobs:
   deploy-consumer:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        host: ["host_a", "host_b"]
 
     steps:
-      # -------------------------------------------------------------
-      # 1️⃣ Checkout do repositório
-      # -------------------------------------------------------------
+      # 1️⃣ Checkout
       - name: Checkout do código
         uses: actions/checkout@v4
 
-      # -------------------------------------------------------------
-      # 2️⃣ Criação das chaves SSH temporárias
-      # -------------------------------------------------------------
-      - name: Criar chaves SSH para acesso às instâncias
+      # 2️⃣ Criar chaves SSH
+      - name: Criar chaves SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY_AB }}" > ~/.ssh/private_key_ab.pem
-          chmod 600 ~/.ssh/private_key_ab.pem
-          echo "${{ secrets.EC2_SSH_KEY_CD }}" > ~/.ssh/private_key_cd.pem
-          chmod 600 ~/.ssh/private_key_cd.pem
-          ls -lah ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY_A }}" > ~/.ssh/private_key_a.pem
+          chmod 600 ~/.ssh/private_key_a.pem
+          echo "${{ secrets.EC2_SSH_KEY_B }}" > ~/.ssh/private_key_b.pem
+          chmod 600 ~/.ssh/private_key_b.pem
 
-      # -------------------------------------------------------------
-      # 3️⃣ Deploy do Consumer na Zona 1 (Host A - EC2 Pública A)
-      # -------------------------------------------------------------
-      - name: Deploy Consumer na Zona 1 (Host A)
+      # 3️⃣ Mapear host
+      - name: Definir host e chave SSH
         run: |
-          set -euo pipefail
-
-          HOST_A=${{ secrets.REMOTE_HOST }}
-          USER=${{ secrets.REMOTE_USER }}
-          KEY_AB=~/.ssh/private_key_ab.pem
-
-          CONSUMER_PATH="Consumer - RabbitMQ/Envio de Comprovante/comprovante_venda_consumer.py"
-          DEST_DIR="/home/$USER/consumer-comprovantes"
-
-          echo "🔎 Verificando acesso SSH ao Host A..."
-          if ! ssh -i "$KEY_AB" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no $USER@$HOST_A "echo ok" >/dev/null 2>&1; then
-            echo "❌ Host A ($HOST_A) inacessível via SSH!"
-            exit 1
+          if [ "${{ matrix.host }}" = "host_a" ]; then
+            echo "HOST_REAL=${{ secrets.REMOTE_HOST }}" >> $GITHUB_ENV
+            echo "SSH_KEY_PATH=$HOME/.ssh/private_key_a.pem" >> $GITHUB_ENV
+            echo "RABBITMQ_HOST=${{ secrets.REMOTE_HOST_PRIVADO_A }}" >> $GITHUB_ENV
+          else
+            echo "HOST_REAL=${{ secrets.REMOTE_HOST_B }}" >> $GITHUB_ENV
+            echo "SSH_KEY_PATH=$HOME/.ssh/private_key_b.pem" >> $GITHUB_ENV
+            echo "RABBITMQ_HOST=${{ secrets.REMOTE_HOST_PRIVADO_B }}" >> $GITHUB_ENV
           fi
 
-          echo "📦 Verificando se diretório do consumer existe no Host A..."
-          ssh -i "$KEY_AB" -o StrictHostKeyChecking=no $USER@$HOST_A "
-            if [ ! -d $DEST_DIR ]; then
-              echo '⚠️ Diretório $DEST_DIR não encontrado!'
-              echo '💡 Execute o Terraform primeiro para criar a estrutura.'
-              exit 1
-            fi
-          "
-
-          echo "🚀 Enviando consumer.py para Host A..."
-          scp -i "$KEY_AB" -o StrictHostKeyChecking=no \
-            "$CONSUMER_PATH" \
-            $USER@$HOST_A:$DEST_DIR/consumer.py
-
-          echo "🔄 Reiniciando consumer no Host A..."
-          ssh -i "$KEY_AB" -o StrictHostKeyChecking=no $USER@$HOST_A "
-            cd $DEST_DIR
-            echo '🔧 Verificando se consumer está rodando...'
-            if docker ps | grep -q 'consumer-comprovantes'; then
-              echo '♻️ Reiniciando consumer existente...'
-              ./manage.sh restart
-            else
-              echo '🆕 Iniciando consumer pela primeira vez...'
-              ./manage.sh start
-            fi
-          "
-
-          echo "📊 Verificando status do consumer no Host A..."
-          ssh -i "$KEY_AB" -o StrictHostKeyChecking=no $USER@$HOST_A "
-            cd $DEST_DIR
-            ./manage.sh status
-            echo ''
-            echo '📝 Últimos logs:'
-            docker-compose logs --tail=30
-          "
-
-          echo "✅ Deploy do consumer finalizado na Zona 1 (Host A)!"
-
-      # -------------------------------------------------------------
-      # 4️⃣ Deploy do Consumer na Zona 2 (Host C - EC2 Pública C)
-      # -------------------------------------------------------------
-      - name: Deploy Consumer na Zona 2 (Host C)
+      # 4️⃣ Copiar arquivos do consumer
+      - name: Copiar consumer para EC2 pública
         run: |
-          set -euo pipefail
+          ssh -i ${{ env.SSH_KEY_PATH }} \
+            -o StrictHostKeyChecking=no \
+            ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }} \
+            "mkdir -p /home/${{ secrets.REMOTE_USER }}/consumer"
 
-          HOST_C=${{ secrets.REMOTE_HOST_C }}
-          USER=${{ secrets.REMOTE_USER }}
-          KEY_CD=~/.ssh/private_key_cd.pem
+          rsync -avz -e "ssh -i ${{ env.SSH_KEY_PATH }} -o StrictHostKeyChecking=no" \
+            consumer/ \
+            ${{ secrets.REMOTE_USER }}@${{ env.HOST_REAL }}:/home/${{ secrets.REMOTE_USER }}/consumer/
 
-          CONSUMER_PATH="Consumer - RabbitMQ/Envio de Comprovante/comprovante_venda_consumer.py"
-          DEST_DIR="/home/$USER/consumer-comprovantes"
-
-          echo "🔎 Verificando acesso SSH ao Host C..."
-          if ! ssh -i "$KEY_CD" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no $USER@$HOST_C "echo ok" >/dev/null 2>&1; then
-            echo "❌ Host C ($HOST_C) inacessível via SSH!"
-            exit 1
-          fi
-
-          echo "📦 Verificando se diretório do consumer existe no Host C..."
-          ssh -i "$KEY_CD" -o StrictHostKeyChecking=no $USER@$HOST_C "
-            if [ ! -d $DEST_DIR ]; then
-              echo '⚠️ Diretório $DEST_DIR não encontrado!'
-              echo '💡 Execute o Terraform primeiro para criar a estrutura.'
-              exit 1
-            fi
-          "
-
-          echo "🚀 Enviando consumer.py para Host C..."
-          scp -i "$KEY_CD" -o StrictHostKeyChecking=no \
-            "$CONSUMER_PATH" \
-            $USER@$HOST_C:$DEST_DIR/consumer.py
-
-          echo "🔄 Reiniciando consumer no Host C..."
-          ssh -i "$KEY_CD" -o StrictHostKeyChecking=no $USER@$HOST_C "
-            cd $DEST_DIR
-            echo '🔧 Verificando se consumer está rodando...'
-            if docker ps | grep -q 'consumer-comprovantes'; then
-              echo '♻️ Reiniciando consumer existente...'
-              ./manage.sh restart
-            else
-              echo '🆕 Iniciando consumer pela primeira vez...'
-              ./manage.sh start
-            fi
-          "
-
-          echo "📊 Verificando status do consumer no Host C..."
-          ssh -i "$KEY_CD" -o StrictHostKeyChecking=no $USER@$HOST_C "
-            cd $DEST_DIR
+      # 5️⃣ Atualizar IP do RabbitMQ e reiniciar consumer
+      - name: Configurar e iniciar consumer
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          RABBITMQ_HOST: ${{ env.RABBITMQ_HOST }}
+        with:
+          host: ${{ env.HOST_REAL }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ matrix.host == 'host_a' && secrets.EC2_SSH_KEY_A || secrets.EC2_SSH_KEY_B }}
+          envs: RABBITMQ_HOST
+          script: |
+            set -e
+            cd /home/${{ secrets.REMOTE_USER }}/consumer
+            
+            # Atualizar IP do RabbitMQ no .env
+            echo "RABBITMQ_HOST=${RABBITMQ_HOST}" > .env.runtime
+            echo "RABBITMQ_PORT=5672" >> .env.runtime
+            echo "RABBITMQ_USER=myuser" >> .env.runtime
+            echo "RABBITMQ_PASSWORD=secret" >> .env.runtime
+            
+            # Exportar para uso do docker-compose
+            export RABBITMQ_HOST=${RABBITMQ_HOST}
+            export NETWORK_MODE=host
+            
+            # Tornar manage.sh executável
+            chmod +x manage.sh
+            
+            # Parar consumer antigo se existir
+            docker stop consumer-comprovantes 2>/dev/null || true
+            docker rm consumer-comprovantes 2>/dev/null || true
+            
+            # Iniciar consumer com IP correto
+            echo "🚀 Iniciando consumer com RabbitMQ em ${RABBITMQ_HOST}:5672"
+            ./manage.sh start
+            
+            # Aguardar 3 segundos
+            sleep 3
+            
+            # Verificar status
+            echo "✅ Status do consumer:"
             ./manage.sh status
-            echo ''
-            echo '📝 Últimos logs:'
-            docker-compose logs --tail=30
-          "
+            
+            echo ""
+            echo "📝 Últimos logs:"
+            docker logs consumer-comprovantes --tail=50 2>&1 || echo "Container ainda inicializando..."
 
-          echo "✅ Deploy do consumer finalizado na Zona 2 (Host C)!"
-
-      # -------------------------------------------------------------
-      # 5️⃣ Resumo final
-      # -------------------------------------------------------------
+      # 6️⃣ Resumo
       - name: Resumo do Deploy
         if: success()
         run: |
-          echo ""
-          echo "=========================================="
-          echo "✅ DEPLOY DO CONSUMER CONCLUÍDO!"
-          echo "=========================================="
-          echo ""
-          echo "📦 Arquivo deployado:"
-          echo "   Consumer - RabbitMQ/Envio de Comprovante/comprovante_venda_consumer.py"
-          echo ""
-          echo "🌍 Zonas atualizadas:"
-          echo "   ✅ Zona 1 (Host A) - ${{ secrets.REMOTE_HOST }}"
-          echo "   ✅ Zona 2 (Host C) - ${{ secrets.REMOTE_HOST_C }}"
-          echo ""
-          echo "📍 Localização nas instâncias:"
-          echo "   /home/${{ secrets.REMOTE_USER }}/consumer-comprovantes/consumer.py"
-          echo ""
-          echo "🔍 Para verificar logs:"
-          echo "   ssh -i chave.pem ec2-user@<IP> 'cd /home/ec2-user/consumer-comprovantes && ./manage.sh logs'"
-          echo ""
-          echo "=========================================="
+          echo "✅ Consumer deployado em ${{ env.HOST_REAL }}"
+          echo "🔌 RabbitMQ: ${{ env.RABBITMQ_HOST }}:5672"
+          echo "📧 SMTP: smtp.maileroo.com:587"

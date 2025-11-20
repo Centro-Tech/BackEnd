@@ -420,3 +420,4 @@ if __name__ == '__main__':
     # começa a rodarr
 
     ComprovanteVendaConsumer().start_consuming()
+#Deploy

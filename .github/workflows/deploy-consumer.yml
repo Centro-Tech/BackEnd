@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'consumer/**'
+      - '.github/workflows/deploy-consumer.yml'
+  workflow_dispatch:
+
 jobs:
   deploy-consumer:
     runs-on: ubuntu-latest
@@ -24,6 +29,12 @@ jobs:
           chmod 600 ~/.ssh/private_key_a.pem
           echo "${{ secrets.EC2_SSH_KEY_B }}" > ~/.ssh/private_key_b.pem
           chmod 600 ~/.ssh/private_key_b.pem
+          
+          # Validar formato das chaves
+          echo "🔑 Validando chave A..."
+          head -1 ~/.ssh/private_key_a.pem
+          echo "🔑 Validando chave B..."
+          head -1 ~/.ssh/private_key_b.pem
 
       # 3️⃣ Mapear host
       - name: Definir host e chave SSH

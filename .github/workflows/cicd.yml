@@ -1,4 +1,4 @@
-name: CI/CD - Backend MimaStore
+name: CI/CD - Backend + Consumer MimaStore
 
 on:
   push:
@@ -115,7 +115,7 @@ jobs:
           chmod +x "$PROJETO_DIR/deploy_on_privado.sh"
 
       # -------------------------------------------------------------
-      # 6️⃣ Deploy automatizado (verifica apenas hosts públicos)
+      # 6️⃣ Deploy Backend nos Hosts Privados (A→B e C→D)
       # -------------------------------------------------------------
       - name: BE - Deploy nos Hosts Privados (A→B e C→D)
         run: |
@@ -221,4 +221,125 @@ jobs:
           echo "⚙️ Executando script de deploy no Host D..."
           retry_ssh "ssh -i ~/private_key.pem -o StrictHostKeyChecking=no $USER@$HOST_D 'bash /home/$USER/backend/JavaSpringBoot/projetoMima/deploy_on_privado.sh'" "$KEY_CD" "$HOST_C"
 
-          echo "✅ Deploy finalizado com sucesso em todas as zonas!"
+          echo "✅ Deploy backend finalizado com sucesso em todas as zonas!"
+
+      # -------------------------------------------------------------
+      # 7️⃣ Deploy Consumer na Zona A (Pública A)
+      # -------------------------------------------------------------
+      - name: CONSUMER - Deploy na Zona A
+        run: |
+          set -euo pipefail
+
+          HOST_A=${{ secrets.REMOTE_HOST }}
+          HOST_B=${{ secrets.REMOTE_HOST_B }}
+          USER=${{ secrets.REMOTE_USER }}
+          KEY_AB=~/.ssh/private_key_ab.pem
+
+          echo "📧 Deployando consumer na Zona A..."
+
+          # Criar diretório
+          ssh -i "$KEY_AB" -o StrictHostKeyChecking=no $USER@$HOST_A \
+            "mkdir -p /home/$USER/consumer"
+
+          # Copiar arquivos do consumer
+          rsync -avz -e "ssh -i $KEY_AB -o StrictHostKeyChecking=no" \
+            consumer/ \
+            $USER@$HOST_A:/home/$USER/consumer/
+
+          # Configurar e iniciar consumer
+          ssh -i "$KEY_AB" -o StrictHostKeyChecking=no $USER@$HOST_A << 'CONSUMER_SCRIPT'
+          set -e
+          cd /home/$USER/consumer
+          
+          # Exportar IP do RabbitMQ (privado B)
+          export RABBITMQ_HOST=${{ secrets.REMOTE_HOST_PRIVADO_A }}
+          export NETWORK_MODE=host
+          
+          chmod +x manage.sh
+          
+          # Parar consumer antigo
+          docker stop consumer-comprovantes 2>/dev/null || true
+          docker rm consumer-comprovantes 2>/dev/null || true
+          
+          echo "🚀 Iniciando consumer com RabbitMQ em ${RABBITMQ_HOST}:5672"
+          ./manage.sh start
+          
+          sleep 3
+          ./manage.sh status
+          docker logs consumer-comprovantes --tail=30 2>&1 || true
+          CONSUMER_SCRIPT
+
+          echo "✅ Consumer deployado na Zona A!"
+
+      # -------------------------------------------------------------
+      # 8️⃣ Deploy Consumer na Zona C (Pública C)
+      # -------------------------------------------------------------
+      - name: CONSUMER - Deploy na Zona C
+        run: |
+          set -euo pipefail
+
+          HOST_C=${{ secrets.REMOTE_HOST_C }}
+          HOST_D=${{ secrets.REMOTE_HOST_D }}
+          USER=${{ secrets.REMOTE_USER }}
+          KEY_CD=~/.ssh/private_key_cd.pem
+
+          echo "📧 Deployando consumer na Zona C..."
+
+          # Criar diretório
+          ssh -i "$KEY_CD" -o StrictHostKeyChecking=no $USER@$HOST_C \
+            "mkdir -p /home/$USER/consumer"
+
+          # Copiar arquivos do consumer
+          rsync -avz -e "ssh -i $KEY_CD -o StrictHostKeyChecking=no" \
+            consumer/ \
+            $USER@$HOST_C:/home/$USER/consumer/
+
+          # Configurar e iniciar consumer
+          ssh -i "$KEY_CD" -o StrictHostKeyChecking=no $USER@$HOST_C << 'CONSUMER_SCRIPT'
+          set -e
+          cd /home/$USER/consumer
+          
+          # Exportar IP do RabbitMQ (privado D)
+          export RABBITMQ_HOST=${{ secrets.REMOTE_HOST_PRIVADO_B }}
+          export NETWORK_MODE=host
+          
+          chmod +x manage.sh
+          
+          # Parar consumer antigo
+          docker stop consumer-comprovantes 2>/dev/null || true
+          docker rm consumer-comprovantes 2>/dev/null || true
+          
+          echo "🚀 Iniciando consumer com RabbitMQ em ${RABBITMQ_HOST}:5672"
+          ./manage.sh start
+          
+          sleep 3
+          ./manage.sh status
+          docker logs consumer-comprovantes --tail=30 2>&1 || true
+          CONSUMER_SCRIPT
+
+          echo "✅ Consumer deployado na Zona C!"
+
+      # -------------------------------------------------------------
+      # 9️⃣ Resumo Final
+      # -------------------------------------------------------------
+      - name: Resumo do Deploy Completo
+        if: success()
+        run: |
+          echo ""
+          echo "=========================================="
+          echo "✅ DEPLOY COMPLETO FINALIZADO!"
+          echo "=========================================="
+          echo ""
+          echo "🔷 Backend (RabbitMQ + Spring Boot + MySQL):"
+          echo "   ✅ Zona 1 - Host B (privado)"
+          echo "   ✅ Zona 2 - Host D (privado)"
+          echo ""
+          echo "📧 Consumer (Processamento de emails):"
+          echo "   ✅ Zona 1 - Host A (público)"
+          echo "   ✅ Zona 2 - Host C (público)"
+          echo ""
+          echo "🔌 Conexões:"
+          echo "   Consumer A → RabbitMQ B (IP: ${{ secrets.REMOTE_HOST_PRIVADO_A }}:5672)"
+          echo "   Consumer C → RabbitMQ D (IP: ${{ secrets.REMOTE_HOST_PRIVADO_B }}:5672)"
+          echo ""
+          echo "=========================================="

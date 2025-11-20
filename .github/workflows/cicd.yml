@@ -234,6 +234,12 @@ jobs:
           HOST_B=${{ secrets.REMOTE_HOST_B }}
           USER=${{ secrets.REMOTE_USER }}
           KEY_AB=~/.ssh/private_key_ab.pem
+          
+          # Verificar se diretório consumer existe
+          if [ ! -d "Consumer - RabbitMQ/Envio de Comprovante" ]; then
+            echo "⚠️ Diretório do consumer não encontrado, pulando deploy..."
+            exit 0
+          fi
 
           echo "📧 Deployando consumer na Zona A..."
 
@@ -243,7 +249,7 @@ jobs:
 
           # Copiar arquivos do consumer
           rsync -avz -e "ssh -i $KEY_AB -o StrictHostKeyChecking=no" \
-            consumer/ \
+            "Consumer - RabbitMQ/Envio de Comprovante/" \
             $USER@$HOST_A:/home/$USER/consumer/
 
           # Configurar e iniciar consumer
@@ -282,6 +288,12 @@ jobs:
           HOST_D=${{ secrets.REMOTE_HOST_D }}
           USER=${{ secrets.REMOTE_USER }}
           KEY_CD=~/.ssh/private_key_cd.pem
+          
+          # Verificar se diretório consumer existe
+          if [ ! -d "Consumer - RabbitMQ/Envio de Comprovante" ]; then
+            echo "⚠️ Diretório do consumer não encontrado, pulando deploy..."
+            exit 0
+          fi
 
           echo "📧 Deployando consumer na Zona C..."
 
@@ -291,7 +303,7 @@ jobs:
 
           # Copiar arquivos do consumer
           rsync -avz -e "ssh -i $KEY_CD -o StrictHostKeyChecking=no" \
-            consumer/ \
+            "Consumer - RabbitMQ/Envio de Comprovante/" \
             $USER@$HOST_C:/home/$USER/consumer/
 
           # Configurar e iniciar consumer

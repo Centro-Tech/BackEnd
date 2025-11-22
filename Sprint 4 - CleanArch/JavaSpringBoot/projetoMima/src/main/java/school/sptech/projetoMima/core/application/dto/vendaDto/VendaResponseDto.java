@@ -1,5 +1,6 @@
 package school.sptech.projetoMima.core.application.dto.vendaDto;
 
+import school.sptech.projetoMima.core.application.dto.itemVendaDto.ItemVendaResponseDto;
 import school.sptech.projetoMima.core.domain.ItemVenda;
 
 import java.time.LocalDateTime;
@@ -11,28 +12,66 @@ public class VendaResponseDto {
     private Integer usuarioId;
     private Double valorTotal;
     private LocalDateTime data;
-    private List<ItemVenda> itensVenda;
+    private List<ItemVendaResponseDto> itensVenda;
 
-    public VendaResponseDto() {}
 
-    public VendaResponseDto(Integer id, Integer clienteId, Double valorTotal, List<ItemVenda> itensVenda) {
+    public VendaResponseDto() {
+    }
+
+    public VendaResponseDto(Integer id, Integer clienteId, Integer usuarioId, Double valorTotal, LocalDateTime data, List<ItemVendaResponseDto> itensVenda) {
         this.id = id;
         this.clienteId = clienteId;
+        this.usuarioId = usuarioId;
         this.valorTotal = valorTotal;
+        this.data = data;
         this.itensVenda = itensVenda;
     }
 
-    public Integer getId() { return id; }
-    public Integer getClienteId() { return clienteId; }
-    public Integer getUsuarioId() { return usuarioId; }
-    public Double getValorTotal() { return valorTotal; }
-    public LocalDateTime getData() { return data; }
-    public List<ItemVenda> getItensVenda() { return itensVenda; }
+    public Integer getId() {
+        return id;
+    }
 
-    public void setId(Integer id) { this.id = id; }
-    public void setClienteId(Integer clienteId) { this.clienteId = clienteId; }
-    public void setUsuarioId(Integer usuarioId) { this.usuarioId = usuarioId; }
-    public void setValorTotal(Double valorTotal) { this.valorTotal = valorTotal; }
-    public void setData(LocalDateTime data) { this.data = data; }
-    public void setItensVenda(List<ItemVenda> itensVenda) { this.itensVenda = itensVenda; }
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Integer getClienteId() {
+        return clienteId;
+    }
+
+    public void setClienteId(Integer clienteId) {
+        this.clienteId = clienteId;
+    }
+
+    public Integer getUsuarioId() {
+        return usuarioId;
+    }
+
+    public void setUsuarioId(Integer usuarioId) {
+        this.usuarioId = usuarioId;
+    }
+
+    public Double getValorTotal() {
+        return valorTotal;
+    }
+
+    public void setValorTotal(Double valorTotal) {
+        this.valorTotal = valorTotal;
+    }
+
+    public LocalDateTime getData() {
+        return data;
+    }
+
+    public void setData(LocalDateTime data) {
+        this.data = data;
+    }
+
+    public List<ItemVendaResponseDto> getItensVenda() {
+        return itensVenda;
+    }
+
+    public void setItensVenda(List<ItemVendaResponseDto> itensVenda) {
+        this.itensVenda = itensVenda;
+    }
 }

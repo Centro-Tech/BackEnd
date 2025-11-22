@@ -23,4 +23,6 @@ public interface FornecedorGateway {
     Page<Fornecedor> findAll(Pageable pageable);
 
     void deleteById(Integer id);
+
+    Fornecedor update(Integer id, Fornecedor fornecedorAtualizado);
 }

@@ -19,6 +19,7 @@ import school.sptech.projetoMima.core.application.usecase.Fornecedor.BuscarForne
 import school.sptech.projetoMima.core.application.usecase.Fornecedor.CadastrarFornecedorUseCase;
 import school.sptech.projetoMima.core.application.usecase.Fornecedor.DeletarFornecedorUseCase;
 import school.sptech.projetoMima.core.application.usecase.Fornecedor.ListarFornecedoresUseCase;
+import school.sptech.projetoMima.core.usecase.AtualizarFornecedorUseCase;
 import school.sptech.projetoMima.core.domain.Fornecedor;
 
 import java.util.ArrayList;
@@ -34,12 +35,14 @@ public class FornecedorController {
     private final DeletarFornecedorUseCase deletarFornecedorUseCase;
     private final ListarFornecedoresUseCase listarFornecedoresUseCase;
     private final BuscarFornecedorPorIdUseCase buscarFornecedorPorIdUseCase;
+    private final AtualizarFornecedorUseCase atualizarFornecedorUseCase;
 
-    public FornecedorController(CadastrarFornecedorUseCase cadastrarFornecedorUseCase, DeletarFornecedorUseCase deletarFornecedorUseCase, ListarFornecedoresUseCase listarFornecedoresUseCase, BuscarFornecedorPorIdUseCase buscarFornecedorPorIdUseCase) {
+    public FornecedorController(CadastrarFornecedorUseCase cadastrarFornecedorUseCase, DeletarFornecedorUseCase deletarFornecedorUseCase, ListarFornecedoresUseCase listarFornecedoresUseCase, BuscarFornecedorPorIdUseCase buscarFornecedorPorIdUseCase, AtualizarFornecedorUseCase atualizarFornecedorUseCase) {
         this.cadastrarFornecedorUseCase = cadastrarFornecedorUseCase;
         this.deletarFornecedorUseCase = deletarFornecedorUseCase;
         this.listarFornecedoresUseCase = listarFornecedoresUseCase;
         this.buscarFornecedorPorIdUseCase = buscarFornecedorPorIdUseCase;
+        this.atualizarFornecedorUseCase = atualizarFornecedorUseCase;
     }
 
     @Operation(summary = "Listar todos os fornecedores")
@@ -101,5 +104,17 @@ public class FornecedorController {
     public ResponseEntity<Void> deletar(@PathVariable Integer id) {
         deletarFornecedorUseCase.execute(id);
         return ResponseEntity.status(204).build();
+    }
+
+    @Operation(summary = "Atualizar fornecedor por ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Fornecedor atualizado com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Fornecedor não encontrado para atualização"),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos para atualização")
+    })
+    @PutMapping("/{id}")
+    public ResponseEntity<Fornecedor> atualizarFornecedor(@PathVariable Integer id, @RequestBody Fornecedor fornecedor) {
+        Fornecedor fornecedorAtualizado = atualizarFornecedorUseCase.atualizarFornecedor(id, fornecedor);
+        return ResponseEntity.ok(fornecedorAtualizado);
     }
 }

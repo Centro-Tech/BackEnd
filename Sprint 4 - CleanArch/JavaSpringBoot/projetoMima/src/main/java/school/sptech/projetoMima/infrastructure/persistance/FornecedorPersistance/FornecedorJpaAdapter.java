@@ -37,6 +37,9 @@ public class FornecedorJpaAdapter implements FornecedorGateway {
     @Override
     public Fornecedor findById(Integer id) {
         FornecedorEntity entity = fornecedorRepository.findById(id).orElse(null);
+        if (entity == null) {
+            throw new RuntimeException("Fornecedor não encontrado");
+        }
         return toDomain(entity);
     }
 
@@ -71,4 +74,15 @@ public class FornecedorJpaAdapter implements FornecedorGateway {
         return toDomain(fornecedorEntity);
     }
 
+    @Override
+    public Fornecedor update(Integer id, Fornecedor fornecedorAtualizado) {
+        FornecedorEntity fornecedorEntity = fornecedorRepository.findById(id).orElseThrow(() -> new RuntimeException("Fornecedor não encontrado"));
+
+        fornecedorEntity.setNome(fornecedorAtualizado.getNome());
+        fornecedorEntity.setTelefone(fornecedorAtualizado.getTelefone());
+        fornecedorEntity.setEmail(fornecedorAtualizado.getEmail());
+
+        FornecedorEntity updatedEntity = fornecedorRepository.save(fornecedorEntity);
+        return FornecedorEntityMapper.toDomain(updatedEntity);
+    }
 }

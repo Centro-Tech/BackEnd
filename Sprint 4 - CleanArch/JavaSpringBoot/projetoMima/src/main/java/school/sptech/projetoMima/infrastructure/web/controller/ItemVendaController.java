@@ -92,9 +92,9 @@ public class ItemVendaController {
         @ApiResponse(responseCode = "404", description = "Venda não encontrada")
     })
     @Transactional
-    @PostMapping("/carrinho/finalizar/{clienteId}")
-    public ResponseEntity<Venda> finalizarCarrinho(@PathVariable Integer clienteId){
-        FinalizarCarrinhoCommand command = new FinalizarCarrinhoCommand(clienteId);
+    @PostMapping("/carrinho/finalizar/{clienteId}/{funcionarioId}")
+    public ResponseEntity<Venda> finalizarCarrinho(@PathVariable Integer clienteId, @PathVariable Integer funcionarioId){
+        FinalizarCarrinhoCommand command = new FinalizarCarrinhoCommand(clienteId, funcionarioId);
         Venda novaVenda = finalizarCarrinhoUseCase.execute(command);
 
         URI location = URI.create("/vendas/" + novaVenda.getId());

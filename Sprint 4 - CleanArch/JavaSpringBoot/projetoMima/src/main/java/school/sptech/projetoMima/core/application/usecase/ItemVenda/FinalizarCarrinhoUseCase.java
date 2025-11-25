@@ -1,12 +1,14 @@
 package school.sptech.projetoMima.core.application.usecase.ItemVenda;
 
 import school.sptech.projetoMima.core.adapter.ItemVenda.ItemVendaGateway;
+import school.sptech.projetoMima.core.adapter.Item.ItemGateway;
 import school.sptech.projetoMima.core.application.command.ItemVenda.FinalizarCarrinhoCommand;
 import school.sptech.projetoMima.core.application.exception.Venda.CarrinhoVazioException;
 import school.sptech.projetoMima.core.application.usecase.Venda.CriarVendaUseCase;
 import school.sptech.projetoMima.core.application.command.Venda.CriarVendaCommand;
 import school.sptech.projetoMima.core.domain.ItemVenda;
 import school.sptech.projetoMima.core.domain.Venda;
+import school.sptech.projetoMima.core.domain.item.Item;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,14 +17,15 @@ public class FinalizarCarrinhoUseCase {
 
     private final ItemVendaGateway itemVendaGateway;
     private final CriarVendaUseCase criarVendaUseCase;
+    private final ItemGateway itemGateway;
 
-    public FinalizarCarrinhoUseCase(ItemVendaGateway itemVendaGateway, CriarVendaUseCase criarVendaUseCase) {
+    public FinalizarCarrinhoUseCase(ItemVendaGateway itemVendaGateway, CriarVendaUseCase criarVendaUseCase, ItemGateway itemGateway) {
         this.itemVendaGateway = itemVendaGateway;
         this.criarVendaUseCase = criarVendaUseCase;
+        this.itemGateway = itemGateway;
     }
 
     public Venda execute(FinalizarCarrinhoCommand command) {
-        // Busca TODOS os itens do carrinho (sem venda)
         List<ItemVenda> carrinho = itemVendaGateway.findByVendaIsNull();
 
         if (carrinho.isEmpty()) {
@@ -35,23 +38,36 @@ public class FinalizarCarrinhoUseCase {
                 .sum();
 
         // Monta o comando para criar a venda
-        // NOTA: funcionarioId está hardcoded como 1 por enquanto
         CriarVendaCommand criarCommand = new CriarVendaCommand(
                 valorTotal,
                 command.clienteId(),
                 carrinho.stream()
                         .map(item -> item.getItem().getId())
                         .collect(Collectors.toList()),
-                1 // Funcionário fixo por enquanto
+                command.funcionarioId()
         );
 
         // Cria a venda
         Venda novaVenda = criarVendaUseCase.execute(criarCommand);
 
         // Associa todos os itens do carrinho à nova venda
-        for (ItemVenda item : carrinho) {
-            item.setVenda(novaVenda);
-            itemVendaGateway.save(item);
+        // E ATUALIZA O ESTOQUE
+        for (ItemVenda itemVenda : carrinho) {
+            itemVenda.setVenda(novaVenda);
+            itemVendaGateway.save(itemVenda);
+
+            // Atualizar estoque - diminui a quantidade vendida
+            Item item = itemVenda.getItem();
+            int qtdAtual = item.getQtdEstoque();
+            int qtdVendida = itemVenda.getQtdParaVender();
+
+            if (qtdAtual < qtdVendida) {
+                throw new RuntimeException("Estoque insuficiente para o item: " + item.getNome() +
+                    ". Disponível: " + qtdAtual + ", Solicitado: " + qtdVendida);
+            }
+
+            item.setQtdEstoque(qtdAtual - qtdVendida);
+            itemGateway.save(item);
         }
         return novaVenda;
     }

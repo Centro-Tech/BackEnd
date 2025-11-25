@@ -6,7 +6,6 @@ import school.sptech.projetoMima.core.adapter.ItemVenda.ItemVendaGateway;
 import school.sptech.projetoMima.core.adapter.Cliente.ClienteGateway;
 import school.sptech.projetoMima.core.adapter.Usuario.UsuarioGateway;
 import school.sptech.projetoMima.core.adapter.Item.ItemGateway;
-import school.sptech.projetoMima.core.adapter.Venda.VendaGateway;
 import school.sptech.projetoMima.core.application.usecase.ItemVenda.AdicionarItemAoCarrinhoUseCase;
 import school.sptech.projetoMima.core.application.usecase.ItemVenda.ListarCarrinhoUseCase;
 import school.sptech.projetoMima.core.application.usecase.ItemVenda.FinalizarCarrinhoUseCase;
@@ -45,8 +44,9 @@ public class ItemVendaBeanConfig {
 
     @Bean
     public FinalizarCarrinhoUseCase finalizarCarrinhoUseCase(ItemVendaGateway itemVendaGateway,
-                                                             CriarVendaUseCase criarVendaUseCase) {
-        return new FinalizarCarrinhoUseCase(itemVendaGateway, criarVendaUseCase);
+                                                             CriarVendaUseCase criarVendaUseCase,
+                                                             ItemGateway itemGateway) {
+        return new FinalizarCarrinhoUseCase(itemVendaGateway, criarVendaUseCase, itemGateway);
     }
 
     @Bean

@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import school.sptech.projetoMima.core.application.dto.itemVendaDto.ItemVendaRequestDto;
 import school.sptech.projetoMima.core.application.dto.itemVendaDto.ItemVendaResponseDto;
 import school.sptech.projetoMima.core.application.dto.itemVendaDto.ItemVendaMapper;
+import school.sptech.projetoMima.core.application.dto.vendaDto.VendaResponseDto;
+import school.sptech.projetoMima.core.application.dto.vendaDto.VendaMapper;
 import school.sptech.projetoMima.core.application.command.ItemVenda.AdicionarItemAoCarrinhoCommand;
 import school.sptech.projetoMima.core.application.command.ItemVenda.ListarCarrinhoCommand;
 import school.sptech.projetoMima.core.application.command.ItemVenda.FinalizarCarrinhoCommand;
@@ -93,12 +95,13 @@ public class ItemVendaController {
     })
     @Transactional
     @PostMapping("/carrinho/finalizar/{clienteId}/{funcionarioId}")
-    public ResponseEntity<Venda> finalizarCarrinho(@PathVariable Integer clienteId, @PathVariable Integer funcionarioId){
+    public ResponseEntity<VendaResponseDto> finalizarCarrinho(@PathVariable Integer clienteId, @PathVariable Integer funcionarioId){
         FinalizarCarrinhoCommand command = new FinalizarCarrinhoCommand(clienteId, funcionarioId);
         Venda novaVenda = finalizarCarrinhoUseCase.execute(command);
+        VendaResponseDto responseDto = VendaMapper.toResponseDto(novaVenda);
 
         URI location = URI.create("/vendas/" + novaVenda.getId());
-        return ResponseEntity.created(location).body(novaVenda);
+        return ResponseEntity.created(location).body(responseDto);
     }
 
     @Operation(summary = "Remover o último item adicionado do carrinho")

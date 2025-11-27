@@ -37,6 +37,22 @@ jobs:
           echo "✅ Build concluído com sucesso."
 
       # -------------------------------------------------------------
+      # 3.5️⃣ Setup Python para consumers RabbitMQ
+      # -------------------------------------------------------------
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Validar consumers Python (lint básico)
+        run: |
+          echo "🔍 Verificando sintaxe dos consumers Python..."
+          python -m py_compile "Consumer - RabbitMQ/Envio de Comprovante/comprovante_venda_consumer.py"
+          python -m py_compile "Consumer - RabbitMQ/Recuperação de Senha/password_recovery_consumer_backup.py"
+          echo "✅ Consumers Python validados com sucesso!"
+
+      # -------------------------------------------------------------
       # 4️⃣ Criação das chaves SSH temporárias
       # -------------------------------------------------------------
       - name: Criar chaves SSH para Zona 1 e Zona 2
@@ -68,6 +84,8 @@ jobs:
           PROJETO_DIR="$HOME/backend"
           DB_DIR="$PROJETO_DIR/Banco de Dados"
           BACKEND_DIR="$PROJETO_DIR/JavaSpringBoot/projetoMima"
+          CONSUMER_COMPROVANTE_DIR="$HOME/backend/Consumer - RabbitMQ/Envio de Comprovante"
+          CONSUMER_SENHA_DIR="$HOME/backend/Consumer - RabbitMQ/Recuperação de Senha"
 
           COMPOSE_CMD=""
           if docker compose version &> /dev/null; then
@@ -107,6 +125,28 @@ jobs:
             cd "$BACKEND_DIR"
             sudo $COMPOSE_CMD down -v || true
             sudo $COMPOSE_CMD up -d --build
+          fi
+
+          # Consumer de Comprovantes
+          if [ -d "$CONSUMER_COMPROVANTE_DIR" ]; then
+            echo "📧 Subindo consumer de comprovantes..."
+            cd "$CONSUMER_COMPROVANTE_DIR"
+            sudo $COMPOSE_CMD down || true
+            sudo $COMPOSE_CMD up -d --build
+            echo "✅ Consumer de comprovantes iniciado"
+          else
+            echo "⚠️ Diretório de consumer de comprovantes não encontrado: $CONSUMER_COMPROVANTE_DIR"
+          fi
+
+          # Consumer de Recuperação de Senha
+          if [ -d "$CONSUMER_SENHA_DIR" ]; then
+            echo "🔑 Subindo consumer de recuperação de senha..."
+            cd "$CONSUMER_SENHA_DIR"
+            sudo $COMPOSE_CMD -f docker-compose.consumer.yml down || true
+            sudo $COMPOSE_CMD -f docker-compose.consumer.yml up -d --build
+            echo "✅ Consumer de recuperação de senha iniciado"
+          else
+            echo "⚠️ Diretório de consumer de senha não encontrado: $CONSUMER_SENHA_DIR"
           fi
 
           echo "✅ Deploy finalizado com sucesso em $(hostname)"

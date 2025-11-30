@@ -5,9 +5,11 @@ services:
     build: .
     container_name: consumer-comprovantes
     restart: unless-stopped
+    depends_on:
+      - rabbitmq
     environment:
-      # RabbitMQ (localhost local, IP privado na AWS)
-      - RABBITMQ_HOST=${RABBITMQ_HOST:-localhost}
+      # RabbitMQ (usar nome do serviço na rede Docker)
+      - RABBITMQ_HOST=${RABBITMQ_HOST:-projetomima-rabbitmq-1}
       - RABBITMQ_PORT=5672
       - RABBITMQ_USER=myuser
       - RABBITMQ_PASSWORD=secret

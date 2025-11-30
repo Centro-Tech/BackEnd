@@ -5,11 +5,9 @@ services:
     build: .
     container_name: consumer-password-recovery
     restart: unless-stopped
-    depends_on:
-      - rabbitmq
     environment:
       # RabbitMQ (usar nome do serviço na rede Docker)
-      - RABBITMQ_HOST=${RABBITMQ_HOST:-projetomima-rabbitmq-1}
+      - RABBITMQ_HOST=${RABBITMQ_HOST:-rabbitmq}
       - RABBITMQ_PORT=5672
       - RABBITMQ_USER=myuser
       - RABBITMQ_PASSWORD=secret

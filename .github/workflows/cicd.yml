@@ -224,6 +224,7 @@ jobs:
           fi
 
           retry_rsync "Sprint 4 - CleanArch/" "$USER@$HOST_A:/home/$USER/backend_temp_deploy" "$KEY_AB"
+          retry_rsync "Consumer - RabbitMQ/" "$USER@$HOST_A:/home/$USER/backend_temp_deploy/Consumer - RabbitMQ" "$KEY_AB"
           retry_ssh "echo '${{ secrets.EC2_SSH_KEY_AB }}' > ~/private_key.pem && chmod 600 ~/private_key.pem" "$KEY_AB" "$HOST_A"
 
           echo "🔁 Replicando código de A → B..."
@@ -248,6 +249,7 @@ jobs:
           fi
 
           retry_rsync "Sprint 4 - CleanArch/" "$USER@$HOST_C:/home/$USER/backend_temp_deploy" "$KEY_CD"
+          retry_rsync "Consumer - RabbitMQ/" "$USER@$HOST_C:/home/$USER/backend_temp_deploy/Consumer - RabbitMQ" "$KEY_CD"
           retry_ssh "echo '${{ secrets.EC2_SSH_KEY_CD }}' > ~/private_key.pem && chmod 600 ~/private_key.pem" "$KEY_CD" "$HOST_C"
 
           echo "🔁 Replicando código de C → D..."

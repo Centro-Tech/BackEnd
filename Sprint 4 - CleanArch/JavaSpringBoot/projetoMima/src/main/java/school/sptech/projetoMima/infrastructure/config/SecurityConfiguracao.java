@@ -61,6 +61,8 @@ public class SecurityConfiguracao {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ Ajuste no CORS
                 .csrf(csrf -> csrf.disable()) // ✅ Nova forma
                 .authorizeHttpRequests(auth -> auth
+                        // Permite OPTIONS apenas nas rotas públicas (para CORS preflight)
+                        .requestMatchers(HttpMethod.OPTIONS, "/usuarios/**", "/api/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(URLS_PUBLICAS).permitAll()
                         .anyRequest().authenticated()
                 )

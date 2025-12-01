@@ -1,5 +1,6 @@
 package school.sptech.projetoMima.core.application.dto.vendaDto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import school.sptech.projetoMima.core.application.dto.itemVendaDto.ItemVendaResponseDto;
 import school.sptech.projetoMima.core.domain.ItemVenda;
 
@@ -11,7 +12,10 @@ public class VendaResponseDto {
     private Integer clienteId;
     private Integer usuarioId;
     private Double valorTotal;
+    
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime data;
+    
     private List<ItemVendaResponseDto> itensVenda;
 
 

@@ -3,12 +3,12 @@ package school.sptech.projetoMima.infrastructure.persistance.ClientePersistance.
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "cliente")
+@Table(name = "Cliente")
 public class ClienteEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idCliente")
+    @Column(name = "id_cliente")
     private Integer idCliente;
     private String nome;
     private String telefone;

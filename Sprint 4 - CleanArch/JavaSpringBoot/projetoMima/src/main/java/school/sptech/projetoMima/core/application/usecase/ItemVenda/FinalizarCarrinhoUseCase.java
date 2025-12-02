@@ -10,6 +10,7 @@ import school.sptech.projetoMima.core.domain.ItemVenda;
 import school.sptech.projetoMima.core.domain.Venda;
 import school.sptech.projetoMima.core.domain.item.Item;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,9 +53,11 @@ public class FinalizarCarrinhoUseCase {
 
         // Associa todos os itens do carrinho à nova venda
         // E ATUALIZA O ESTOQUE
+        List<ItemVenda> itensSalvos = new ArrayList<>();
         for (ItemVenda itemVenda : carrinho) {
             itemVenda.setVenda(novaVenda);
-            itemVendaGateway.save(itemVenda);
+            ItemVenda saved = itemVendaGateway.save(itemVenda);
+            itensSalvos.add(saved);
 
             // Atualizar estoque - diminui a quantidade vendida
             Item item = itemVenda.getItem();
@@ -69,6 +72,10 @@ public class FinalizarCarrinhoUseCase {
             item.setQtdEstoque(qtdAtual - qtdVendida);
             itemGateway.save(item);
         }
+
+        // Agora populamos a venda com os itens salvos para que o retorno contenha os IDs
+        novaVenda.setItensVenda(itensSalvos);
+
         return novaVenda;
     }
 }

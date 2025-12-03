@@ -18,7 +18,20 @@ services:
       - ./scriptpcro.sql:/docker-entrypoint-initdb.d/01-scriptpcro.sql:ro
     networks:
       - mima-network
-#Rede para criação!
+
+  rabbitmq:
+    image: 'rabbitmq:3.13-management'
+    container_name: mimastore-rabbitmq
+    restart: always
+    environment:
+      - 'RABBITMQ_DEFAULT_PASS=secret'
+      - 'RABBITMQ_DEFAULT_USER=myuser'
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    networks:
+      - mima-network
+
 networks:
   mima-network:
     external: true

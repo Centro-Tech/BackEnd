@@ -128,8 +128,8 @@ jobs:
             echo "🗄️ Subindo MySQL e RabbitMQ na instância privada B..."
             if [ -d "$DB_DIR" ]; then
               cd "$DB_DIR"
-              sudo \$COMPOSE_CMD down -v || true
-              sudo \$COMPOSE_CMD up -d --build
+              sudo $COMPOSE_CMD down -v || true
+              sudo $COMPOSE_CMD up -d --build
               echo "✅ MySQL iniciado com sucesso"
               echo "⏳ Aguardando MySQL inicializar (30 segundos)..."
               sleep 30
@@ -149,13 +149,13 @@ jobs:
             
             # Criar arquivo .env com configurações do banco
             echo "📝 Criando arquivo .env com configurações do banco..."
-            echo "DB_HOST=\$DB_HOST" > .env
-            echo "DB_USERNAME=\$DB_USERNAME" >> .env
-            echo "DB_PASSWORD=\$DB_PASSWORD" >> .env
-            echo "RABBITMQ_HOST=\$RABBITMQ_HOST" >> .env
+            echo "DB_HOST=$DB_HOST" > .env
+            echo "DB_USERNAME=$DB_USERNAME" >> .env
+            echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+            echo "RABBITMQ_HOST=$RABBITMQ_HOST" >> .env
             
-            sudo \$COMPOSE_CMD down -v || true
-            sudo \$COMPOSE_CMD up -d --build
+            sudo $COMPOSE_CMD down -v || true
+            sudo $COMPOSE_CMD up -d --build
             
             echo "⏳ Aguardando backend inicializar..."
             sleep 15
@@ -163,7 +163,7 @@ jobs:
 
           # Consumer de Comprovantes
           if [ -d "$CONSUMER_COMPROVANTE_DIR" ]; then
-            echo "📧 Subindo consumer de comprovantes..."
+            echo "🐰 Iniciando consumer de comprovantes..."
             cd "$CONSUMER_COMPROVANTE_DIR"
             sudo $COMPOSE_CMD down || true
             sudo $COMPOSE_CMD up -d --build
@@ -174,7 +174,7 @@ jobs:
 
           # Consumer de Recuperação de Senha
           if [ -d "$CONSUMER_SENHA_DIR" ]; then
-            echo "🔑 Subindo consumer de recuperação de senha..."
+            echo "🐰 Iniciando consumer de recuperação de senha..."
             cd "$CONSUMER_SENHA_DIR"
             sudo $COMPOSE_CMD -f docker-compose.consumer.yml down || true
             sudo $COMPOSE_CMD -f docker-compose.consumer.yml up -d --build
@@ -273,7 +273,7 @@ jobs:
           " "$KEY_AB" "$HOST_A"
 
           echo "⚙️ Executando script de deploy no Privado B - COM MySQL + RabbitMQ..."
-          retry_ssh "ssh -i ~/private_key.pem -o StrictHostKeyChecking=no $USER@$HOST_B 'RUN_DB=true DB_HOST=localhost DB_USERNAME=mimastore_user DB_PASSWORD=12345 bash /home/$USER/backend/JavaSpringBoot/projetoMima/deploy_on_privado.sh'" "$KEY_AB" "$HOST_A"
+          retry_ssh "ssh -i ~/private_key.pem -o StrictHostKeyChecking=no $USER@$HOST_B 'RUN_DB=true DB_HOST=mimastore-db RABBITMQ_HOST=mimastore-rabbitmq DB_USERNAME=mimastore_user DB_PASSWORD=12345 bash /home/$USER/backend/JavaSpringBoot/projetoMima/deploy_on_privado.sh'" "$KEY_AB" "$HOST_A"
 
           # ---------------------------------------------------------
           # 🧭 Deploy - Zona 2 (C → D)
